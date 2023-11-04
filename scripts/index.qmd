@@ -1,0 +1,394 @@
+---
+title: "QSRR revisited"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+---
+
+# Setup
+
+
+The packages we will use are listed below.
+
+```{r setup, message=FALSE}
+
+library(cmdstanr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(rstan)
+library(tidyr)
+library(dplyr)
+library(posterior)
+library(bayesplot)
+library(GGally)
+
+set.seed(123) ## not required but assures repeatable results
+
+knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+```
+
+# Data
+
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
+
+```{r message=FALSE, warning=FALSE}
+# load data
+data       <- read.csv("../data/database_logk_1026.csv", header = TRUE)
+analytes_names  <- read.csv("../data/database_logk_1026_analyte_names.csv", header = TRUE)
+
+data<-data %>%
+  left_join(analytes_names) %>%
+  mutate(mm_group =case_when(
+             MW_ACD < 200 ~ "MM < 200",
+             MW_ACD < 300 & MW_ACD >= 200 ~ "200 \u2264 MM < 300",
+             MW_ACD < 400 & MW_ACD >= 300 ~ "300 \u2264 MM < 400",
+             .default = "400 \u2264 MM"))
+
+functional_groups = read.csv('../data/checkmol_functional_groups.csv')
+functional_groups_names = read.csv('../data/checkmol_functional_group_names.csv')
+
+# combine nr of caroboxylic acid and carboxyalic acid salt functional groups
+# heterocyclic compounds with more than 6 heterocycles are treated as if they have six
+functional_groups[,76]=functional_groups[,76]+functional_groups[,77]       
+functional_groups[which(functional_groups[,202]>5.5),202] = 6; 
+
+# exclude some functional groups
+idx_excluded <- c(1, 2, 3, 6, 27, 28, 37, 47, 48, 51, 55, 61, 62, 67, 73, 74, 75, 77, 80, 91, 99, 109, 116, 117, 121, 125, 129, 142, 153, 154, 160, 161, 168, 173, 178, 181, 182, 186, 187, 191, 196, 201, 202)
+
+functional_groups_names <- functional_groups_names[-idx_excluded,]
+functional_groups <- functional_groups[,-idx_excluded]
+
+rm(idx_included)
+
+totalnrgroups <- summarise_each(functional_groups, funs(sum))
+
+# remove functional groups not present in the dataset:
+functional_groups <- functional_groups[,which(totalnrgroups!=0)]
+functional_groups_names<- functional_groups_names[which(totalnrgroups!=0),]
+totalnrgroups <- summarise_each(functional_groups, funs(sum))
+
+data_ACD = read.csv('../data/ACD_pKas.csv')
+data_ACD$R = rowSums(data_ACD[,3:5]<14) # No of dissociation steps
+
+```
+
+# Exploratory data analysis
+
+During the exploratory data analysis phase, we create a series of plots to better understand our data.
+
+```{r message=FALSE, warning=FALSE}
+
+ggplot(data, aes(x=fi, y=logk, group=ID)) + 
+  geom_line(aes(color=logP_ACD)) + 
+  facet_wrap(~mm_group, ncol=2) +
+  labs(x = "\u03C6", y = expression(log~k[obs])) + 
+  theme_gray(base_size = 14) + theme(legend.position="none") 
+```
+
+The pH value of the mobile phase was verified experimentally for the purpose of this work. It equaled 2.66 with a standard deviation of 0.19 for the range of acetonitrile contents from 5 to 95%.
+
+```{r message=FALSE, warning=FALSE}
+data_pH <- read.csv("../data/pH.csv",header = TRUE)
+
+ggplot(data=data_pH, aes(x=fi, y=pH)) + labs(x = "\u03C6", y = "pH") + 
+  geom_point() + geom_hline(yintercept=mean(data_pH$pH), color = "red") +
+  geom_hline(yintercept=mean(data_pH$pH)-sd(data_pH$pH), linetype="dashed", color = "red") +
+  geom_hline(yintercept=mean(data_pH$pH)+sd(data_pH$pH), linetype="dashed", color = "red") + 
+  ylim(c(2.0,3.5))
+```
+The values of molecular mass MM were added to the dataset. They were calculated using [ACD/Labs program](www.acdlabs.com) based on the provided structures of analytes. The MM ranged from 73.09 to 656.8.
+
+```{r message=FALSE, warning=FALSE}
+
+df <- data %>% distinct(ID, .keep_all = TRUE) 
+
+p1<-ggplot(data=df)+
+  geom_histogram(aes(x=MW_ACD))+
+  xlab("molecular mass")+
+  ylab("count")
+
+p2<-ggplot(data=df)+
+  geom_histogram(aes(x=logP_ACD))+
+  xlab("logP")+
+  ylab("count")
+
+p1+p2
+
+```
+The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
+
+
+
+
+```{r message=FALSE, warning=FALSE}
+
+sumdata=data.frame(value=apply(functional_groups,2,sum))
+
+sumdata$key=functional_groups_names[,2]
+sumdata <- sumdata[order(sumdata$value),]
+sumdata$split <- rep(c(1,2),each=49)
+
+layout(c(1,2), widths=c(1,3))
+
+p1 <- ggplot(data=sumdata[which(sumdata$split==1),], aes(x=reorder(key, +value), y=value, fill=key)) +
+  geom_bar(fill="gray", stat="identity") + 
+  theme(legend.position = "none",
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) + 
+  coord_flip()+
+  scale_y_continuous(breaks=c(0,5,10))
+
+p2 <- ggplot(data=sumdata[which(sumdata$split==2),], aes(x=reorder(key, +value), y=value, fill=key)) +
+  geom_bar(fill="gray", stat="identity") + 
+  theme(legend.position = "none",
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) + 
+  coord_flip() + scale_y_continuous(trans='log10',breaks=c(1,10,100,1000))
+
+# Combine the plots with a custom layout
+p1 + p2 + plot_layout(design = "1222")
+
+```
+# pKas
+
+```{r}
+pKaslit = data_ACD[,3:5]           # pKa values as predicted by ACD
+pKasliterror = data_ACD[,17:19]    # pKa error as predicted by ACD
+chargesA = abs(data_ACD[,9:12])    # number of ionized groups (anions)
+chargesB = abs(data_ACD[,13:16])   # number of ionized groups (cations)
+charges = chargesA+chargesB                       # absolute charge
+groupsA = (chargesA[,2:3]-chargesA[,1:2])         # acidic group
+groupsB = -(chargesB[,2:3]-chargesB[,1:2])        # basic group
+R = data_ACD$R                                    # number of dissociation steps
+groups = groupsB-groupsA
+logPobs =df$logP_ACD 
+logPobs[526] = mean(logPobs, na.rm = TRUE)
+# identify acidic groups
+idxGroupsA <-which(groupsA!=0,arr.ind = T)
+nGroupsA <- nrow(idxGroupsA)
+pKaslitA<-pKaslit[idxGroupsA]
+
+# identify basic groups
+idxGroupsB <-which(groupsB!=0,arr.ind = T)
+nGroupsB <- nrow(idxGroupsB)
+pKaslitB<-pKaslit[idxGroupsB]
+
+# groups dissociated in the whole pH range
+idxB = which(chargesB[,4]==1)
+idxA = which(chargesA[,1]==1)
+
+nObs <- length(data$ID)
+nAnalytes <- length(unique(data$ID))
+```
+
+
+# Methods
+
+## Model
+
+The data was analyzed using a ...
+
+$$
+\begin{aligned}
+& logk  = \cdot
+\end{aligned}
+$$
+
+
+# Stan
+
+Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linked with R/ [cmdstanr](https://mc-stan.org/cmdstanr/). For the inference we used 500 iterations, 1000 warmup iterations, and 8 Markov chains. The reduce_sum function was selected to accelerate the calculations. It works by parallelizing the execution of a single Stan chain across multiple cores. Convergence diagnostics were checked using Gelman−Rubin statistics and trace plots.
+
+### Initialize variables and parameters
+
+```{r stansetup}
+# create Stan data set:
+
+datastruct <- with(data,
+                  list(nAnalytes=length(unique(data$ID)),
+                       nObs=length(data$ID),
+                       analyte=match(data$ID, unique(data$ID)),
+                       fi=data$fi,
+                       logPobs=logPobs, 
+                       maxR=max(R),
+                       R=R,
+                       nGroupsA=nGroupsA,
+                       nGroupsB=nGroupsB,
+                       pKaslitA=pKaslitA,
+                       pKaslitB=pKaslitB,
+                       idxGroupsA=idxGroupsA,
+                       idxGroupsB=idxGroupsB,
+                       logkobs=data$logk,
+                       run_estimation=1))
+
+# initialize the values for each variable in each chain:
+init <- function(){
+  list(   logkwHat  = rnorm(1,2.2,2),
+          S1Hat    = rnorm(1,4,1),
+          dlogkwHat = rnorm(2,-1,0.125),
+          dS1Hat   = rnorm(2,0,0.5),
+          logS2Hat = rnorm(1,0.3,0.125),
+          beta  = rnorm(2,c(1,0.5),c(0.125,0.5)),
+          alphaHat  = rnorm(2,c(2,-1),0.25),
+          tau   = c(0.25)*exp(rnorm(1, 0, 0.2)),
+          omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
+          rho = matrix(c(1, 0.75, 0.75, 1), nrow=2),
+          kappa = 0.25* exp(rnorm(2, 0, 0.2)),
+          paramN =  cbind(2+0.75*(logPobs-2.2), 4*matrix(1,nAnalytes,1)+0.5*(logPobs-2.2)),
+          dlogkwA = matrix(-1,nGroupsA,1),
+          dlogkwB = matrix(-1,nGroupsB,1),
+          dS1A = matrix(0,nGroupsA,1),
+          dS1B = matrix(0,nGroupsB,1),
+          pKawA = pKaslitA,
+          pKawB = pKaslitB,
+          msigma  = rlnorm(1,log(1),0.2),
+          ssigma  = rlnorm(1,log(0.2),0.2),
+          logsigma   = rnorm(nAnalytes,0,0.2)
+  )
+}
+
+```
+
+### The Stan model:
+
+```{r stancode}
+writeLines(readLines("../model/stan/hplc-qsrr-izo.stan"))
+```
+
+### Fitting the model
+
+We compiled the model using cmdstanr:
+
+```{r stancompile, eval = FALSE}
+mod1 <- cmdstan_model("../model/stan/hplc-qsrr-izo.stan", 
+                      stanc_options = list("O1"))
+```
+
+We used optimization for initial testing:
+
+```{r stanoptimize, eval = FALSE}
+fit_ode <- mod1$optimize(
+  data = datastruct,
+  output_dir = "../stanfiles",
+  init = init
+)
+
+fit_ode$print(max_rows=100)
+```
+
+For local computations one can use cmdstanr:
+
+```{r stansample, eval = FALSE}
+ fit <- mod1$sample(
+   data = datastruct,
+   output_dir = "../stanfiles",
+   init = init,
+   iter_warmup = 1000,
+   iter_sampling = 1000,
+   chains = 4,
+   parallel_chains = 4,
+   refresh = 100,
+   adapt_delta=0.9
+ )
+```
+
+
+```{r stansample, eval = FALSE}
+#' save
+fit$save_object(file = "../stanfiles/fit.RDS")
+
+```
+
+```{r load}
+ #' fit is read back using readRDS - for speed
+ fit <- readRDS("../stanfiles/fit.RDS") 
+```
+
+```{r summary}
+fit$print(c("logkHat","beta","rho","omega", "pilogk1", 
+            "pilogk2", "pilogk3", "pilogk4","pilogk5"), 
+          max_rows = 180)
+```
+
+```{r mcmc_intervals}
+
+Old1<-names(fit$draws(c("pilogk1"),format = "df"))[1:25]
+Old2<-names(fit$draws(c("pilogk2"),format = "df"))[1:25]
+Old3<-names(fit$draws(c("pilogk3"),format = "df"))[1:25]
+Old4<-names(fit$draws(c("pilogk4"),format = "df"))[1:25]
+Old5<-names(fit$draws(c("pilogk5"),format = "df"))[1:25]
+
+New <- as.character(functionalgroupsnames$functional.group.name)
+
+
+mcmc_intervals(fit$draws(c("logkHat")))
+mcmc_intervals(fit$draws(c("beta")))
+mcmc_intervals(fit$draws(c("omega")))
+mcmc_intervals(fit$draws(c("rho[2,1]","rho[3,1]","rho[4,1]","rho[5,1]",
+                           "rho[3,2]","rho[4,2]","rho[5,2]",
+                           "rho[4,3]","rho[5,3]",
+                           "rho[5,4]")))
+names(New)<-Old1
+mcmc_intervals(fit$draws(c("pilogk1")))+
+  scale_y_discrete(labels = New)+
+  ggtitle("zwitter")
+names(New)<-Old2
+mcmc_intervals(fit$draws(c("pilogk2")))+
+  scale_y_discrete(labels = New)+
+  ggtitle("amide")
+names(New)<-Old3
+mcmc_intervals(fit$draws(c("pilogk3")))+
+  scale_y_discrete(labels = New)+
+  ggtitle("amine")
+names(New)<-Old4
+mcmc_intervals(fit$draws(c("pilogk4")))+
+  scale_y_discrete(labels = New)+
+  ggtitle("silica")
+names(New)<-Old5
+mcmc_intervals(fit$draws(c("pilogk5")))+
+  scale_y_discrete(labels = New)+
+  ggtitle("diol")
+
+```
+
+```{r gof}
+draws_df_subset <- fit$draws(format = "df", variable = c("logkCond"))
+
+results <-draws_df_subset %>%
+  slice_sample(n=100) %>%
+  tidybayes::spread_draws(logkCond[i,c]) %>% 
+  group_by(c,i)%>%
+  tidybayes::median_qi(logkPred = logkCond) 
+
+results %>%
+  mutate(logkObs = c(datastruct$logkObs))%>%
+  mutate(ColumnNames=recode(c,
+                                '1' = 'zwitter',
+                                '2' = 'amide',
+                                '3' = 'amine',
+                                '4' = 'silica',
+                                '5' = 'diol')) %>%
+ ggplot(aes(x=logkPred,y=logkObs)) + 
+   geom_point()+
+   xlab("Predicted") +
+   ylab("Observed") +
+ facet_wrap(~ColumnNames)
+
+```
+
+
+
+```{r info}
+sessionInfo()
+```
