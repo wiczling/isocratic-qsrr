@@ -1,3 +1,7 @@
+# need to add charges for acids and bases that do not change
+# chargesA[,1] and chargesB[,4]
+
+
 functions {
 
  // credit http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/
@@ -56,6 +60,10 @@ data {
   vector[nGroupsB] pKaslitB;
   array[nGroupsA,2] int idxGroupsA;
   array[nGroupsB,2] int idxGroupsB;
+  int<lower=1> nA0;
+  int<lower=1> nB0;
+  array[nA0] int idxA0;
+  array[nB0] int idxB0;                 
   vector[nObs] logkobs;                   // observed retention factors 
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
 }
@@ -80,7 +88,12 @@ parameters {
   vector[nGroupsB] dlogkwB;
   vector[nGroupsA] dS1A;
   vector[nGroupsB] dS1B;
-
+  
+  vector[nA0] dlogkwA0;
+  vector[nB0] dlogkwB0;
+  vector[nA0] dS1A0;
+  vector[nB0] dS1B0;
+  
   // Dissociation
   vector[nGroupsA] pKawA;
   vector[nGroupsB] pKawB;
@@ -105,7 +118,7 @@ transformed parameters {
   vector[nGroupsA] alphaA;
   vector[nGroupsB] alphaB;
   
-  Omega = quad_form_diag(rho, omega[1 : 2]); // diag_matrix(omega) * rho * diag_matrix(omega)
+  Omega = quad_form_diag(rho, omega); // diag_matrix(omega) * rho * diag_matrix(omega)
   
   for (i in 1 : nAnalytes) {
     miu[i, 1] = logkwHat + beta[1] * (logPobs[i]-2.2);
@@ -115,37 +128,96 @@ transformed parameters {
   for (i in 1 : nAnalytes) { 
    logkwx[i, : ]  =  paramN[i,1]*[1,1,1,1]';
   }
+  
+   for (d in 1 : nA0) {
+     logkwx[idxA0[d], 1] += dlogkwA0[d];
+     logkwx[idxA0[d], 2] += dlogkwA0[d];
+     logkwx[idxA0[d], 3] += dlogkwA0[d];
+     logkwx[idxA0[d], 4] += dlogkwA0[d]; 
+   }
+    for (d in 1 : nB0) {
+     logkwx[idxB0[d], 1] += dlogkwB0[d];
+     logkwx[idxB0[d], 2] += dlogkwB0[d];
+     logkwx[idxB0[d], 3] += dlogkwB0[d];
+     logkwx[idxB0[d], 4] += dlogkwB0[d]; 
+   }
    
   for (d in 1 : nGroupsA) {
-    logkwx[idxGroupsA[d,1], 1+idxGroupsA[d,2]] += dlogkwA[d];
     if (idxGroupsA[d,2]==1) {
-        logkwx[idxGroupsA[d,1], 4] += dlogkwA[d];
+      logkwx[idxGroupsA[d,1], 2] += dlogkwA[d];
+      logkwx[idxGroupsA[d,1], 3] += dlogkwA[d];
+      logkwx[idxGroupsA[d,1], 4] += dlogkwA[d];
+   }
+   if (idxGroupsA[d,2]==2) {
+      logkwx[idxGroupsA[d,1], 3] += dlogkwA[d];
+      logkwx[idxGroupsA[d,1], 4] += dlogkwA[d];
+   }
+   if (idxGroupsA[d,2]==3) {
+      logkwx[idxGroupsA[d,1], 4] += dlogkwA[d];
    }}
   
   for (d in 1 : nGroupsB) {
-    logkwx[idxGroupsB[d,1], idxGroupsB[d,2]] += dlogkwB[d];
-    if (idxGroupsB[d,2]==2) {
-    logkwx[idxGroupsB[d,1], 1] += dlogkwB[d];
-    }
-    }
-
+      if (idxGroupsB[d,2]==3) {
+      logkwx[idxGroupsB[d,1], 3] += dlogkwB[d];
+      logkwx[idxGroupsB[d,1], 2] += dlogkwB[d];
+      logkwx[idxGroupsB[d,1], 1] += dlogkwB[d];
+   }
+   if (idxGroupsB[d,2]==2) {
+      logkwx[idxGroupsB[d,1], 2] += dlogkwB[d];
+      logkwx[idxGroupsB[d,1], 1] += dlogkwB[d];
+   }
+   if (idxGroupsB[d,2]==1) {
+      logkwx[idxGroupsB[d,1], 1] += dlogkwB[d];
+   }}
+    
+    
   for (i in 1 : nAnalytes) { 
    S1x[i, : ]  =  paramN[i,2]*[1,1,1,1]';
    }
    
+   for (d in 1 : nA0) {
+     S1x[idxA0[d], 1] += dS1A0[d];
+     S1x[idxA0[d], 2] += dS1A0[d];
+     S1x[idxA0[d], 3] += dS1A0[d];
+     S1x[idxA0[d], 4] += dS1A0[d]; 
+   }
+   
+   for (d in 1 : nB0) {
+     S1x[idxB0[d], 1] += dS1B0[d];
+     S1x[idxB0[d], 2] += dS1B0[d];
+     S1x[idxB0[d], 3] += dS1B0[d];
+     S1x[idxB0[d], 4] += dS1B0[d]; 
+   }
+   
   for (d in 1 : nGroupsA) {
-   S1x[idxGroupsA[d,1], 1+idxGroupsA[d,2]] += dS1A[d];
-  if (idxGroupsA[d,2]==1) {
-   S1x[idxGroupsA[d,1], 4] += dS1A[d];
+    if (idxGroupsA[d,2]==1) {
+      S1x[idxGroupsA[d,1], 2] += dS1A[d];
+      S1x[idxGroupsA[d,1], 3] += dS1A[d];
+      S1x[idxGroupsA[d,1], 4] += dS1A[d];
+   }
+   if (S1x[d,2]==2) {
+      S1x[idxGroupsA[d,1], 3] += dS1A[d];
+      S1x[idxGroupsA[d,1], 4] += dS1A[d];
+   }
+   if (idxGroupsA[d,2]==3) {
+      S1x[idxGroupsA[d,1], 4] += dS1A[d];
    }}
   
   for (d in 1 : nGroupsB) {
-  S1x[idxGroupsB[d,1], idxGroupsB[d,2]] += dS1B[d];
-  if (idxGroupsB[d,2]==2) {
-    S1x[idxGroupsB[d,1], 1] += dS1B[d];
-  }} 
+      if (idxGroupsB[d,2]==1) {
+      S1x[idxGroupsB[d,1], 1] += dS1B[d];
+      S1x[idxGroupsB[d,1], 2] += dS1B[d];
+      S1x[idxGroupsB[d,1], 3] += dS1B[d];
+   }
+   if (idxGroupsB[d,2]==2) {
+      S1x[idxGroupsB[d,1], 1] += dS1B[d];
+      S1x[idxGroupsB[d,1], 2] += dS1B[d];
+   }
+   if (idxGroupsB[d,2]==3) {
+      S1x[idxGroupsB[d,1], 1] += dS1B[d];
+   }}
   
-  S2x = 10^(logS2Hat);
+  S2x = 10^logS2Hat;
 
   for (i in 1 : nAnalytes) { 
    pKawx[i, : ]  = [0,0,0]';
@@ -199,12 +271,16 @@ model {
   dlogkwB ~ normal(dlogkwHat[2], kappa[1]);
   dS1A ~ normal(dS1Hat[1], kappa[2]);
   dS1B ~ normal(dS1Hat[2], kappa[2]);
-
+  dlogkwA0 ~ normal(dlogkwHat[1], kappa[1]);
+  dlogkwB0 ~ normal(dlogkwHat[2], kappa[1]);
+  dS1A0 ~ normal(dS1Hat[1], kappa[2]);
+  dS1B0 ~ normal(dS1Hat[2], kappa[2]);
+  
   pKawA ~ normal(pKaslitA, tau);
   pKawB ~ normal(pKaslitB, tau);
 
   msigma ~ normal(0,0.1);
-  ssigma ~ normal(0,1);
+  ssigma ~ normal(0,0.2);
   logsigma  ~ normal(log(msigma),ssigma); 
   
   if (run_estimation == 1) {
