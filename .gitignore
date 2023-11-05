@@ -49,7 +49,6 @@ po/*~
 rsconnect/
 stanfiles/
 matlab/
-/Data/similarity-matrix.csv
 
 # exe files
 *.exe
