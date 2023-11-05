@@ -1,7 +1,3 @@
-# need to add charges for acids and bases that do not change
-# chargesA[,1] and chargesB[,4]
-
-
 functions {
 
  // credit http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/
@@ -34,8 +30,12 @@ functions {
              log1p_exp(pHmpKa[1] + log1p_exp(pHmpKa[2]));
     } else if (R == 3) {
       lnki = logkix[1] +
-             log1p_exp(pHmpKa[1]+logkix[2]-logkix[1] + log1p_exp(pHmpKa[2]+logkix[3]-logkix[2] + log1p_exp(pHmpKa[3]+logkix[4]-logkix[3]))) -
-             log1p_exp(pHmpKa[1] + log1p_exp(pHmpKa[2] + log1p_exp(pHmpKa[3])));
+             log1p_exp(pHmpKa[1]+logkix[2]-logkix[1] + 
+                            log1p_exp(pHmpKa[2]+logkix[3]-logkix[2] +
+                            log1p_exp(pHmpKa[3]+logkix[4]-logkix[3]))) -
+             log1p_exp(pHmpKa[1] + 
+                           log1p_exp(pHmpKa[2] +
+                           log1p_exp(pHmpKa[3])));
     }
     
     logki = lnki/log(10);
@@ -204,16 +204,16 @@ transformed parameters {
    }}
   
   for (d in 1 : nGroupsB) {
-      if (idxGroupsB[d,2]==1) {
-      S1x[idxGroupsB[d,1], 1] += dS1B[d];
-      S1x[idxGroupsB[d,1], 2] += dS1B[d];
+      if (idxGroupsB[d,2]==3) {
       S1x[idxGroupsB[d,1], 3] += dS1B[d];
+      S1x[idxGroupsB[d,1], 2] += dS1B[d];
+      S1x[idxGroupsB[d,1], 1] += dS1B[d];
    }
    if (idxGroupsB[d,2]==2) {
-      S1x[idxGroupsB[d,1], 1] += dS1B[d];
       S1x[idxGroupsB[d,1], 2] += dS1B[d];
+      S1x[idxGroupsB[d,1], 1] += dS1B[d];
    }
-   if (idxGroupsB[d,2]==3) {
+   if (idxGroupsB[d,2]==1) {
       S1x[idxGroupsB[d,1], 1] += dS1B[d];
    }}
   
@@ -243,7 +243,7 @@ transformed parameters {
    pKawx[analyte[z],:], 
    alphax[analyte[z],:], 
    R[analyte[z]],
-   fi[analyte[z]]);
+   fi[z]);
   }
   
 }
@@ -279,7 +279,7 @@ model {
   pKawA ~ normal(pKaslitA, tau);
   pKawB ~ normal(pKaslitB, tau);
 
-  msigma ~ normal(0,0.1);
+  msigma ~ normal(0,0.01);
   ssigma ~ normal(0,0.2);
   logsigma  ~ normal(log(msigma),ssigma); 
   
