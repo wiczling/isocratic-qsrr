@@ -50,6 +50,7 @@ smiles <- read.csv("../data/smiles1026_kekulized.smi", sep = "\t", header = FALS
 simMat <- ms.compute.sim.matrix(smiles$V1)
 write.csv(simMat,'../data/similarity-matrix.csv') 
 
+
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -57,7 +58,7 @@ write.csv(simMat,'../data/similarity-matrix.csv')
 data       <- read.csv("../data/database_logk_1026.csv", header = TRUE)
 analytes_names  <- read.csv("../data/database_logk_1026_analyte_names.csv", header = TRUE)
 
-simMat <-read.csv("../data/similarity-matrix.csv") %>%
+simMat <-read.csv("../data/similarity-matrix-ltri.csv")%>%
   select(-X)
 
 data<-data %>%
