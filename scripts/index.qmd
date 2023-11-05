@@ -185,6 +185,9 @@ nGroupsB <- nrow(idxGroupsB)
 pKaslitB<-pKaslit[idxGroupsB]
 
 # groups dissociated in the whole pH range
+chargesA0 <- chargesA[,1]
+chargesB0 <- chargesB[,max(R)]
+
 idxA0 = c(which(chargesA0==1), which(chargesA0==2))
 idxB0 = c(which(chargesB0==1), which(chargesB0==2))
 
@@ -264,6 +267,10 @@ init <- function(){
           dlogkwB = matrix(-1,nGroupsB,1),
           dS1A = matrix(0,nGroupsA,1),
           dS1B = matrix(0,nGroupsB,1),
+          dlogkwA0 = matrix(-1,nGroupsA,1),
+          dlogkwB0 = matrix(-1,nGroupsB,1),
+          dS1A0 = matrix(0,nGroupsA,1),
+          dS1B0 = matrix(0,nGroupsB,1),
           pKawA = pKaslitA,
           pKawB = pKaslitB,
           msigma  = rlnorm(1,log(0.1),0.2),
@@ -301,6 +308,22 @@ fit_ode <- mod1$optimize(
 fit_ode$print(max_rows=100)
 ```
 
+```{r odeplots, eval=FALSE}
+data$logkpred<-fit_ode$mle("logkx")
+
+datax<-data %>%
+  filter(ID %in% c(20:30))
+
+ggplot(datax, aes(x=fi, y=logk)) + 
+         geom_point() + 
+  geom_line(aes(x=fi, y=logkpred)) + 
+  facet_wrap(~ID) +
+  labs(x = "\u03C6", y = expression(logk)) + 
+  theme_gray(base_size = 14) + theme(legend.position="none")
+
+
+```
+
 For local computations one can use cmdstanr:
 
 ```{r stansample, eval = FALSE}
@@ -308,18 +331,14 @@ For local computations one can use cmdstanr:
    data = datastruct,
    output_dir = "../stanfiles",
    init = init,
-   iter_warmup = 200,
-   iter_sampling = 100,
+   iter_warmup = 500,
+   iter_sampling = 250,
    chains = 4,
    parallel_chains = 4,
    refresh = 100,
    adapt_delta=0.9
  )
-```
 
-
-```{r stansample, eval = FALSE}
-#' save
 fit$save_object(file = "../stanfiles/fit.RDS")
 
 ```
@@ -333,69 +352,42 @@ fit$save_object(file = "../stanfiles/fit.RDS")
 fit$print(max_rows = 180)
 ```
 
-```{r mcmc_intervals}
-
-Old1<-names(fit$draws(c("pilogk1"),format = "df"))[1:25]
-Old2<-names(fit$draws(c("pilogk2"),format = "df"))[1:25]
-Old3<-names(fit$draws(c("pilogk3"),format = "df"))[1:25]
-Old4<-names(fit$draws(c("pilogk4"),format = "df"))[1:25]
-Old5<-names(fit$draws(c("pilogk5"),format = "df"))[1:25]
-
-New <- as.character(functionalgroupsnames$functional.group.name)
-
-
-mcmc_intervals(fit$draws(c("logkHat")))
-mcmc_intervals(fit$draws(c("beta")))
-mcmc_intervals(fit$draws(c("omega")))
-mcmc_intervals(fit$draws(c("rho[2,1]","rho[3,1]","rho[4,1]","rho[5,1]",
-                           "rho[3,2]","rho[4,2]","rho[5,2]",
-                           "rho[4,3]","rho[5,3]",
-                           "rho[5,4]")))
-names(New)<-Old1
-mcmc_intervals(fit$draws(c("pilogk1")))+
-  scale_y_discrete(labels = New)+
-  ggtitle("zwitter")
-names(New)<-Old2
-mcmc_intervals(fit$draws(c("pilogk2")))+
-  scale_y_discrete(labels = New)+
-  ggtitle("amide")
-names(New)<-Old3
-mcmc_intervals(fit$draws(c("pilogk3")))+
-  scale_y_discrete(labels = New)+
-  ggtitle("amine")
-names(New)<-Old4
-mcmc_intervals(fit$draws(c("pilogk4")))+
-  scale_y_discrete(labels = New)+
-  ggtitle("silica")
-names(New)<-Old5
-mcmc_intervals(fit$draws(c("pilogk5")))+
-  scale_y_discrete(labels = New)+
-  ggtitle("diol")
-
-```
-
-```{r gof}
-draws_df_subset <- fit$draws(format = "df", variable = c("logkCond"))
+```{r plots}
+draws_df_subset <- fit$draws(format = "df", variable = c("logkx"))
 
 results <-draws_df_subset %>%
-  slice_sample(n=100) %>%
-  tidybayes::spread_draws(logkCond[i,c]) %>% 
-  group_by(c,i)%>%
-  tidybayes::median_qi(logkPred = logkCond) 
+  slice_sample(n=200) %>%
+  tidybayes::spread_draws(logkx[i]) %>% 
+  group_by(i)%>%
+  tidybayes::median_qi(logkpred = logkx) 
 
-results %>%
-  mutate(logkObs = c(datastruct$logkObs))%>%
-  mutate(ColumnNames=recode(c,
-                                '1' = 'zwitter',
-                                '2' = 'amide',
-                                '3' = 'amine',
-                                '4' = 'silica',
-                                '5' = 'diol')) %>%
- ggplot(aes(x=logkPred,y=logkObs)) + 
-   geom_point()+
-   xlab("Predicted") +
-   ylab("Observed") +
- facet_wrap(~ColumnNames)
+data$logkpred<-results$logkpred
+data$logkpredl<-results$.lower
+data$logkpredu<-results$.upper
+
+datax<-data %>%
+  filter(ID %in% c(20:30))
+
+ggplot(datax) + 
+  geom_point(aes(x=fi, y=logk)) + 
+  geom_line(aes(x=fi, y=logkpred)) + 
+  geom_ribbon(aes(x = fi, ymin = logkpredl, ymax = logkpredu), alpha = 0.25)+
+  facet_wrap(~ID) +
+  labs(x = "\u03C6", y = expression(logk)) + 
+  theme_gray(base_size = 14) + theme(legend.position="none")
+
+
+ggplot(data) + 
+  geom_point(aes(x=logkpred, y=logk, group=ID)) + 
+  labs(x = "logkpred", y = expression(logk)) + 
+  theme_gray(base_size = 14) + theme(legend.position="none")
+```
+
+```{r mcmc_intervals}
+
+mcmc_intervals(fit$draws(c("logkwHat")))
+mcmc_intervals(fit$draws(c("beta")))
+mcmc_intervals(fit$draws(c("omega")))
 
 ```
 
