@@ -42,10 +42,23 @@ knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, com
 
 We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
 
+
+```{r eval=FALSE}
+#' R version needs to be higher
+#' Rnsim package
+smiles <- read.csv("../data/smiles1026_kekulized.smi", sep = "\t", header = FALSE)
+simMat <- ms.compute.sim.matrix(smiles$V1)
+write.csv(simMat,'../data/similarity-matrix.csv') 
+
+```
+
 ```{r message=FALSE, warning=FALSE}
 # load data
 data       <- read.csv("../data/database_logk_1026.csv", header = TRUE)
 analytes_names  <- read.csv("../data/database_logk_1026_analyte_names.csv", header = TRUE)
+
+simMat <-read.csv("../data/similarity-matrix.csv") %>%
+  select(-X)
 
 data<-data %>%
   left_join(analytes_names) %>%
