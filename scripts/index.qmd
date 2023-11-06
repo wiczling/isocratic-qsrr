@@ -45,12 +45,10 @@ We used a publicly available [dataset](www.retentionprediction.org/hplc/database
 
 ```{r eval=FALSE}
 #' R version needs to be higher
-#' Rnsim package
+#' Rxnsim package
 smiles <- read.csv("../data/smiles1026_kekulized.smi", sep = "\t", header = FALSE)
 simMat <- ms.compute.sim.matrix(smiles$V1)
 write.csv(simMat,'../data/similarity-matrix.csv') 
-
-
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -60,6 +58,7 @@ analytes_names  <- read.csv("../data/database_logk_1026_analyte_names.csv", head
 
 simMat <-read.csv("../data/similarity-matrix-ltri.csv")%>%
   select(-X)
+rownames(simMat)<-colnames(simMat)
 
 data<-data %>%
   left_join(analytes_names) %>%
@@ -100,6 +99,21 @@ data_ACD$R = rowSums(data_ACD[,3:5]<14) # No of dissociation steps
 # Exploratory data analysis
 
 During the exploratory data analysis phase, we create a series of plots to better understand our data.
+
+
+```{r}
+library(ggcorrplot)
+ggcorrplot((simMat[001:100,001:100]-0.5)*2)
+ggcorrplot((simMat[101:200,101:200]-0.5)*2)
+ggcorrplot((simMat[201:300,201:300]-0.5)*2)
+ggcorrplot((simMat[301:400,301:400]-0.5)*2)
+ggcorrplot((simMat[401:500,401:500]-0.5)*2)
+ggcorrplot((simMat[501:600,501:600]-0.5)*2)
+ggcorrplot((simMat[601:700,601:700]-0.5)*2)
+ggcorrplot((simMat[701:800,701:800]-0.5)*2)
+ggcorrplot((simMat[801:900,801:900]-0.5)*2)
+ggcorrplot((simMat[901:1026,901:1026]-0.5)*2)
+```
 
 ```{r message=FALSE, warning=FALSE}
 
