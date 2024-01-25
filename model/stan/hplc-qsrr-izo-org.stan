@@ -1,6 +1,5 @@
  // Simplified version of stan code that handles pKa as a predictor
- // one sigma
- // pKas and alphas without a slope
+ // 
 
 functions {
 
@@ -72,27 +71,7 @@ data {
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
 }
 
-transformed data{
-  
-  array[nAnalytes] vector[maxR] alphax;
-  array[nAnalytes] vector[maxR] pKawx;
-  
-    for (i in 1 : nAnalytes) { 
-   pKawx[i, : ]  = [0,0,0]';
-   alphax[i, : ]  = [0,0,0]'; 
-  }
-  
-  for (d in 1 : nGroupsA) {
-  pKawx[idxGroupsA[d,1], idxGroupsA[d,2]] = pKaslitA[d];
-  alphax[idxGroupsA[d,1], idxGroupsA[d,2]]= 2;
-  }
-  
-  for (d in 1 : nGroupsB) {
-  pKawx[idxGroupsB[d,1], idxGroupsB[d,2]] = pKaslitB[d];
-  alphax[idxGroupsB[d,1], idxGroupsB[d,2]]= -1;
-}
-  
-}
+
 parameters {
   
   real logkwHat; // typical logkw [Neutral]
@@ -101,38 +80,13 @@ parameters {
   array[2] real dS1Hat;   // effect of dissociation on S1 [Acids, Bases] 
   real logS2Hat; // typical value of S2a (log10 scale)
   vector[2] beta; // effect of logP on logkw and S1
+  array[2] real alphaHat;   // effect of ACN on pKa [Acids, Bases]
+  real<lower=0> tau;   // sd for between analyte variability of pKa's
   vector<lower=0>[2] omega; // sd of BAV [logkw,S1m]
   corr_matrix[2] rho;      // correlation matrix [logkw vs. S1m] 
   vector<lower=0>[2] kappa; // sd of BAV [dlogkw,dS1a]
   
-    // residual variability
-  real<lower=0> sigma;   // typical sigma
-  
   array[nAnalytes] vector[2] paramN;
-  vector[nGroupsA] etadlogkwA;
-  vector[nGroupsB] etadlogkwB;
-  vector[nGroupsA] etadS1A;
-  vector[nGroupsB] etadS1B;
-  
-  vector[nA0] etadlogkwA0;
-  vector[nB0] etadlogkwB0;
-  vector[nA0] etadS1A0;
-  vector[nB0] etadS1B0;
-}
-
-transformed parameters {
-  
-  cov_matrix[2] Omega;
-  array[nAnalytes] vector[2] miu;
-  array[nAnalytes] vector[maxR + 1] logkwx;
-  array[nAnalytes] vector[maxR + 1] S1x;
-  real S2x;
-
-  vector[nObs] logkx;
-  
-  vector[nGroupsA] alphaA;
-  vector[nGroupsB] alphaB;
-  
   vector[nGroupsA] dlogkwA;
   vector[nGroupsB] dlogkwB;
   vector[nGroupsA] dS1A;
@@ -142,6 +96,30 @@ transformed parameters {
   vector[nB0] dlogkwB0;
   vector[nA0] dS1A0;
   vector[nB0] dS1B0;
+  
+  // Dissociation
+  vector[nGroupsA] pKawA;
+  vector[nGroupsB] pKawB;
+
+  // residual variability
+  real<lower=0> msigma;   // typical sigma for the 1st column
+  real<lower=0> ssigma;
+  vector[nAnalytes] logsigma; 
+}
+transformed parameters {
+  
+  cov_matrix[2] Omega;
+  array[nAnalytes] vector[2] miu;
+  array[nAnalytes] vector[maxR + 1] logkwx;
+  array[nAnalytes] vector[maxR + 1] S1x;
+  real S2x;
+  array[nAnalytes] vector[maxR] alphax;
+  array[nAnalytes] vector[maxR] pKawx;
+  vector[nObs] sigmax;
+  vector[nObs] logkx;
+  
+  vector[nGroupsA] alphaA;
+  vector[nGroupsB] alphaB;
   
   Omega = quad_form_diag(rho, omega); // diag_matrix(omega) * rho * diag_matrix(omega)
   
@@ -154,16 +132,13 @@ transformed parameters {
    logkwx[i, : ]  =  paramN[i,1]*[1,1,1,1]';
   }
   
-
-  for (d in 1 : nA0) {
-     dlogkwA0[d] = dlogkwHat[1]+ kappa[1]*etadlogkwA0[d];
+   for (d in 1 : nA0) {
      logkwx[idxA0[d], 1] += dlogkwA0[d];
      logkwx[idxA0[d], 2] += dlogkwA0[d];
      logkwx[idxA0[d], 3] += dlogkwA0[d];
      logkwx[idxA0[d], 4] += dlogkwA0[d]; 
    }
     for (d in 1 : nB0) {
-     dlogkwB0[d] = dlogkwHat[2]+ kappa[1]*etadlogkwB0[d];
      logkwx[idxB0[d], 1] += dlogkwB0[d];
      logkwx[idxB0[d], 2] += dlogkwB0[d];
      logkwx[idxB0[d], 3] += dlogkwB0[d];
@@ -171,7 +146,6 @@ transformed parameters {
    }
    
   for (d in 1 : nGroupsA) {
-      dlogkwA[d] = dlogkwHat[1]+ kappa[1]*etadlogkwA[d];
     if (idxGroupsA[d,2]==1) {
       logkwx[idxGroupsA[d,1], 2] += dlogkwA[d];
       logkwx[idxGroupsA[d,1], 3] += dlogkwA[d];
@@ -186,7 +160,6 @@ transformed parameters {
    }}
   
   for (d in 1 : nGroupsB) {
-      dlogkwB[d] = dlogkwHat[2]+ kappa[1]*etadlogkwB[d];
       if (idxGroupsB[d,2]==3) {
       logkwx[idxGroupsB[d,1], 3] += dlogkwB[d];
       logkwx[idxGroupsB[d,1], 2] += dlogkwB[d];
@@ -204,9 +177,8 @@ transformed parameters {
   for (i in 1 : nAnalytes) { 
    S1x[i, : ]  =  paramN[i,2]*[1,1,1,1]';
    }
-
+   
    for (d in 1 : nA0) {
-     dS1A0[d] = dS1Hat[1]+ kappa[2]*etadS1A0[d];
      S1x[idxA0[d], 1] += dS1A0[d];
      S1x[idxA0[d], 2] += dS1A0[d];
      S1x[idxA0[d], 3] += dS1A0[d];
@@ -214,7 +186,6 @@ transformed parameters {
    }
    
    for (d in 1 : nB0) {
-     dS1B0[d] = dS1Hat[2]+ kappa[2]*etadS1B0[d];
      S1x[idxB0[d], 1] += dS1B0[d];
      S1x[idxB0[d], 2] += dS1B0[d];
      S1x[idxB0[d], 3] += dS1B0[d];
@@ -222,7 +193,6 @@ transformed parameters {
    }
    
   for (d in 1 : nGroupsA) {
-    dS1A[d] = dS1Hat[1]+ kappa[2]*etadS1A[d];
     if (idxGroupsA[d,2]==1) {
       S1x[idxGroupsA[d,1], 2] += dS1A[d];
       S1x[idxGroupsA[d,1], 3] += dS1A[d];
@@ -237,7 +207,6 @@ transformed parameters {
    }}
   
   for (d in 1 : nGroupsB) {
-      dS1B[d] = dS1Hat[2]+ kappa[2]*etadS1B[d];
       if (idxGroupsB[d,2]==3) {
       S1x[idxGroupsB[d,1], 3] += dS1B[d];
       S1x[idxGroupsB[d,1], 2] += dS1B[d];
@@ -252,8 +221,25 @@ transformed parameters {
    }}
   
   S2x = 10^logS2Hat;
+
+  for (i in 1 : nAnalytes) { 
+   pKawx[i, : ]  = [0,0,0]';
+   alphax[i, : ]  = [0,0,0]'; 
+  }
+  
+  for (d in 1 : nGroupsA) {
+  pKawx[idxGroupsA[d,1], idxGroupsA[d,2]] = pKawA[d];
+  alphax[idxGroupsA[d,1], idxGroupsA[d,2]]= alphaHat[1];
+  }
+  
+  for (d in 1 : nGroupsB) {
+  pKawx[idxGroupsB[d,1], idxGroupsB[d,2]] = pKawB[d];
+  alphax[idxGroupsB[d,1], idxGroupsB[d,2]]= alphaHat[2];
+  }
    
   for (z in 1 : nObs) { 
+   sigmax[z] = exp(logsigma[analyte[z]]);
+   
    logkx[z] = funlogki(logkwx[analyte[z],:],
    S1x[analyte[z],:], 
    S2x, 
@@ -273,6 +259,9 @@ model {
   logS2Hat ~ normal(0.3, 0.125);
   beta[{1}] ~ normal(1, 0.125);
   beta[{2}] ~ normal(0.5, 0.5);
+  alphaHat[{1}] ~ normal(2, 0.25);
+  alphaHat[{2}] ~ normal(-1, 0.25);
+  tau ~ normal(0, 0.25);
   omega ~ normal(0, 2);
   rho ~ lkj_corr_point_lower_tri(0.75, 0.125);
   kappa ~ normal(0, 0.25);
@@ -281,18 +270,23 @@ model {
   paramN[i] ~ multi_normal(miu[i,1:2], Omega);
   }
   
-  etadlogkwA ~ normal(0,1);
-  etadlogkwB ~ normal(0,1);
-  etadS1A ~ normal(0,1);
-  etadS1B ~ normal(0,1);
-  etadlogkwA0 ~ normal(0,1);
-  etadlogkwB0 ~ normal(0,1);
-  etadS1A0 ~ normal(0,1);
-  etadS1B0 ~ normal(0,1);
+  dlogkwA ~ normal(dlogkwHat[1], kappa[1]);
+  dlogkwB ~ normal(dlogkwHat[2], kappa[1]);
+  dS1A ~ normal(dS1Hat[1], kappa[2]);
+  dS1B ~ normal(dS1Hat[2], kappa[2]);
+  dlogkwA0 ~ normal(dlogkwHat[1], kappa[1]);
+  dlogkwB0 ~ normal(dlogkwHat[2], kappa[1]);
+  dS1A0 ~ normal(dS1Hat[1], kappa[2]);
+  dS1B0 ~ normal(dS1Hat[2], kappa[2]);
+  
+  pKawA ~ normal(pKaslitA, tau);
+  pKawB ~ normal(pKaslitB, tau);
 
-  sigma ~ normal(0,0.1);
+  msigma ~ normal(0,0.01);
+  ssigma ~ normal(0,0.2);
+  logsigma  ~ normal(log(msigma),ssigma); 
   
   if (run_estimation == 1) {
-   logkobs ~ student_t(7,logkx, sigma);
+   logkobs ~ student_t(7,logkx, sigmax);
   }
 }

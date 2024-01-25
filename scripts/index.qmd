@@ -32,7 +32,7 @@ library(dplyr)
 library(posterior)
 library(bayesplot)
 library(GGally)
-
+library(reshape2)
 set.seed(123) ## not required but assures repeatable results
 
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
@@ -94,6 +94,7 @@ totalnrgroups <- summarise_each(functional_groups, funs(sum))
 data_ACD = read.csv('../data/ACD_pKas.csv')
 data_ACD$R = rowSums(data_ACD[,3:5]<14) # No of dissociation steps
 
+
 ```
 
 # Exploratory data analysis
@@ -113,6 +114,14 @@ ggcorrplot((simMat[601:700,601:700]-0.5)*2)
 ggcorrplot((simMat[701:800,701:800]-0.5)*2)
 ggcorrplot((simMat[801:900,801:900]-0.5)*2)
 ggcorrplot((simMat[901:1026,901:1026]-0.5)*2)
+
+x=which(simMat>0.95 & simMat!=1, arr.ind = TRUE)
+
+pair_names = cbind(analytes_names$Analyte[unname(x[,1])],analytes_names$Analyte[unname(x[,2])])
+                              
+selected_compounds = unique(c(x))
+
+ggcorrplot((simMat[selected_compounds,selected_compounds]-0.5)*2)
 ```
 
 ```{r message=FALSE, warning=FALSE}
@@ -285,25 +294,19 @@ init <- function(){
           dS1Hat   = rnorm(2,0,0.5),
           logS2Hat = rnorm(1,0.3,0.125),
           beta  = rnorm(2,c(1,0.5),c(0.125,0.5)),
-          alphaHat  = rnorm(2,c(2,-1),0.25),
-          tau   = c(0.25)*exp(rnorm(1, 0, 0.2)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho = matrix(c(1, 0.75, 0.75, 1), nrow=2),
           kappa = 0.25* exp(rnorm(2, 0, 0.2)),
           paramN =  cbind(2+0.75*(logPobs-2.2), 4*matrix(1,nAnalytes,1)+0.5*(logPobs-2.2)),
-          dlogkwA = matrix(-1,nGroupsA,1),
-          dlogkwB = matrix(-1,nGroupsB,1),
-          dS1A = matrix(0,nGroupsA,1),
-          dS1B = matrix(0,nGroupsB,1),
-          dlogkwA0 = matrix(-1,nGroupsA,1),
-          dlogkwB0 = matrix(-1,nGroupsB,1),
-          dS1A0 = matrix(0,nGroupsA,1),
-          dS1B0 = matrix(0,nGroupsB,1),
-          pKawA = pKaslitA,
-          pKawB = pKaslitB,
-          msigma  = rlnorm(1,log(0.1),0.2),
-          ssigma  = rlnorm(1,log(0.2),0.2),
-          logsigma   = rnorm(nAnalytes,0,0.2)
+          etadlogkwA = matrix(0,nGroupsA,1),
+          etadlogkwB = matrix(0,nGroupsB,1),
+          etadS1A = matrix(0,nGroupsA,1),
+          etadS1B = matrix(0,nGroupsB,1),
+          etadlogkwA0 = matrix(0,nGroupsA,1),
+          etadlogkwB0 = matrix(0,nGroupsB,1),
+          etadS1A0 = matrix(0,nGroupsA,1),
+          etadS1B0 = matrix(0,nGroupsB,1),
+          sigma  = rlnorm(1,log(0.1),0.2)
   )
 }
 
@@ -320,7 +323,7 @@ writeLines(readLines("../model/stan/hplc-qsrr-izo.stan"))
 We compiled the model using cmdstanr:
 
 ```{r stancompile, eval = FALSE}
-mod1 <- cmdstan_model("../model/stan/hplc-qsrr-izo.stan", 
+mod1 <- cmdstan_model('../model/stan/hplc-qsrr-izo.stan', 
                       stanc_options = list("O1"))
 ```
 
@@ -329,7 +332,7 @@ We used optimization for initial testing:
 ```{r stanoptimize, eval = FALSE}
 fit_ode <- mod1$optimize(
   data = datastruct,
-  output_dir = "../stanfiles",
+  output_dir = '../stanfiles',
   init = init
 )
 
@@ -351,6 +354,90 @@ ggplot(datax, aes(x=fi, y=logk)) +
 
 
 ```
+
+
+We performed out computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
+
+1.  we dumped the necessary data to .json format
+
+```{r dumpfiles, eval = FALSE}
+write_stan_json(datastruct, "../model/stan/standata.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-1.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-2.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-3.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-4.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-5.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-6.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-7.json", always_decimal = FALSE)
+write_stan_json(init(), "../model/stan/init-8.json", always_decimal = FALSE)
+```
+
+2.  we run the model using the batch file:
+
+```{=html}
+<pre> 
+#!/bin/bash -l
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 24
+#SBATCH -p batch
+#SBATCH --time=72:00:00
+#SBATCH --mem=64gb
+#SBATCH --array=1-8%8 
+
+# Załadowanie modułu
+module load tryton/cmdstan/2.30.1-conda
+
+export STAN_THREADS=true
+
+# Nazwa modelu
+export CMDSTAN_MODEL_NAME="hplc-qsrr-izo"
+
+# Katalog z modelem (czyli gdzie się on znajduje)
+export MODEL_SRC_DIR=${PWD}
+cd ${MODEL_SRC_DIR}
+
+# Budowanie modelu
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" istnieje." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+
+wait
+
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$PWD/standata.json init=$PWD/init-${SLURM_ARRAY_TASK_ID}.json  num_threads=${SLURM_NTASKS} output file=$PWD/output_${SLURM_ARRAY_TASK_ID}.csv
+</pre>
+```
+
+3.  After calculations, we loaded the output files using cmdstanr. 
+
+```{r stanload}
+fit <- cmdstanr::as_cmdstan_fit(c(
+                                  '../stanfiles/output_1.csv',
+                                  '../stanfiles/output_2.csv',
+                                  '../stanfiles/output_3.csv',
+                                  '../stanfiles/output_4.csv',
+                                  '../stanfiles/output_5.csv',
+                                  '../stanfiles/output_6.csv',
+                                  '../stanfiles/output_7.csv',
+                                  '../stanfiles/output_8.csv'
+                                ))
+```
+
+4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
+
+```{r standiagnose, eval = FALSE}
+ #fit$cmdstan_diagnose()
+ setwd('../stanfiles')
+ str = paste0(cmdstan_path(), '/bin/diagnose  output_*.csv')
+ system(str,intern=TRUE)
+```
+
+The diagnostics are reasonable given model complexity. Output copied here to save time:
+
+```{=html}
+<pre>
+                                                             
+</pre>
+```
+
 
 For local computations one can use cmdstanr:
 
@@ -376,9 +463,33 @@ fit$save_object(file = "../stanfiles/fit.RDS")
  fit <- readRDS("../stanfiles/fit.RDS") 
 ```
 
+# Results
+
+## Summary of model parameters (table):
+
+The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
+
+
 ```{r summary}
 fit$print(max_rows = 180)
 ```
+
+## Trace plots
+
+Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters
+
+```{r traceplots, include=TRUE}
+bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat"))) 
+bayesplot::mcmc_trace(fit$draws(c("omega","rho","kappa","sigma"))) 
+```
+## Summary of model parameters (figures)
+
+```{r mcmc_intervals}
+mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat")))
+mcmc_intervals(fit$draws(c("omega","rho[1,2]","kappa","sigma")))
+```
+
+## Fits
 
 ```{r plots}
 draws_df_subset <- fit$draws(format = "df", variable = c("logkx"))
@@ -394,7 +505,7 @@ data$logkpredl<-results$.lower
 data$logkpredu<-results$.upper
 
 datax<-data %>%
-  filter(ID %in% c(20:30))
+  filter(ID %in% c(800:830))
 
 ggplot(datax) + 
   geom_point(aes(x=fi, y=logk)) + 
@@ -411,15 +522,68 @@ ggplot(data) +
   theme_gray(base_size = 14) + theme(legend.position="none")
 ```
 
-```{r mcmc_intervals}
+## Individual Parameters
 
-mcmc_intervals(fit$draws(c("logkwHat")))
-mcmc_intervals(fit$draws(c("beta")))
-mcmc_intervals(fit$draws(c("omega")))
+Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.
 
+### Neutral Form
+
+```{r draws_df}
+#Extract sample for plots
+draws_df <- fit$draws(format = "df")
 ```
 
+Individual parameters for the reference column (XBridge Shield RP18):
 
+```{r iparam-column-neutral}
+param <- apply(draws_df[,which(colnames(draws_df) %in% grep("^param", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+param <- melt(param)
+param1 <- param[1:nAnalytes,]
+param2 <- param[(nAnalytes+1):(2*nAnalytes),]
+
+data_to_plot_param <- cbind(param1,param2,logPobs)
+colnames(data_to_plot_param) <- c(expression('logkwN'[i]),expression('S1mN'[i]),expression('logP'[i]))
+
+p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
+        labeller = "label_parsed",upper = list(continuous = "points"))
+
+print(p)
+```
+
+### Effects of dissociation
+
+Individual parameters
+
+```{r iparam-column-dissociated}
+dlogkwA <- apply(draws_df[,which(colnames(draws_df) %in% grep("^dlogkwA", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+dlogkwA <- melt(dlogkwA)[,1]
+
+dlogkwB <- apply(draws_df[,which(colnames(draws_df) %in% grep("^dlogkwB", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+dlogkwB <- melt(dlogkwB)[,1]
+
+dlogkw <- c(dlogkwA,dlogkwB)
+
+dS1A <- apply(draws_df[,which(colnames(draws_df) %in% grep("^dS1A", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+dS1A <- melt(dS1A)[,1]
+dS1B <- apply(draws_df[,which(colnames(draws_df) %in% grep("^dS1B", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+dS1B <- melt(dS1B)[,1]
+
+dS1 <- c(dS1A,dS1B)
+
+GroupType = c(rep("Acids", length(dlogkwA)),rep("Bases", length(dlogkwB)))
+
+data_to_plot_diss <- data.frame(dlogkw, dS1,GroupType)
+
+p<-ggpairs(data_to_plot_diss,columns = 1:2, columnLabels = c("dlogkw","dS1"),
+        labeller = "label_parsed",
+        legend =1,
+        aes(color = GroupType, alpha = 0.5),
+        upper = list(continuous = "points"))+
+        scale_alpha(guide = "none")
+
+print(p)
+
+```
 
 ```{r info}
 sessionInfo()
