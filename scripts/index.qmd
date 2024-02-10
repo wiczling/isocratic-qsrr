@@ -336,7 +336,7 @@ init <- function(){
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho = matrix(c(1,0.75,0.75,1), nrow=2),
           #param = cbind(matrix(2, 1, nrow=nSteps), matrix(5, 1, nrow=nSteps)),
-          param = cbind(init_aprox$logkw[idxch[,1]],init_aprox$S1[idxch[,1]]),
+          param = cbind(init_aprox$logkw,init_aprox$S1),
           sigma  =  0.05*exp(rnorm(1, 0, 0.5))
   )
 }
@@ -360,7 +360,7 @@ mod1 <- cmdstan_model("../model/stan/hplc-qsrr-izo-diss.stan", stanc_options = l
 We used optimization for initial testing:
 
 ```{r stanoptimize, eval = FALSE}
-fit_ode <- mod1$optimize(
+fit_opt <- mod1$optimize(
   data = datastruct,
   output_dir = '../stanfiles',
   init = init,
@@ -370,18 +370,69 @@ fit_ode <- mod1$optimize(
 fit_ode$print(max_rows=100)
 ```
 
-```{r odeplots, eval=FALSE}
-data$logkpred<-fit_ode$mle("logkx")
+```{r optplots, eval=FALSE}
+data$logkopt<-fit_opt$mle("logkx")
 
 datax<-data %>%
   filter(ID %in% c(20:30))
 
 ggplot(datax, aes(x=fi, y=logk)) + 
          geom_point() + 
-  geom_line(aes(x=fi, y=logkpred)) + 
+  geom_line(aes(x=fi, y=logkopt)) + 
   facet_wrap(~ID) +
   labs(x = "\u03C6", y = expression(logk)) + 
   theme_gray(base_size = 14) + theme(legend.position="none")
+
+```
+```{r brms eval=false}
+# to check if it can be dones
+databrms = data.frame(id = datastruct$analyte, 
+                      logkobs = datastruct$logk,
+                      logPobs= datastruct$logPobs[datastruct$analyte],
+                      fi= datastruct$fi)
+
+
+# make_stancode(bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
+#      logkw ~ logPobs + (1|xyz|id), 
+#      S1 ~ logPobs + (1|xyz|id), 
+#      S2 ~ 1,
+#      nl = TRUE),
+#   data = databrms, 
+#   family = gaussian())
+
+fit_hplc <- brm(
+  bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
+     logkw ~ logPobs + (1|xyz|id), 
+     S1 ~ logPobs + (1|xyz|id), 
+     S2 ~ 1,
+     nl = TRUE),
+  data = databrms, 
+  family = gaussian(),
+  prior = c(
+    prior(normal(2, 2), nlpar = "logkw"),
+    prior(normal(4, 2), nlpar = "S1"),
+    prior(lognormal(0.69, 0.125), nlpar = "S2", lb=0)),
+  chains = 4, 
+  cores = 4,
+  control = list(adapt_delta = 0.9))
+```
+
+For local computations one can use cmdstanr:
+
+```{r stansample, eval = FALSE}
+ fit <- mod1$sample(
+   data = datastruct,
+   output_dir = "../stanfiles",
+   init = init,
+   iter_warmup = 500,
+   iter_sampling = 250,
+   chains = 4,
+   parallel_chains = 4,
+   refresh = 100,
+   adapt_delta=0.9
+ )
+
+fit$save_object(file = "../stanfiles/fit.RDS")
 
 ```
 
@@ -438,64 +489,40 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 
 ```{=html}
 <pre>
+ [1] "Processing csv files: output_1.csv, output_2.csv, output_3.csv, output_4.csv, output_5.csv, output_6.csv, output_7.csv, output_8.csv"
+ [2] ""                                                                                                                                    
+ [3] "Checking sampler transitions treedepth."                                                                                             
+ [4] "Treedepth satisfactory for all transitions."                                                                                         
+ [5] ""                                                                                                                                    
+ [6] "Checking sampler transitions for divergences."                                                                                       
+ [7] "No divergent transitions found."                                                                                                     
+ [8] ""                                                                                                                                    
+ [9] "Checking E-BFMI - sampler transitions HMC potential energy."                                                                         
+[10] "E-BFMI satisfactory."                                                                                                                
+[11] ""                                                                                                                                    
+[12] "Effective sample size satisfactory."                                                                                                 
+[13] ""                                                                                                                                    
+[14] "Split R-hat values satisfactory all parameters."                                                                                     
+[15] ""                                                                                                                                    
+[16] "Processing complete, no problems detected."  
 </pre>
 ```
 
-```{r brms eval=false}
-# to check if it can be dones
-databrms = data.frame(id = datastruct$analyte, 
-                      logkobs = datastruct$logk,
-                      logPobs= datastruct$logPobs[datastruct$analyte],
-                      fi= datastruct$fi)
-
-
-# make_stancode(bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
-#      logkw ~ logPobs + (1|xyz|id), 
-#      S1 ~ logPobs + (1|xyz|id), 
-#      S2 ~ 1,
-#      nl = TRUE),
-#   data = databrms, 
-#   family = gaussian())
-
-fit_hplc <- brm(
-  bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
-     logkw ~ logPobs + (1|xyz|id), 
-     S1 ~ logPobs + (1|xyz|id), 
-     S2 ~ 1,
-     nl = TRUE),
-  data = databrms, 
-  family = gaussian(),
-  prior = c(
-    prior(normal(2, 2), nlpar = "logkw"),
-    prior(normal(4, 2), nlpar = "S1"),
-    prior(lognormal(0.69, 0.125), nlpar = "S2", lb=0)),
-  chains = 4, 
-  cores = 4,
-  control = list(adapt_delta = 0.9))
-```
-
-For local computations one can use cmdstanr:
-
-```{r stansample, eval = FALSE}
- fit <- mod1$sample(
-   data = datastruct,
-   output_dir = "../stanfiles",
-   init = init,
-   iter_warmup = 500,
-   iter_sampling = 250,
-   chains = 4,
-   parallel_chains = 4,
-   refresh = 100,
-   adapt_delta=0.9
- )
-
-fit$save_object(file = "../stanfiles/fit.RDS")
-
-```
 
 ```{r load}
  #' fit is read back using readRDS - for speed
- fit <- readRDS("../stanfiles/fit.RDS") 
+ fit <- readRDS("../stanfiles/hplc-qsrr-izo-diss.RDS") 
+```
+
+
+```{r}
+model_gq <- cmdstan_model("../model/stan/hplc-qsrr-izo-diss-gq.stan")
+
+fit_gq  <- model_gq$generate_quantities(fit,
+                                          data = datastruct,
+                                          seed = 123,
+                                          parallel_chains = 4,
+                                          output_dir = "../stanfiles")
 ```
 
 # Results
@@ -527,35 +554,66 @@ mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
 
 ## Fits
 
-```{r plots}
-draws_df_subset <- fit$draws(format = "df", variable = c("logkx"))
+```{r indgof plots}
 
-results <-draws_df_subset %>%
+draws_df_subset <- fit_gq$draws(format = "df", variable = c("slogk_ind","slogk_pop"))
+
+results_ind <-draws_df_subset %>%
   slice_sample(n=200) %>%
-  tidybayes::spread_draws(logkx[i]) %>% 
-  group_by(i)%>%
-  tidybayes::median_qi(logkpred = logkx) 
+  tidybayes::spread_draws(slogk_ind[i]) %>% 
+  rename(ID=i) %>%
+  group_by(ID)%>%
+  tidybayes::median_qi(logkpred = slogk_ind) %>%
+  select(-ID)
 
-data$logkpred<-results$logkpred
-ggplot(data) + 
-  geom_point(aes(x=logkpred, y=logk)) + 
-  labs(x = "logkpred", y = expression(logk)) + 
-  theme_gray(base_size = 14) + theme(legend.position="none")
+results_pop <-draws_df_subset %>%
+  slice_sample(n=200) %>%
+  tidybayes::spread_draws(slogk_pop[i]) %>% 
+  rename(ID=i) %>%
+  group_by(ID)%>%
+  tidybayes::median_qi(logkpred = slogk_pop) %>%
+  select(-ID)
+
+p1 = data%>%
+  cbind(results_ind) %>%
+  ggplot(aes(x=logkpred, y=logk)) + 
+  geom_point() + 
+  #geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "logk (individual)", y = "logk (observed)") +
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none")
+
+p2 = data%>%
+  cbind(results_pop) %>%
+  ggplot(aes(x=logkpred, y=logk)) + 
+  geom_point() + 
+  #geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "logk (population)", y = "logk (observed)") + 
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none")
+
+
+p1+p2
+
 ```
+
+
 ```{r}
 
-draws_df_subset <- fit$draws(format = "df", variable = c("param","S2Hat"))
+draws_df_subset <- fit_gq$draws(format = "df", variable = c("sparam_ind","sS2Hat"))
 
 analytes_idx = c(1:9, 501,510, 626)
 
 p <-draws_df_subset %>%
   slice_sample(n=1000) %>%
-  tidybayes::spread_draws(param[i,..], S2Hat) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sS2Hat) %>%
   rename(ID=i) %>%
   left_join(analytes_names) %>%
   filter(ID %in% analytes_idx) %>%
   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
-  mutate(logk = param.1-param.2*(1+S2Hat)*fi/(1+S2Hat*fi)) %>%
+  mutate(logk = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
   ggplot(aes(x = fi, y = logk)) +
   ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% analytes_idx),aes(x=fi, y=logk)) + 
@@ -566,22 +624,49 @@ p <-draws_df_subset %>%
 
 print(p)
 ```
+```{r}
 
-## Individual Parameters
+draws_df_subset <- fit_gq$draws(format = "df", variable = c("sparam_pop","sS2Hat"))
+
+analytes_idx = c(1:9, 501,510, 626)
+
+p <-draws_df_subset %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logk = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot(aes(x = fi, y = logk)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% analytes_idx),aes(x=fi, y=logk)) + 
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk (population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+
+print(p)
+```
+
+
+## Individual Parameters and etaplots
 
 Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.
-
-### Neutral Form
 
 ```{r draws_df}
 #Extract sample for plots
 draws_df <- fit$draws(format = "df")
 ```
 
-Individual parameters for the reference column (XBridge Shield RP18):
+Individual parameters
 
 ```{r iparam-column-neutral}
-param <- apply(draws_df[,which(colnames(draws_df) %in% grep("^param", names(draws_df), value = TRUE))], MARGIN = 2, FUN = mean)
+
+draws_df_subset <- fit_gq$draws(format = "df", variable = c("sparam_ind"))
+
+param <- apply(draws_df_subset[,which(colnames(draws_df_subset) %in% grep("^sparam_ind", 
+                                                                          names(draws_df_subset), value = TRUE))], MARGIN = 2, FUN = mean)
 param <- melt(param)
 param1 <- param[1:nAnalytes,]
 param2 <- param[(nAnalytes+1):(2*nAnalytes),]
@@ -595,6 +680,26 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
 print(p)
 ```
 
+Etas
+
+```{r ieta}
+
+draws_df_subset <- fit_gq$draws(format = "df", variable = c("seta_ind"))
+
+param <- apply(draws_df_subset[,which(colnames(draws_df_subset) %in% grep("^seta_ind", 
+                                                                          names(draws_df_subset), value = TRUE))], MARGIN = 2, FUN = mean)
+param <- melt(param)
+param1 <- param[1:nAnalytes,]
+param2 <- param[(nAnalytes+1):(2*nAnalytes),]
+
+data_to_plot_param <- cbind(param1,param2,logPobs)
+colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('logP'[i]))
+
+p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
+        labeller = "label_parsed",upper = list(continuous = "points"))
+
+print(p)
+```
 
 ```{r info}
 sessionInfo()
