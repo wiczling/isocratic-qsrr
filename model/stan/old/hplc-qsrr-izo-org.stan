@@ -1,5 +1,5 @@
- // Simplified version of stan code that handles pKa as a predictor
- // 
+ // Stan code that is based on
+ // Comparison of chromatographic stationary phases using a Bayesian-based multilevel model
 
 functions {
 
@@ -198,7 +198,7 @@ transformed parameters {
       S1x[idxGroupsA[d,1], 3] += dS1A[d];
       S1x[idxGroupsA[d,1], 4] += dS1A[d];
    }
-   if (S1x[d,2]==2) {
+   if (idxGroupsA[d,2]==2) {
       S1x[idxGroupsA[d,1], 3] += dS1A[d];
       S1x[idxGroupsA[d,1], 4] += dS1A[d];
    }
