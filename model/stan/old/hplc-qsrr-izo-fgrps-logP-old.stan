@@ -1,3 +1,7 @@
+// Model based on
+// Application of Bayesian Multilevel Modeling in Quantitative Structure-Retention Relationship Studies of Heterogeneous Compounds
+
+
 functions{
   real hplcmodel(real fi, real logkw, real logka, real logS2){
     

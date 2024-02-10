@@ -34,7 +34,7 @@ library(bayesplot)
 library(GGally)
 library(reshape2)
 library(pracma)
-library(brms)
+
 set.seed(123) ## not required but assures repeatable results
 
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
@@ -249,9 +249,7 @@ idxch[inch,2] = r
    inch=inch+1
 }}
   
-start <- (1:nObs)[!duplicated(data$ID)]
-end <- c(start[-1] - 1, nObs)
-
+  
 ```
 
 ```{r initial_estimates}
@@ -312,26 +310,39 @@ Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linke
 
 ```{r stansetup}
 # create Stan data set:
+
 datastruct <- with(data,
                   list(nAnalytes=length(unique(data$ID)),
                        nObs=length(data$ID),
                        analyte=match(data$ID, unique(data$ID)),
                        fi=data$fi,
                        logPobs=logPobs, 
-                       start = start,
-                       end= end,
-                       pKaslit = pKaslit,
-                       charges = charges,
-                       logkobs=logk,
+                       maxR=max(R),
+                       R=R,
+                       nSteps = nSteps,
+                       idxch = idxch,
+                       nGroupsA=nGroupsA,
+                       nGroupsB=nGroupsB,
+                       pKaslitA=pKaslitA,
+                       pKaslitB=pKaslitB,
+                       idxGroupsA=idxGroupsA,
+                       idxGroupsB=idxGroupsB,
+                       logkobs=data$logk,
+                       nA0 = nA0,
+                       nB0 = nB0,
+                       idxA0 = idxA0,
+                       idxB0 = idxB0,
                        run_estimation=1))
+
+
 
 # initialize the values for each variable in each chain:
 init <- function(){
   list(   logkwHat  = rnorm(1,2,2),
-          S1Hat    = rnorm(1,5,1),
-          dlogkwHat  = rnorm(1,-1,0.125),
-          dS1Hat    = rnorm(1,0,0.5),
-          S2Hat = 2*exp(rnorm(1,0,0.125)),
+          S1Hat    = rnorm(1,4,1),
+          dlogkwHat = rnorm(2,-1,0.125),
+          dS1Hat   = rnorm(2,0,0.5),
+          logS2Hat = rnorm(1,0.3,0.125),
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho = matrix(c(1,0.75,0.75,1), nrow=2),
@@ -354,7 +365,8 @@ writeLines(readLines("../model/stan/hplc-qsrr-izo-rep.stan"))
 We compiled the model using cmdstanr:
 
 ```{r stancompile, eval = FALSE}
-mod1 <- cmdstan_model("../model/stan/hplc-qsrr-izo-diss.stan", stanc_options = list("O1"))
+mod1 <- cmdstan_model("../model/stan/hplc-qsrr-izo-rep.stan", 
+                      stanc_options = list("O1"))
 ```
 
 We used optimization for initial testing:
@@ -383,6 +395,7 @@ ggplot(datax, aes(x=fi, y=logk)) +
   labs(x = "\u03C6", y = expression(logk)) + 
   theme_gray(base_size = 14) + theme(legend.position="none")
 
+
 ```
 
 We performed out computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
@@ -405,6 +418,33 @@ write_stan_json(init(), "../model/stan/init-8.json", always_decimal = FALSE)
 
 ```{=html}
 <pre> 
+#!/bin/bash -l
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 24
+#SBATCH -p batch
+#SBATCH --time=12:00:00
+#SBATCH --mem=2gb
+#SBATCH --array=1-8%8 
+
+# Załadowanie modułu
+module load tryton/cmdstan/2.30.1-conda
+
+export STAN_THREADS=true
+
+# Nazwa modelu
+export CMDSTAN_MODEL_NAME="hplc-qsrr-izo"
+
+# Katalog z modelem (czyli gdzie się on znajduje)
+export MODEL_SRC_DIR=${PWD}
+cd ${MODEL_SRC_DIR}
+
+# Budowanie modelu
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" istnieje." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+
+wait
+
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$PWD/standata.json init=$PWD/init-${SLURM_ARRAY_TASK_ID}.json  num_threads=${SLURM_NTASKS} output file=$PWD/output_${SLURM_ARRAY_TASK_ID}.csv
 </pre>
 ```
 
@@ -421,8 +461,6 @@ fit <- cmdstanr::as_cmdstan_fit(c(
                                   '../stanfiles/output_7.csv',
                                   '../stanfiles/output_8.csv'
                                 ))
-
-fit$save_object(file = "../stanfiles/hplc-qsrr-izo-diss.RDS")
 ```
 
 4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
@@ -438,41 +476,10 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 
 ```{=html}
 <pre>
+                                                             
 </pre>
 ```
 
-```{r brms eval=false}
-# to check if it can be dones
-databrms = data.frame(id = datastruct$analyte, 
-                      logkobs = datastruct$logk,
-                      logPobs= datastruct$logPobs[datastruct$analyte],
-                      fi= datastruct$fi)
-
-
-# make_stancode(bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
-#      logkw ~ logPobs + (1|xyz|id), 
-#      S1 ~ logPobs + (1|xyz|id), 
-#      S2 ~ 1,
-#      nl = TRUE),
-#   data = databrms, 
-#   family = gaussian())
-
-fit_hplc <- brm(
-  bf(logkobs ~ logkw-S1*(1+S2)*fi/(1+S2*fi),
-     logkw ~ logPobs + (1|xyz|id), 
-     S1 ~ logPobs + (1|xyz|id), 
-     S2 ~ 1,
-     nl = TRUE),
-  data = databrms, 
-  family = gaussian(),
-  prior = c(
-    prior(normal(2, 2), nlpar = "logkw"),
-    prior(normal(4, 2), nlpar = "S1"),
-    prior(lognormal(0.69, 0.125), nlpar = "S2", lb=0)),
-  chains = 4, 
-  cores = 4,
-  control = list(adapt_delta = 0.9))
-```
 
 For local computations one can use cmdstanr:
 
@@ -508,20 +515,29 @@ The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) funct
 ```{r summary}
 fit$print(max_rows = 180)
 ```
+```{r}
+x<-fit$summary(c("paramN"), c("rhat"))
+x$R = c(datastruct$R,datastruct$R)
+ggplot(x,aes(x=R,y=rhat))+
+  geom_point()
+```
 
 ## Trace plots
 
 Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters
 
 ```{r traceplots, include=TRUE}
-bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat"))) 
+bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat"))) 
 bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma"))) 
-bayesplot::mcmc_trace(fit$draws(c("param[626,1]","param[626,2]"))) 
+
+
+bayesplot::mcmc_trace(fit$draws(c("paramN[230,1]","paramN[230,2]"))) 
+
 ```
 ## Summary of model parameters (figures)
 
 ```{r mcmc_intervals}
-mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
+mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat")))
 mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
 ```
 
@@ -537,34 +553,25 @@ results <-draws_df_subset %>%
   tidybayes::median_qi(logkpred = logkx) 
 
 data$logkpred<-results$logkpred
+data$logkpredl<-results$.lower
+data$logkpredu<-results$.upper
+
+datax<-data %>%
+  filter(ID %in% (0+c(33,230,331,359,440,443,458,459,515,523,542,598)))
+
+ggplot(datax) + 
+  geom_point(aes(x=fi, y=logk)) + 
+  geom_line(aes(x=fi, y=logkpred)) + 
+  geom_ribbon(aes(x = fi, ymin = logkpredl, ymax = logkpredu), alpha = 0.25)+
+  facet_wrap(~ID) +
+  labs(x = "\u03C6", y = expression(logk)) + 
+  theme_gray(base_size = 14) + theme(legend.position="none")
+
+
 ggplot(data) + 
   geom_point(aes(x=logkpred, y=logk)) + 
   labs(x = "logkpred", y = expression(logk)) + 
   theme_gray(base_size = 14) + theme(legend.position="none")
-```
-```{r}
-
-draws_df_subset <- fit$draws(format = "df", variable = c("param","S2Hat"))
-
-analytes_idx = c(1:9, 501,510, 626)
-
-p <-draws_df_subset %>%
-  slice_sample(n=1000) %>%
-  tidybayes::spread_draws(param[i,..], S2Hat) %>%
-  rename(ID=i) %>%
-  left_join(analytes_names) %>%
-  filter(ID %in% analytes_idx) %>%
-  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
-  mutate(logk = param.1-param.2*(1+S2Hat)*fi/(1+S2Hat*fi)) %>%
-  ggplot(aes(x = fi, y = logk)) +
-  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
-  geom_point(data = filter(data,ID %in% analytes_idx),aes(x=fi, y=logk)) + 
-  facet_wrap(~Analyte)+
-  labs(x="\u03C6", y="logk (individual)") +
-  theme(legend.position = "none") +
-  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
-
-print(p)
 ```
 
 ## Individual Parameters

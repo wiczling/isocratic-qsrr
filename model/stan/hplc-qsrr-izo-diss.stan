@@ -29,16 +29,33 @@ data {
   array[nAnalytes] int<lower = 1> start;
   array[nAnalytes] int<lower = 1> end;
   vector[nAnalytes] logPobs;
+  array[nAnalytes] vector[3] pKaslit;
+  array[nAnalytes] vector[4] charges;
   vector[nObs] logkobs;                 // observed retention factors 
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
 }
 
 transformed data{
+  
+    array[nAnalytes] real fr;
+    vector[4] cpHmpKa;
+    vector[4] lambda;
+    vector[3] pHmpKa;
+    
+    for (i in 1 : nAnalytes) {
+     pHmpKa = log(10) *(2.66-pKaslit[i]);
+     cpHmpKa[1]=0;
+     cpHmpKa[2:4]=cumulative_sum(pHmpKa);
+     lambda = softmax(cpHmpKa);
+     fr[i] = sum(lambda.*charges[i]);
+    }
 }
 
 parameters {
   real logkwHat;            // typical logkw
   real S1Hat;               // effect of ACN on logkw
+  real dlogkwHat;            // typical dlogkw
+  real dS1Hat;               // effect of ACN on dlogkw
   real<lower=0> S2Hat;      // typical value of S2
   vector[2] beta;           // effect of logP on logkw and S1
   vector<lower=0>[2] omega; // sd of BAV [logkw,S1]
@@ -55,8 +72,8 @@ transformed parameters {
   Omega = quad_form_diag(rho, omega); // diag_matrix(omega) * rho * diag_matrix(omega)
   
   for (i in 1 : nAnalytes) {
-    miu[i, 1] = logkwHat + beta[1] * logPobs[i];
-    miu[i, 2] = S1Hat    + beta[2] * logPobs[i];
+    miu[i, 1] = logkwHat + fr[i]*dlogkwHat + beta[1] * logPobs[i];
+    miu[i, 2] = S1Hat    + fr[i]*dS1Hat + beta[2] * logPobs[i];
   }
   
   for (i in 1 : nAnalytes) {
@@ -68,6 +85,8 @@ transformed parameters {
 model {
   logkwHat ~ normal(2, 4);
   S1Hat ~ normal(4, 2);
+  dlogkwHat ~ normal(-1, 0.25);
+  dS1Hat ~ normal(0, 0.5);
   S2Hat ~ lognormal(0.693, 0.125);
   beta[{1}] ~ normal(0.7, 0.125);
   beta[{2}] ~ normal(0.5, 0.5);
