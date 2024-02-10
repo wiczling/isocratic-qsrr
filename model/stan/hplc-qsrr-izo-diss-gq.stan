@@ -107,10 +107,30 @@ model {
 
 generated quantities {
   
-  array[nAnalytes] vector[2] param_pred;
+  array[nAnalytes] vector[2] sparam_ind;
+  array[nAnalytes] vector[2] seta_ind;
+  array[nAnalytes] vector[2] sparam_pop;
+  vector[nObs] slogkHat_ind;
+  vector[nObs] slogkHat_pop;
+  vector[nObs] slogk_ind;
+  vector[nObs] slogk_pop;
+  real<lower=0> sS2Hat;
+  
+  sS2Hat = S2Hat;
   
   for(i in 1:nAnalytes){
-    param_pred[i] = multi_normal_rng(miu[i,1:2],Omega); 
+    sparam_pop[i] = multi_normal_rng(miu[i,1:2],Omega);
+    sparam_ind[i] = param[i];
+    seta_ind[i] = (sparam_ind[i] - miu[i,1:2])./omega[1:2];
   }
   
+  for (i in 1 : nAnalytes) {
+    slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
+    slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);
+  }
+  
+   for (z in 1 : nObs) {
+    slogk_ind[z] = student_t_rng(7, slogkHat_ind[z], sigma);
+    slogk_pop[z] = student_t_rng(7, slogkHat_pop[z], sigma);
+   }
 }
