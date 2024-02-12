@@ -290,22 +290,61 @@ Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linke
 
 ### Initialize variables and parameters
 
-```{r}
-K<-simMat;
-tsimMat<-1/t(simMat)
-delta<-0.1;
-tsimMat[is.infinite(tsimMat)]<-0
 
-  for (i in 1:(nAnalytes - 1)) {
-    K[i, i] = 1 + delta;
-    for (j in (i + 1):nAnalytes) {
-      K[i, j] = exp(-0.5/16 * (tsimMat[i,j])^2);
-      K[j, i] = K[i, j];
-    }
-  }
-  K[nAnalytes, nAnalytes] = 1 + delta;
+```{r simulate-from-matrix-normal}
+#'2x2 matrix
+rho1 = matrix(c(1,0.9,0.9,1), nrow=2)
+L_rho1 <- t(chol(rho1))
+rho2 = matrix(c(1,0.75,0.75,1), nrow=2)
+L_rho2 <- t(chol(rho2))
+eta <- matrix(rnorm(2*2,0,1),nrow=2)
   
-  Q <- chol(K)
+pred_two_analytes <- function() {
+eta <- matrix(rnorm(2*2,0,1),nrow=2)
+f = L_rho1 %*% eta %*% t(diag(c(2,2)) %*% L_rho2);
+   return(c(f[1,1],f[1,2],f[2,1]))
+}
+
+x = matrix(rep(0,3000), ncol=3)
+for(i in 1:1000){
+ x[i,] = pred_two_analytes();
+}
+
+par(mfrow = c(1, 2))
+plot(x[,1],x[,2])
+plot(x[,1],x[,3])
+```
+
+
+
+```{r simulate-from-matrix-normal}
+
+K<-simMat;
+
+  # for (i in 1:(nAnalytes - 1)) {
+  #   K[i, i] = 1 + delta;
+  #   for (j in (i + 1):nAnalytes) {
+  #     K[i, j] = exp(-0.5/16 * (tsimMat[i,j])^2);
+  #     K[j, i] = K[i, j];
+  #   }
+  # }
+  # K[nAnalytes, nAnalytes] = 1 + delta;
+  # 
+  # K = diag_matrix(rep(1,1026)) * rho * t(diag_matrix(rep(1,1026))
+  # Q <- chol(K)
+  
+makeSymm <- function(m) {
+   m[upper.tri(m)] <- t(m)[upper.tri(m)]
+   return(m)
+}
+
+rho <- makeSymm(simMat)
+diag(rho) <- 0
+rho[rho==1]<-0.999
+diag(rho) <- 1
+K = diag(1,1026) %*% as.matrix(rho) %*% t(diag(1,1026))
+Q <- t(chol(rho))
+
 ```
 
 ```{r stansetup}
@@ -323,7 +362,7 @@ datastruct <- with(data,
                        pKaslit = pKaslit,
                        charges = charges,
                        logkobs=logk,
-                       Similarity = t(simMat),
+                       K = rho,
                        run_estimation=1))
 
 # initialize the values for each variable in each chain:
@@ -334,7 +373,7 @@ init <- function(){
           dS1Hat    = rnorm(1,0,0.5),
           S2Hat = 2*exp(rnorm(1,0,0.125)),
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
-          omega = c(10,10)*exp(rnorm(2, 0, 0.5)),
+          omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rhoc = t(chol( matrix(c(1,0.75,0.75,1), nrow=2))),
           #param = cbind(matrix(2, 1, nrow=nSteps), matrix(5, 1, nrow=nSteps)),
           #param = cbind(init_aprox$logkw[nx],init_aprox$S1[nx]),

@@ -61,7 +61,7 @@ data {
   array[nAnalytes] vector[3] pKaslit;
   array[nAnalytes] vector[4] charges;
   vector[nObs] logkobs;                 // observed retention factors 
-  matrix[nAnalytes, nAnalytes] Similarity; // upper triangular
+  matrix[nAnalytes, nAnalytes] K; // 
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
 }
 
@@ -71,7 +71,7 @@ transformed data{
     vector[4] cpHmpKa;
     vector[4] lambda;
     vector[3] pHmpKa;
-    matrix[nAnalytes, nAnalytes] K;
+    // matrix[nAnalytes, nAnalytes] K;
     matrix[nAnalytes, nAnalytes] L_K;
     
     real delta =0.001;  
@@ -83,14 +83,14 @@ transformed data{
      fr[i] = sum(lambda.*charges[i]);
     }
     
-  for (i in 1:(nAnalytes - 1)) {
-    K[i, i] = 1 + delta;
-    for (j in (i + 1):nAnalytes) {
-      K[i, j] = exp(-0.5/16* square(1-Similarity[i,j]));
-      K[j, i] = K[i, j];
-    }
-  }
-  K[nAnalytes, nAnalytes] = 1 + delta;
+  // for (i in 1:(nAnalytes - 1)) {
+  //   K[i, i] = 1 + delta;
+  //   for (j in (i + 1):nAnalytes) {
+  //     K[i, j] = exp(-0.5/16* square(1-Similarity[i,j]));
+  //     K[j, i] = K[i, j];
+  //   }
+  // }
+  // K[nAnalytes, nAnalytes] = 1 + delta;
   
   L_K = cholesky_decompose(K);
 
@@ -141,7 +141,7 @@ model {
   S2Hat ~ lognormal(0.693, 0.125);
   beta[{1}] ~ normal(0.7, 0.125);
   beta[{2}] ~ normal(0.5, 0.5);
-  omega ~ normal(0, 20);
+  omega ~ normal(0, 1);
   
   rhoc ~ lkj_corr_cholesky_point_lower_tri(0.75, 0.125);
  
