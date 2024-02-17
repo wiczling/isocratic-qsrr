@@ -43,7 +43,7 @@ knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, com
 
 
 ```{r paths}
-model_name <- "mod3"
+model_name <- "mod4"
 
 #' folder shortcuts:
 figures_dir <- here::here("deliv", "figures", model_name)
@@ -330,32 +330,32 @@ datastruct <- with(data,
                        analyte=match(data$ID, unique(data$ID)),
                        fi=data$fi,
                        logPobs=logPobs, 
-                       start = start,
-                       end= end,
-                       pKaslit = pKaslit,
-                       charges = charges,
-                       K = K,
-                       fgrp = functional_groups,
-                       logkobs=logk,
+                       maxR=max(R),
+                       R=R,
+                       nGroupsA=nGroupsA,
+                       nGroupsB=nGroupsB,
+                       pKaslitA=pKaslitA,
+                       pKaslitB=pKaslitB,
+                       idxGroupsA=idxGroupsA,
+                       idxGroupsB=idxGroupsB,
+                       logkobs=data$logk,
+                       nA0 = nA0,
+                       nB0 = nB0,
+                       idxA0 = idxA0,
+                       idxB0 = idxB0,
                        run_estimation=1))
 
 # initialize the values for each variable in each chain:
 init <- function(){
   list(   logkwHat  = rnorm(1,2,2),
-          S1Hat    = rnorm(1,5,1),
-          dlogkwHat  = rnorm(1,-1,0.125),
-          dS1Hat    = rnorm(1,0,0.5),
-          S2Hat = 2*exp(rnorm(1,0,0.125)),
+          S1Hat    = rnorm(1,4,1),
+          dlogkwHat = rnorm(1,-1,0.125),
+          dS1Hat   = rnorm(1,0,0.5),
+          logS2Hat = rnorm(1,0.3,0.125),
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
-          kappa = c(0.25,0.25)*exp(rnorm(2, 0, 0.25)),
           rho = matrix(c(1,0.75,0.75,1), nrow=2),
-          param = cbind(init_aprox$logkw,init_aprox$S1),
-          pilogkw = rep(0,K),
-          piS1 = rep(0,K),
-          sdpi = c(0.1,0.1)* exp(rnorm(2,0,0.1)),
-          etadlogkw = rnorm(nAnalytes,0,0.125),
-          etadS1 = rnorm(nAnalytes,0,0.125), 
+          paramN = cbind(init_aprox$logkw,init_aprox$S1),
           sigma  =  0.05*exp(rnorm(1, 0, 0.5))
   )
 }
@@ -378,7 +378,7 @@ fit_opt <- mod$optimize(
   output_dir = stanfiles_dir,
   output_basename = paste0(model_name, "-opt"),
   init = init,
-  iter=1000
+  iter=5000
 )
 
 fit_opt$print(max_rows=100)
