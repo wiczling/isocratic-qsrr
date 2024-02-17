@@ -36,7 +36,6 @@ library(bayesplot)
 library(GGally)
 library(reshape2)
 library(pracma)
-library(brms)
 library(here)
 set.seed(123) 
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
@@ -44,7 +43,7 @@ knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, com
 
 
 ```{r paths}
-model_name <- "mod1"
+model_name <- "mod3"
 
 #' folder shortcuts:
 figures_dir <- here::here("deliv", "figures", model_name)
@@ -119,7 +118,7 @@ totalnrgroups <- summarise_each(functional_groups, funs(sum))
 functional_groups <- functional_groups[,which(totalnrgroups!=0)]
 functional_groups_names<- functional_groups_names[which(totalnrgroups!=0),]
 totalnrgroups <- summarise_each(functional_groups, funs(sum))
-
+K <- ncol(functional_groups)
 data_ACD = read.csv('../data/ACD_pKas.csv')
 data_ACD$R = rowSums(data_ACD[,3:5]<14) # No of dissociation steps
 ```
@@ -304,47 +303,9 @@ The data was analyzed using a ...
 
 $$
 \begin{aligned}
-& logk_{i,j}  = logkw_{i} - S_{1,i} \cdot (1 + S_{2}) \cdot \varphi_{i,j} / (1 + S_{2} \cdot \varphi_{i,j})
+& logk  = logk_w - S_1 \cdot (1 + S_2) \cdot \varphi / (1 + S_2 \cdot \varphi)
 \end{aligned}
 $$
-The statistical model has the following structure (hierarchical model):
-
-$$ 
-\begin{aligned}
-& \log k_{obs_{i,j}} \sim student_t(\nu,logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MVN}(\theta_R \cdot fr_i + \theta_{dR} \cdot (1-fr_i)  + \beta \cdot log P_i , \Omega) \\
-\end{aligned}
-$$
-Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_P$ is a vector of typical values of $R_i$, $beta_R$ is a vector of slopes between $R_i$ and $logP_i$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $fr$ is a fraction of dissocation $\Omega$ was decomposed to:
-
-$$
-\Omega = diag(\omega) \cdot \rho \cdot diag(\omega) 
-$$
-
-where $\rho$ denotes correlation a correlation matrix and $\omega$ denotes standard deviation for between analyte variability.
-
-## Priors
-
-The priors were specified as follows:
-
-$$ 
-\begin{aligned}
-& \theta_{logkw} \sim normal(2, 4), \\
-& \theta_{S1} \sim normal(4, 2), \\
-& \theta_{S2} \sim lognormal(0.693, 0.125), \\
-& \theta_{dlogkw} \sim normal(-1, 0.25), \\
-& \theta_{dS1} \sim normal(0, 0.5), \\
-& \nu = 7,\\
-& \omega_{logkw},\omega_{S1} \sim normal_+(0, 1), \\
-& \beta_{logkw} \sim  normal(0.7, 0.125), \\
-& \beta_{S1} \sim  normal(0.5, 0.125), \\
-& \sigma \sim normal_+(0,0.05), \\
-& p(\rho) \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
-& c_u = [0.75]
-\end{aligned}
-$$
-
-LKJ(2) ensure that the density is uniform over correlation matrices of order 2 and u denotes the unique lower triangular elements of correlation matrix (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
 
 
 # Stan
@@ -365,6 +326,8 @@ datastruct <- with(data,
                        end= end,
                        pKaslit = pKaslit,
                        charges = charges,
+                       K = K,
+                       fgrp = functional_groups,
                        logkobs=logk,
                        run_estimation=1))
 
@@ -377,9 +340,14 @@ init <- function(){
           S2Hat = 2*exp(rnorm(1,0,0.125)),
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
+          kappa = c(0.25,0.25)*exp(rnorm(2, 0, 0.25)),
           rho = matrix(c(1,0.75,0.75,1), nrow=2),
-          #param = cbind(matrix(2, 1, nrow=nSteps), matrix(5, 1, nrow=nSteps)),
           param = cbind(init_aprox$logkw,init_aprox$S1),
+          pilogkw = rep(0,K),
+          piS1 = rep(0,K),
+          sdpi = c(0.1,0.1)* exp(rnorm(2,0,0.1)),
+          etadlogkw = rnorm(nAnalytes,0,0.125),
+          etadS1 = rnorm(nAnalytes,0,0.125), 
           sigma  =  0.05*exp(rnorm(1, 0, 0.5))
   )
 }
@@ -391,16 +359,16 @@ init <- function(){
 We compiled the model using cmdstanr:
 
 ```{r stancompile, eval = FALSE}
-mod1 <- cmdstan_model(paste0(model_dir,".stan"), stanc_options = list("O1"))
+mod <- cmdstan_model(paste0(model_dir,".stan"), stanc_options = list("O1"))
 ```
 
 We used optimization for initial testing:
 
 ```{r stanoptimize, eval = FALSE}
-fit_opt <- mod1$optimize(
+fit_opt <- mod$optimize(
   data = datastruct,
   output_dir = stanfiles_dir,
-  output_basename = "mod1-opt",
+  output_basename = paste0(model_name, "-opt"),
   init = init,
   iter=1000
 )
@@ -411,7 +379,7 @@ fit_opt$print(max_rows=100)
 ```{r optplots, eval=FALSE}
 data$logkopt<-fit_opt$mle("logkx")
 
-datax<-data %>%
+data %>%
   filter(ID %in% c(20:30)) %>%
   ggplot(aes(x=fi, y=logk)) + 
   geom_point() + 
@@ -426,10 +394,10 @@ datax<-data %>%
 For local computations one can use cmdstanr:
 
 ```{r stansample, eval = FALSE}
- fit <- mod1$sample(
+ fit <- mod$sample(
    data = datastruct,
    output_dir = stanfiles_dir,
-   output_basename = "mod1-loc",
+   output_basename = paste0(model_name, "-loc"),
    init = init,
    iter_warmup = 500,
    iter_sampling = 250,
@@ -438,9 +406,6 @@ For local computations one can use cmdstanr:
    refresh = 100,
    adapt_delta=0.9
  )
-
-fit$save_object(file = paste0(stanfiles_dir,"/mod1-loc.RDS")
-
 ```
 
 We performed out computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
@@ -517,7 +482,7 @@ fit_gen  <- model_gen$generate_quantities(fit,
                                           seed = 123,
                                           parallel_chains = 4,
                                           output_dir = stanfiles_dir,
-                                          output_basename = "mod1-gen",)
+                                          output_basename = paste0(model_name, "-gen"))
 
 ```
 
@@ -544,7 +509,7 @@ Trace plots are time series plots of Markov chains. Here we show standard trace 
 
 ```{r trace-plots, include=TRUE}
 bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat"))) 
-bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma"))) 
+bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","kappa","sigma"))) 
 bayesplot::mcmc_trace(fit$draws(c("param[626,1]","param[626,2]"))) 
 ```
 
@@ -552,7 +517,7 @@ bayesplot::mcmc_trace(fit$draws(c("param[626,1]","param[626,2]")))
 
 ```{r mcmc-intervals}
 mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
-mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
+mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma","kappa")))
 ```
 
 ## Fits
@@ -560,7 +525,7 @@ mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
 ```{r ind-pop-gof-plots}
 
 results_ind <-draws_gen_df %>%
-  slice_sample(n=200) %>%
+  slice_sample(n=1000) %>%
   tidybayes::spread_draws(slogk_ind[i]) %>% 
   rename(ID=i) %>%
   group_by(ID)%>%
@@ -568,7 +533,7 @@ results_ind <-draws_gen_df %>%
   select(-ID)
 
 results_pop <-draws_gen_df %>%
-  slice_sample(n=200) %>%
+  slice_sample(n=1000) %>%
   tidybayes::spread_draws(slogk_pop[i]) %>% 
   rename(ID=i) %>%
   group_by(ID)%>%
@@ -689,6 +654,34 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
 print(p)
 ```
 
+# Functional groups
+
+
+```{r functinoal-group-effects}
+#| fig-width: 6
+#| fig-height: 12
+draws_df_subset <- fit$draws(format = "df", variable = c("pilogkw","piS1"))
+
+param1<-draws_df_subset %>%
+  tidybayes::spread_draws(pilogkw[No])%>%
+  ggdist::median_qi(pilogkw) %>%
+  mutate(param = "pilogkw") %>%
+  rename(dv=pilogkw)%>%
+  mutate(functional_groups_name = functional_groups_names$functional.group.name)
+param2<-draws_df_subset %>%
+  tidybayes::spread_draws(piS1[No])%>%
+  ggdist::median_qi(piS1) %>%
+  mutate(param = "piS1")%>%
+  rename(dv=piS1)%>%
+  mutate(functional_groups_name = functional_groups_names$functional.group.name)
+
+param<-rbind(param1,param2) 
+param %>%
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  tidybayes::geom_pointinterval() +
+  labs(x="Effect", y="Functional group id")+
+  facet_wrap(.~param)
+```
 
 ```{r info}
 sessionInfo()
