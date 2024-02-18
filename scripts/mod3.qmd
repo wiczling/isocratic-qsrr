@@ -37,6 +37,7 @@ library(GGally)
 library(reshape2)
 library(pracma)
 library(here)
+library(ggcorrplot)
 set.seed(123) 
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 ```
@@ -131,17 +132,17 @@ During the exploratory data analysis phase, we create a series of plots to bette
 
 
 ```{r similarity-matrixplot}
-library(ggcorrplot)
-ggcorrplot((simMat[001:100,001:100]-0.5)*2)
-# ggcorrplot((simMat[101:200,101:200]-0.5)*2)
-# ggcorrplot((simMat[201:300,201:300]-0.5)*2)
-# ggcorrplot((simMat[301:400,301:400]-0.5)*2)
-# ggcorrplot((simMat[401:500,401:500]-0.5)*2)
-# ggcorrplot((simMat[501:600,501:600]-0.5)*2)
-# ggcorrplot((simMat[601:700,601:700]-0.5)*2)
-# ggcorrplot((simMat[701:800,701:800]-0.5)*2)
-# ggcorrplot((simMat[801:900,801:900]-0.5)*2)
-# ggcorrplot((simMat[901:1026,901:1026]-0.5)*2)
+
+ggcorrplot(simMat[001:100,001:100])
+# ggcorrplot(simMat[101:200,101:200])
+# ggcorrplot(simMat[201:300,201:300])
+# ggcorrplot(simMat[301:400,301:400])
+# ggcorrplot(simMat[401:500,401:500]2)
+# ggcorrplot(simMat[501:600,501:600])
+# ggcorrplot(simMat[601:700,601:700])
+# ggcorrplot(simMat[701:800,701:800])
+# ggcorrplot(simMat[801:900,801:900])
+# ggcorrplot(simMat[901:1026,901:1026])
 
 x=which(simMat>0.95 & simMat!=1, arr.ind = TRUE)
 
@@ -149,7 +150,7 @@ pair_names = cbind(analytes_names$Analyte[unname(x[,1])],analytes_names$Analyte[
                               
 selected_compounds = unique(c(x))
 
-ggcorrplot((simMat[selected_compounds,selected_compounds]-0.5)*2)
+ggcorrplot(simMat[selected_compounds,selected_compounds])
 ```
 
 ```{r clusterring}
@@ -507,6 +508,29 @@ x <- cmdstanr::read_cmdstan_csv(c(
                                   paste0(stanfiles_dir,"/",  model_name, "-gen-4.csv")
                                 ))
 draws_gen_df <- as_draws_df(x$generated_quantities)
+
+```
+
+A posteriori correlations
+
+```{r aposterior-correlations}
+mcmc_pairs(draws_gen_df, pars  = c("seta_ind[1,1]",
+                                   "seta_ind[2,1]",
+                                   "seta_ind[3,1]",
+                                   "seta_ind[4,1]",
+                                   "seta_ind[5,1]"), diag_fun = "dens")
+
+
+etas<-draws_gen_df[,which(colnames(draws_gen_df) %in% grep("^seta_ind", names(draws_gen_df), value = TRUE))][1:1026]
+
+corr_matrix = cor(etas)
+
+rownames(simMat)<-1:1026
+colnames(simMat)<-1:1026
+rownames(corr_matrix)<-1:1026
+colnames(corr_matrix)<-1:1026
+ggcorrplot(simMat[001:100,001:100])
+ggcorrplot(corr_matrix[001:100,001:100])
 
 ```
 
