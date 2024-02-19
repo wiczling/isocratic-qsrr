@@ -447,10 +447,10 @@ fit <- cmdstanr::as_cmdstan_fit(c(
                                   paste0(stanfiles_dir,"/",  model_name, "_2.csv"),
                                   paste0(stanfiles_dir,"/",  model_name, "_3.csv"),
                                   paste0(stanfiles_dir,"/",  model_name, "_4.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_5.csv")
-                                  #paste0(stanfiles_dir,"/",  model_name, "-6.csv"),
-                                  #paste0(stanfiles_dir,"/",  model_name, "-7.csv"),
-                                  #paste0(stanfiles_dir,"/",  model_name, "-8.csv")
+                                  paste0(stanfiles_dir,"/",  model_name, "_5.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "_6.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "_7.csv"),
+                                 paste0(stanfiles_dir,"/",  model_name, "_8.csv")
                                 ))
 
 ```
