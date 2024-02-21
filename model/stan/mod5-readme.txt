@@ -7,4 +7,4 @@ no between analyte variabilty for dlogkw ans dS1
 dlogkw ans dS1 the same for acids and bases
 
 
-BAD CONVERGENCE for dlogkwHat and dS1Hat
+(reparametrized) dlogkwHat and dS1Hat

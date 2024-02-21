@@ -8,19 +8,19 @@
 #SBATCH --mem=2gb
 #SBATCH --array=1%1 
 
-# Załadowanie modułu
+# load modules
 module load tryton/cmdstan/2.30.1-conda
 
 export STAN_THREADS=false
 
-# Nazwa modelu
-export CMDSTAN_MODEL_NAME="hplc-qsrr-izo-diss-gp"
+# model name
+export CMDSTAN_MODEL_NAME="mod5"
 
-# Katalog z modelem (czyli gdzie się on znajduje)
+# folder name
 export MODEL_SRC_DIR=${PWD}
 cd ${MODEL_SRC_DIR}
 
-# Budowanie modelu
-[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" istnieje." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+# compile
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" does not exists." || cmdstan_model ${CMDSTAN_MODEL_NAME}
 
 wait

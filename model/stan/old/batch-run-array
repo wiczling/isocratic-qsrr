@@ -1,0 +1,28 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 8
+#SBATCH -p batch
+#SBATCH --time=24:00:00
+#SBATCH --mem=2gb
+#SBATCH --array=1-8%8 
+
+# load
+module load tryton/cmdstan/2.30.1-conda
+
+export STAN_THREADS=false
+
+# Model name
+export CMDSTAN_MODEL_NAME="mod5"
+
+# path
+export MODEL_SRC_DIR=${PWD}
+cd ${MODEL_SRC_DIR}
+
+# Budowanie modelu
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" does not exists." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+
+wait
+
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$PWD/standata.json init=$PWD/init-${SLURM_ARRAY_TASK_ID}.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-${SLURM_ARRAY_TASK_ID}.csv
