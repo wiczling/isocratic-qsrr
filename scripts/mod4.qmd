@@ -260,8 +260,8 @@ pKaslitB<-pKaslit[idxGroupsB]
 chargesA0 <- chargesA[,1]
 chargesB0 <- chargesB[,max(R)]
 
-idxA0 = c(which(chargesA0==1), which(chargesA0==2))
-idxB0 = c(which(chargesB0==1), which(chargesB0==2))
+idxA0 = c(which(chargesA0==1), which(chargesA0==2),which(chargesA0==2))
+idxB0 = c(which(chargesB0==1), which(chargesB0==2),which(chargesB0==2))
 
 nA0 <- length(idxA0)
 nB0 <- length(idxB0)
@@ -339,6 +339,8 @@ datastruct <- with(data,
                        idxGroupsA=idxGroupsA,
                        idxGroupsB=idxGroupsB,
                        logkobs=data$logk,
+                       K = K,
+                       fgrp = functional_groups,
                        nA0 = nA0,
                        nB0 = nB0,
                        idxA0 = idxA0,
@@ -351,11 +353,23 @@ init <- function(){
           S1Hat    = rnorm(1,4,1),
           dlogkwHat = rnorm(1,-1,0.125),
           dS1Hat   = rnorm(1,0,0.5),
-          logS2Hat = rnorm(1,0.3,0.125),
+          S2Hat = 2*exp(rnorm(1,0,0.125)),
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
+          kappa = c(0.25,0.25)*exp(rnorm(2, 0, 0.125)),
           rho = matrix(c(1,0.75,0.75,1), nrow=2),
           paramN = cbind(init_aprox$logkw,init_aprox$S1),
+                    pilogkw = rep(0,K),
+          piS1 = rep(0,K),
+          sdpi = c(0.1,0.1)* exp(rnorm(2,0,0.1)),
+          etadlogkwA0 = rnorm(nA0,0,0.125),
+          etadS1A0 = rnorm(nA0,0,0.125), 
+          etadlogkwB0 = rnorm(nB0,0,0.125),
+          etadS1B0 = rnorm(nB0,0,0.125), 
+          etadlogkwA = rnorm(nGroupsA,0,0.125),
+          etadS1A = rnorm(nGroupsA,0,0.125), 
+          etadlogkwB = rnorm(nGroupsB,0,0.125),
+          etadS1B = rnorm(nGroupsB,0,0.125), 
           sigma  =  0.05*exp(rnorm(1, 0, 0.5))
   )
 }
@@ -443,14 +457,14 @@ write_stan_json(init(), paste0(model_dir,"/init-8.json"), always_decimal = FALSE
 
 ```{r stanload}
 fit <- cmdstanr::as_cmdstan_fit(c(
-                                  paste0(stanfiles_dir,"/",  model_name, "_1.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_2.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_3.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_4.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_5.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_6.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "_7.csv"),
-                                 paste0(stanfiles_dir,"/",  model_name, "_8.csv")
+                                  paste0(stanfiles_dir,"/",  model_name, "-1.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-2.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-3.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-4.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-5.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-6.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-7.csv"),
+                                  paste0(stanfiles_dir,"/",  model_name, "-8.csv")
                                 ))
 
 ```
@@ -485,14 +499,14 @@ fit$print(max_rows = 180)
 Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters
 
 ```{r trace-plots, include=TRUE}
-bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat"))) 
+bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat"))) 
 bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma"))) 
 ```
 
 ## Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","logS2Hat")))
+mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
 mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
 ```
 

@@ -1,0 +1,36 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 8
+#SBATCH -p batch
+#SBATCH --time=16:00:00
+#SBATCH --mem=2gb
+
+# load modules
+module load tryton/cmdstan/2.30.1-conda
+
+export STAN_THREADS=false
+
+# model name
+export CMDSTAN_MODEL_NAME="mod6"
+
+# folder name
+export MODEL_SRC_DIR=${PWD}
+cd ${MODEL_SRC_DIR}
+
+# Model buidling
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" does not exists." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+
+wait
+
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-1.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s1.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-2.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s2.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-3.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s3.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-4.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s4.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-5.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s5.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-6.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s6.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-7.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s7.csv &
+${PWD}/${CMDSTAN_MODEL_NAME} sample num_samples=500 num_warmup=1000 algorithm=hmc engine=nuts max_depth=11 stepsize=0.01 adapt delta=0.99 data file=$PWD/standata.json init=$PWD/init-8.json  output file=$PWD/${CMDSTAN_MODEL_NAME}-s8.csv &
+
+wait
