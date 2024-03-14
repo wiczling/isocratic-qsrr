@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2024-02-19">
+<meta name="dcterms.date" content="2024-02-22">
 
 <title>QSRR revisited. Hierarchical models</title>
 <style>
@@ -130,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 19, 2024</p>
+      <p class="date">February 22, 2024</p>
     </div>
   </div>
   
@@ -389,7 +389,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="prepare-data-for-calculations" class="level1">
 <h1>Prepare data for calculations</h1>
-<div class="cell" data-hash="mod4_cache/html/unnamed-chunk-1_34ef181cba175dae5370764b6ed6eb04">
+<div class="cell" data-hash="mod4_cache/html/unnamed-chunk-1_50ae4c48c7e57905fa746118f03c3951">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pKaslit <span class="ot">=</span> data_ACD[,<span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>]           <span class="co"># pKa values as predicted by ACD</span></span>
@@ -418,8 +418,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>chargesA0 <span class="ot">&lt;-</span> chargesA[,<span class="dv">1</span>]</span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>chargesB0 <span class="ot">&lt;-</span> chargesB[,<span class="fu">max</span>(R)]</span>
 <span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>),<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>),<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
 <span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>nA0 <span class="ot">&lt;-</span> <span class="fu">length</span>(idxA0)</span>
 <span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>nB0 <span class="ot">&lt;-</span> <span class="fu">length</span>(idxB0)</span>
@@ -484,7 +484,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Multilevel modeling was performed in <a href="https://mc-stan.org/">Stan software</a> linked with R/ <a href="https://mc-stan.org/cmdstanr/">cmdstanr</a>. For the inference we used 500 iterations, 1000 warmup iterations, and 8 Markov chains. The reduce_sum function was selected to accelerate the calculations. It works by parallelizing the execution of a single Stan chain across multiple cores. Convergence diagnostics were checked using Gelman−Rubin statistics and trace plots.</p>
 <section id="initialize-variables-and-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="initialize-variables-and-parameters">Initialize variables and parameters</h3>
-<div class="cell" data-hash="mod4_cache/html/stansetup_84c2b25cef04ec370075635e96fc9881">
+<div class="cell" data-hash="mod4_cache/html/stansetup_9e803607072973f61e92b5f0d317c01a">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create Stan data set:</span></span>
@@ -503,26 +503,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxGroupsA=</span>idxGroupsA,</span>
 <span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxGroupsB=</span>idxGroupsB,</span>
 <span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">logkobs=</span>data<span class="sc">$</span>logk,</span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nA0 =</span> nA0,</span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nB0 =</span> nB0,</span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxA0 =</span> idxA0,</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxB0 =</span> idxB0,</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                       <span class="at">run_estimation=</span><span class="dv">1</span>))</span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the values for each variable in each chain:</span></span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(   <span class="at">logkwHat  =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>),</span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>          <span class="at">S1Hat    =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">1</span>),</span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">dlogkwHat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">0.125</span>),</span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">dS1Hat   =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.5</span>),</span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>          <span class="at">logS2Hat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="fl">0.3</span>,<span class="fl">0.125</span>),</span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">beta  =</span> <span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="fu">c</span>(<span class="fl">0.7</span>,<span class="fl">0.5</span>),<span class="fu">c</span>(<span class="fl">0.125</span>,<span class="fl">0.5</span>)),</span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)),</span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>          <span class="at">paramN =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>          <span class="at">sigma  =</span>  <span class="fl">0.05</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.5</span>))</span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">K =</span> K,</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">fgrp =</span> functional_groups,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nA0 =</span> nA0,</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nB0 =</span> nB0,</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxA0 =</span> idxA0,</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxB0 =</span> idxB0,</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>                       <span class="at">run_estimation=</span><span class="dv">1</span>))</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the values for each variable in each chain:</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(   <span class="at">logkwHat  =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>),</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">S1Hat    =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">1</span>),</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>          <span class="at">dlogkwHat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">0.125</span>),</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">dS1Hat   =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.5</span>),</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>          <span class="at">S2Hat =</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.125</span>)),</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">beta  =</span> <span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="fu">c</span>(<span class="fl">0.7</span>,<span class="fl">0.5</span>),<span class="fu">c</span>(<span class="fl">0.125</span>,<span class="fl">0.5</span>)),</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)),</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>          <span class="at">kappa =</span> <span class="fu">c</span>(<span class="fl">0.25</span>,<span class="fl">0.25</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.125</span>)),</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>          <span class="at">paramN =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pilogkw =</span> <span class="fu">rep</span>(<span class="dv">0</span>,K),</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>          <span class="at">piS1 =</span> <span class="fu">rep</span>(<span class="dv">0</span>,K),</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>          <span class="at">sdpi =</span> <span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>)<span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)),</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwA0 =</span> <span class="fu">rnorm</span>(nA0,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1A0 =</span> <span class="fu">rnorm</span>(nA0,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwB0 =</span> <span class="fu">rnorm</span>(nB0,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1B0 =</span> <span class="fu">rnorm</span>(nB0,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwA =</span> <span class="fu">rnorm</span>(nGroupsA,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1A =</span> <span class="fu">rnorm</span>(nGroupsA,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwB =</span> <span class="fu">rnorm</span>(nGroupsB,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1B =</span> <span class="fu">rnorm</span>(nGroupsB,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>          <span class="at">sigma  =</span>  <span class="fl">0.05</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.5</span>))</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -610,18 +624,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol start="3" type="1">
 <li>After calculations, we loaded the output files using cmdstanr.</li>
 </ol>
-<div class="cell" data-hash="mod4_cache/html/stanload_927b9e664a0873ca6726b5700a90e916">
+<div class="cell" data-hash="mod4_cache/html/stanload_54dfe4f0b46035a602c1a953a618bc56">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_1.csv"</span>),</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_2.csv"</span>),</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_3.csv"</span>),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_4.csv"</span>),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_5.csv"</span>),</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_6.csv"</span>),</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_7.csv"</span>),</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_8.csv"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
 <span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                                ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
@@ -649,380 +663,380 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">max_rows =</span> <span class="dv">180</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>      variable    mean  median    sd   mad      q5     q95 rhat ess_bulk
- lp__          6086.34 6087.15 44.41 45.38 6012.71 6159.96 1.01     1062
- logkwHat         2.35    2.35  0.09  0.08    2.20    2.50 1.02      345
- S1Hat            3.79    3.79  0.08  0.08    3.65    3.92 1.01      518
- dlogkwHat       -1.11   -1.10  0.09  0.09   -1.25   -0.97 1.10       67
- dS1Hat           0.16    0.16  0.08  0.08    0.03    0.29 1.08       83
- logS2Hat         0.45    0.45  0.01  0.01    0.44    0.46 1.02      309
- beta[1]          0.89    0.89  0.03  0.03    0.85    0.93 1.00     2626
- beta[2]          0.67    0.67  0.02  0.02    0.63    0.71 1.01     2130
- omega[1]         1.53    1.53  0.04  0.04    1.47    1.59 1.00     1803
- omega[2]         1.39    1.39  0.03  0.03    1.34    1.45 1.00     1731
- rho[1,1]         1.00    1.00  0.00  0.00    1.00    1.00   NA       NA
- rho[2,1]         0.90    0.90  0.01  0.01    0.89    0.91 1.00     1567
- rho[1,2]         0.90    0.90  0.01  0.01    0.89    0.91 1.00     1567
- rho[2,2]         1.00    1.00  0.00  0.00    1.00    1.00   NA       NA
- sigma            0.05    0.05  0.00  0.00    0.05    0.05 1.00     2376
- paramN[1,1]      0.63    0.63  0.07  0.07    0.50    0.75 1.00     7993
- paramN[2,1]      1.74    1.73  0.06  0.06    1.64    1.84 1.00     7255
- paramN[3,1]      1.42    1.42  0.10  0.10    1.23    1.57 1.00     6659
- paramN[4,1]      2.54    2.53  0.13  0.13    2.34    2.76 1.00     7388
- paramN[5,1]      0.99    1.00  0.06  0.06    0.90    1.09 1.00     7931
- paramN[6,1]      5.73    5.73  0.14  0.14    5.50    5.96 1.00     4495
- paramN[7,1]      2.41    2.41  0.12  0.12    2.21    2.63 1.05      134
- paramN[8,1]      3.86    3.86  0.12  0.11    3.68    4.06 1.00     5769
- paramN[9,1]      1.70    1.70  0.05  0.05    1.62    1.79 1.00     7425
- paramN[10,1]     0.22    0.22  0.08  0.07    0.09    0.35 1.00     8795
- paramN[11,1]     1.67    1.67  0.08  0.08    1.53    1.80 1.00     8895
- paramN[12,1]     2.62    2.62  0.06  0.06    2.52    2.72 1.00     8507
- paramN[13,1]     0.76    0.77  0.13  0.12    0.54    0.95 1.00     6656
- paramN[14,1]     1.77    1.77  0.04  0.04    1.70    1.84 1.00     7648
- paramN[15,1]     3.34    3.34  0.11  0.11    3.16    3.51 1.06      103
- paramN[16,1]     2.82    2.82  0.06  0.06    2.72    2.92 1.00     5007
- paramN[17,1]     2.05    2.05  0.05  0.05    1.97    2.13 1.00     7304
- paramN[18,1]     2.62    2.61  0.13  0.12    2.44    2.85 1.00     6669
- paramN[19,1]     2.18    2.17  0.05  0.05    2.09    2.27 1.00     7097
- paramN[20,1]     2.92    2.92  0.06  0.06    2.81    3.02 1.00     4831
- paramN[21,1]    11.62   11.65  0.83  0.82   10.22   12.93 1.00     6264
- paramN[22,1]     5.60    5.61  0.15  0.15    5.34    5.84 1.00     5166
- paramN[23,1]     6.35    6.36  0.24  0.23    5.95    6.73 1.00     5656
- paramN[24,1]     4.39    4.39  0.10  0.09    4.22    4.54 1.00     3487
- paramN[25,1]     5.50    5.50  0.10  0.10    5.32    5.66 1.01      827
- paramN[26,1]     6.12    6.12  0.15  0.14    5.87    6.35 1.00     3170
- paramN[27,1]     5.91    5.91  0.17  0.16    5.63    6.18 1.00     3785
- paramN[28,1]     5.74    5.75  0.17  0.16    5.46    6.01 1.01     5023
- paramN[29,1]     4.70    4.71  0.11  0.11    4.52    4.88 1.00     4477
- paramN[30,1]     4.52    4.53  0.12  0.12    4.32    4.71 1.00     5087
- paramN[31,1]     2.78    2.78  0.06  0.06    2.68    2.88 1.00     5404
- paramN[32,1]     1.80    1.80  0.05  0.05    1.73    1.87 1.00     6279
- paramN[33,1]     3.09    3.09  0.11  0.11    2.92    3.27 1.08       82
- paramN[34,1]     2.87    2.87  0.09  0.09    2.74    3.02 1.01     7435
- paramN[35,1]     1.52    1.52  0.05  0.04    1.45    1.60 1.00     7323
- paramN[36,1]     1.83    1.83  0.05  0.05    1.75    1.92 1.00     7476
- paramN[37,1]     2.79    2.78  0.11  0.11    2.64    2.99 1.00     6865
- paramN[38,1]     1.45    1.45  0.13  0.12    1.25    1.66 1.04      158
- paramN[39,1]     5.99    5.99  0.15  0.14    5.75    6.22 1.00     4307
- paramN[40,1]     2.80    2.79  0.11  0.11    2.63    3.00 1.00     6684
- paramN[41,1]     3.40    3.40  0.13  0.13    3.19    3.61 1.00     6216
- paramN[42,1]     2.90    2.90  0.06  0.06    2.80    2.99 1.02      236
- paramN[43,1]     3.25    3.24  0.09  0.09    3.10    3.41 1.00     6388
- paramN[44,1]     2.91    2.91  0.09  0.09    2.77    3.08 1.00     7551
- paramN[45,1]     3.66    3.66  0.14  0.13    3.42    3.88 1.00     6726
- paramN[46,1]    -0.65   -0.65  0.14  0.13   -0.87   -0.43 1.00     6892
- paramN[47,1]    -0.60   -0.60  0.13  0.13   -0.82   -0.38 1.00     7829
- paramN[48,1]     3.36    3.36  0.08  0.08    3.23    3.50 1.00     5536
- paramN[49,1]     2.32    2.32  0.05  0.05    2.23    2.40 1.00     5462
- paramN[50,1]     2.17    2.17  0.05  0.05    2.10    2.25 1.00     7640
- paramN[51,1]     2.91    2.91  0.09  0.09    2.77    3.08 1.00     7646
- paramN[52,1]     2.32    2.32  0.05  0.05    2.24    2.40 1.00     5692
- paramN[53,1]     2.12    2.12  0.05  0.05    2.04    2.21 1.00     7457
- paramN[54,1]     2.69    2.69  0.05  0.05    2.60    2.77 1.00     6117
- paramN[55,1]     1.39    1.39  0.06  0.06    1.28    1.49 1.00     6847
- paramN[56,1]     2.92    2.92  0.08  0.07    2.79    3.03 1.00     4431
- paramN[57,1]     2.77    2.77  0.06  0.06    2.66    2.87 1.01      464
- paramN[58,1]     3.23    3.22  0.09  0.09    3.09    3.39 1.00     7654
- paramN[59,1]     2.96    2.95  0.12  0.12    2.76    3.16 1.05      128
- paramN[60,1]     2.58    2.58  0.07  0.06    2.48    2.70 1.00     7872
- paramN[61,1]     7.56    7.55  0.22  0.22    7.19    7.92 1.01     6079
- paramN[62,1]     2.07    2.07  0.05  0.05    1.99    2.16 1.00     7981
- paramN[63,1]     2.44    2.44  0.05  0.05    2.37    2.52 1.01     5677
- paramN[64,1]     4.50    4.51  0.12  0.11    4.30    4.68 1.00     4980
- paramN[65,1]     2.02    2.02  0.07  0.07    1.90    2.13 1.00     7500
- paramN[66,1]     3.47    3.47  0.07  0.06    3.36    3.57 1.00     3994
- paramN[67,1]     4.78    4.79  0.20  0.20    4.45    5.10 1.01     5972
- paramN[68,1]     6.37    6.37  0.21  0.20    6.01    6.71 1.00     5346
- paramN[69,1]     2.72    2.71  0.07  0.07    2.61    2.83 1.00     7472
- paramN[70,1]     3.21    3.20  0.07  0.07    3.09    3.33 1.00     5467
- paramN[71,1]     2.45    2.45  0.05  0.05    2.38    2.53 1.00     6489
- paramN[72,1]     2.85    2.84  0.10  0.09    2.70    3.03 1.00     7566
- paramN[73,1]     2.72    2.71  0.07  0.07    2.61    2.83 1.00     7204
- paramN[74,1]     2.71    2.71  0.07  0.07    2.60    2.83 1.00     7849
- paramN[75,1]     3.89    3.90  0.12  0.11    3.70    4.08 1.00     5051
- paramN[76,1]     2.71    2.71  0.07  0.07    2.60    2.83 1.00     7225
- paramN[77,1]     3.56    3.55  0.07  0.07    3.45    3.67 1.00     6850
- paramN[78,1]     3.56    3.56  0.07  0.07    3.44    3.68 1.00     5804
- paramN[79,1]     4.51    4.52  0.14  0.13    4.29    4.72 1.00     6066
- paramN[80,1]     4.38    4.38  0.18  0.18    4.08    4.66 1.01     6552
- paramN[81,1]     5.18    5.19  0.19  0.19    4.88    5.48 1.01     5965
- paramN[82,1]     3.32    3.32  0.10  0.10    3.14    3.47 1.00     6990
- paramN[83,1]     2.26    2.26  0.05  0.05    2.18    2.35 1.00     7653
- paramN[84,1]     0.91    0.91  0.05  0.05    0.82    1.00 1.00     9019
- paramN[85,1]     1.81    1.81  0.06  0.06    1.71    1.90 1.00     7936
- paramN[86,1]     0.37    0.37  0.07  0.07    0.26    0.48 1.00     8804
- paramN[87,1]     3.08    3.08  0.06  0.06    2.98    3.18 1.00     5874
- paramN[88,1]     1.34    1.34  0.13  0.13    1.14    1.55 1.06      109
- paramN[89,1]     0.10    0.10  0.08  0.08   -0.04    0.22 1.00     7065
- paramN[90,1]     1.53    1.53  0.05  0.05    1.44    1.61 1.00     7411
- paramN[91,1]     0.10    0.11  0.09  0.08   -0.05    0.24 1.00     8402
- paramN[92,1]     0.96    0.96  0.06  0.06    0.85    1.06 1.00     8427
- paramN[93,1]     0.76    0.76  0.06  0.06    0.64    0.86 1.00     8850
- paramN[94,1]    -0.05   -0.04  0.09  0.08   -0.19    0.09 1.00     6578
- paramN[95,1]     0.71    0.83  0.40  0.23   -0.19    1.14 1.09       68
- paramN[96,1]    -0.35   -0.34  0.08  0.08   -0.48   -0.22 1.00     7208
- paramN[97,1]     0.22    0.22  0.08  0.07    0.09    0.34 1.00     7785
- paramN[98,1]     0.84    0.84  0.06  0.06    0.73    0.94 1.00     7895
- paramN[99,1]     1.25    1.24  0.05  0.05    1.16    1.33 1.01     8043
- paramN[100,1]    1.52    1.52  0.05  0.05    1.44    1.59 1.00     7211
- paramN[101,1]    1.86    1.86  0.05  0.05    1.79    1.94 1.00     5792
- paramN[102,1]    2.39    2.39  0.05  0.05    2.32    2.47 1.00     8123
- paramN[103,1]    3.13    3.13  0.08  0.07    3.02    3.26 1.00     6168
- paramN[104,1]    4.05    4.05  0.10  0.10    3.89    4.22 1.00     4252
- paramN[105,1]    4.92    4.91  0.14  0.14    4.69    5.15 1.00     4740
- paramN[106,1]    5.67    5.67  0.14  0.13    5.43    5.91 1.00     4318
- paramN[107,1]    6.44    6.44  0.22  0.21    6.11    6.80 1.01     6146
- paramN[108,1]    7.14    7.13  0.21  0.21    6.81    7.49 1.00     4318
- paramN[109,1]    7.82    7.82  0.21  0.20    7.48    8.17 1.00     3568
- paramN[110,1]    8.61    8.60  0.32  0.31    8.08    9.14 1.00     5507
- paramN[111,1]    9.40    9.41  0.50  0.48    8.59   10.23 1.00     5803
- paramN[112,1]   10.08   10.07  0.51  0.51    9.25   10.89 1.00     3919
- paramN[113,1]   10.74   10.74  0.51  0.48    9.87   11.58 1.00     6870
- paramN[114,1]   11.41   11.42  0.52  0.50   10.54   12.22 1.00     5581
- paramN[115,1]   12.14   12.17  0.87  0.88   10.67   13.51 1.00     6317
- paramN[116,1]    1.38    1.39  0.06  0.06    1.28    1.47 1.00     7975
- paramN[117,1]    2.34    2.34  0.08  0.09    2.20    2.47 1.04      154
- paramN[118,1]    2.77    2.77  0.06  0.06    2.68    2.88 1.00     7490
- paramN[119,1]    2.29    2.29  0.05  0.05    2.21    2.37 1.00     6095
- paramN[120,1]    6.03    6.03  0.16  0.16    5.77    6.30 1.00     4690
- paramN[121,1]    4.94    4.93  0.20  0.20    4.62    5.27 1.00     3664
- paramN[122,1]    4.34    4.34  0.18  0.17    4.05    4.63 1.00     6921
- paramN[123,1]   11.91   11.93  0.71  0.68   10.72   13.02 1.00     6382
- paramN[124,1]    8.07    8.07  0.25  0.24    7.67    8.50 1.00     5271
- paramN[125,1]    9.36    9.37  0.52  0.50    8.51   10.21 1.00     6936
- paramN[126,1]    3.44    3.45  0.16  0.16    3.16    3.69 1.00     6701
- paramN[127,1]    6.36    6.36  0.17  0.17    6.07    6.64 1.01     4977
- paramN[128,1]    0.61    0.61  0.07  0.07    0.48    0.71 1.00     7597
- paramN[129,1]    4.71    4.71  0.10  0.10    4.55    4.87 1.00     2897
- paramN[130,1]    6.33    6.33  0.18  0.18    6.02    6.63 1.00     5211
- paramN[131,1]    5.22    5.22  0.19  0.18    4.91    5.53 1.00     7691
- paramN[132,1]    5.20    5.19  0.17  0.16    4.94    5.48 1.00     5112
- paramN[133,1]    6.18    6.18  0.21  0.21    5.84    6.52 1.00     5672
- paramN[134,1]    2.94    2.93  0.08  0.08    2.81    3.07 1.00     6506
- paramN[135,1]    5.64    5.65  0.16  0.16    5.38    5.91 1.00     4209
- paramN[136,1]    7.93    7.93  0.24  0.24    7.53    8.33 1.00     5079
- paramN[137,1]    4.35    4.35  0.11  0.10    4.18    4.53 1.00     5314
- paramN[138,1]    6.43    6.43  0.16  0.15    6.18    6.69 1.00     5637
- paramN[139,1]    7.43    7.42  0.25  0.25    7.02    7.85 1.00     4351
- paramN[140,1]    5.68    5.68  0.17  0.16    5.39    5.95 1.00     6102
- paramN[141,1]    6.34    6.34  0.15  0.15    6.09    6.59 1.00     4318
- paramN[142,1]    5.95    5.95  0.16  0.15    5.69    6.22 1.00     4960
- paramN[143,1]    3.95    3.96  0.10  0.10    3.79    4.12 1.01     6254
- paramN[144,1]    7.31    7.31  0.21  0.21    6.96    7.66 1.00     4739
- paramN[145,1]    5.73    5.73  0.16  0.15    5.46    5.99 1.00     4854
- paramN[146,1]    3.45    3.45  0.09  0.09    3.30    3.60 1.00     5485
- paramN[147,1]    0.29    0.29  0.05  0.05    0.19    0.37 1.00     8090
- paramN[148,1]    5.90    5.90  0.15  0.14    5.66    6.14 1.00     4484
- paramN[149,1]    6.38    6.39  0.17  0.17    6.08    6.66 1.03      228
- paramN[150,1]    7.84    7.84  0.33  0.32    7.31    8.37 1.00     6009
- paramN[151,1]    9.83    9.83  0.35  0.34    9.23   10.40 1.00     4997
- paramN[152,1]    7.84    7.82  0.29  0.27    7.40    8.34 1.01      615
- paramN[153,1]    5.90    5.90  0.14  0.14    5.66    6.13 1.00     4082
- paramN[154,1]    3.46    3.46  0.09  0.09    3.31    3.62 1.00     4857
- paramN[155,1]    6.34    6.33  0.17  0.16    6.07    6.62 1.00     4228
- paramN[156,1]   11.99   11.99  0.59  0.59   11.02   12.92 1.00     5597
- paramN[157,1]    5.56    5.56  0.18  0.16    5.26    5.84 1.00     5695
- paramN[158,1]    5.35    5.35  0.09  0.09    5.19    5.51 1.00     1000
- paramN[159,1]    6.38    6.38  0.25  0.24    5.96    6.79 1.00     6995
- paramN[160,1]    8.29    8.29  0.41  0.40    7.60    8.94 1.00     6051
- paramN[161,1]    7.49    7.49  0.31  0.30    7.00    7.99 1.00     6084
- paramN[162,1]    6.55    6.55  0.32  0.32    6.04    7.06 1.00     5791
- paramN[163,1]    3.07    3.06  0.07  0.07    2.95    3.19 1.00     6236
- paramN[164,1]    2.61    2.61  0.06  0.06    2.51    2.70 1.00     7104
- paramN[165,1]    6.33    6.33  0.15  0.15    6.08    6.56 1.00     3414
+<pre><code>    variable     mean   median    sd   mad       q5      q95 rhat ess_bulk
+ lp__        10873.24 10873.45 59.48 60.64 10777.58 10970.30 1.02      636
+ logkwHat        1.70     1.70  0.12  0.12     1.50     1.90 1.02      590
+ S1Hat           2.90     2.90  0.11  0.11     2.72     3.07 1.01      793
+ dlogkwHat      -0.53    -0.54  0.10  0.10    -0.69    -0.36 1.08      100
+ dS1Hat          0.41     0.40  0.09  0.09     0.26     0.56 1.07      100
+ S2Hat           2.82     2.82  0.03  0.03     2.76     2.87 1.03      309
+ beta[1]         0.89     0.89  0.03  0.03     0.85     0.94 1.00     2901
+ beta[2]         0.70     0.70  0.02  0.02     0.66     0.74 1.00     2255
+ omega[1]        1.40     1.40  0.04  0.04     1.34     1.46 1.00     1536
+ omega[2]        1.18     1.18  0.03  0.03     1.12     1.24 1.01     1521
+ kappa[1]        0.27     0.28  0.09  0.09     0.11     0.41 1.13       47
+ kappa[2]        0.56     0.56  0.04  0.04     0.49     0.63 1.02      438
+ rho[1,1]        1.00     1.00  0.00  0.00     1.00     1.00   NA       NA
+ rho[2,1]        0.93     0.93  0.01  0.01     0.92     0.94 1.01     1308
+ rho[1,2]        0.93     0.93  0.01  0.01     0.92     0.94 1.01     1308
+ rho[2,2]        1.00     1.00  0.00  0.00     1.00     1.00   NA       NA
+ sigma           0.05     0.05  0.00  0.00     0.05     0.05 1.00     1851
+ pilogkw[1]      0.01     0.01  0.22  0.22    -0.34     0.38 1.00     8333
+ pilogkw[2]      0.29     0.29  0.10  0.10     0.12     0.45 1.00     4226
+ pilogkw[3]     -0.24    -0.24  0.24  0.23    -0.64     0.12 1.00     5756
+ pilogkw[4]      0.09     0.09  0.22  0.22    -0.27     0.45 1.00     7431
+ pilogkw[5]     -0.11    -0.10  0.22  0.22    -0.47     0.24 1.00     6288
+ pilogkw[6]      0.01     0.01  0.19  0.19    -0.29     0.32 1.00     6746
+ pilogkw[7]      0.21     0.20  0.21  0.21    -0.14     0.58 1.00     5977
+ pilogkw[8]      0.23     0.23  0.23  0.23    -0.15     0.62 1.00     5794
+ pilogkw[9]      0.22     0.22  0.15  0.15    -0.03     0.48 1.00     4715
+ pilogkw[10]     0.11     0.11  0.20  0.19    -0.22     0.43 1.00     6570
+ pilogkw[11]    -0.05    -0.05  0.21  0.21    -0.41     0.30 1.00     6905
+ pilogkw[12]     0.14     0.13  0.22  0.21    -0.22     0.50 1.00     5950
+ pilogkw[13]    -0.04    -0.04  0.18  0.17    -0.33     0.26 1.00     5708
+ pilogkw[14]     0.06     0.05  0.19  0.19    -0.26     0.37 1.00     6198
+ pilogkw[15]     0.04     0.04  0.20  0.19    -0.28     0.36 1.00     5886
+ pilogkw[16]     0.05     0.05  0.14  0.15    -0.18     0.29 1.00     5641
+ pilogkw[17]     0.24     0.24  0.10  0.10     0.08     0.40 1.00     3879
+ pilogkw[18]     0.09     0.09  0.15  0.15    -0.15     0.34 1.00     4589
+ pilogkw[19]     0.44     0.44  0.15  0.15     0.20     0.69 1.00     3892
+ pilogkw[20]    -0.04    -0.04  0.19  0.19    -0.34     0.27 1.00     6604
+ pilogkw[21]    -0.08    -0.08  0.07  0.07    -0.20     0.03 1.00     4652
+ pilogkw[22]    -0.14    -0.14  0.16  0.16    -0.41     0.13 1.00     5043
+ pilogkw[23]     0.33     0.33  0.15  0.14     0.08     0.57 1.00     3985
+ pilogkw[24]     0.22     0.22  0.05  0.05     0.14     0.31 1.00     3515
+ pilogkw[25]     0.31     0.30  0.17  0.17     0.04     0.59 1.00     3691
+ pilogkw[26]     0.27     0.27  0.16  0.16     0.01     0.53 1.01     4333
+ pilogkw[27]     0.04     0.04  0.23  0.23    -0.34     0.42 1.00     8052
+ pilogkw[28]     0.12     0.12  0.18  0.17    -0.17     0.43 1.00     4414
+ pilogkw[29]    -0.03    -0.03  0.22  0.21    -0.40     0.33 1.00     7774
+ pilogkw[30]    -0.05    -0.05  0.17  0.16    -0.32     0.22 1.00     2581
+ pilogkw[31]    -0.14    -0.14  0.13  0.13    -0.35     0.07 1.00     4323
+ pilogkw[32]    -0.23    -0.22  0.17  0.16    -0.50     0.03 1.00     1992
+ pilogkw[33]    -0.08    -0.08  0.15  0.16    -0.33     0.18 1.00     5803
+ pilogkw[34]    -0.05    -0.05  0.19  0.19    -0.37     0.26 1.00     5898
+ pilogkw[35]    -0.21    -0.20  0.12  0.12    -0.41    -0.01 1.02      356
+ pilogkw[36]     0.00     0.00  0.14  0.14    -0.24     0.24 1.00     4558
+ pilogkw[37]     0.32     0.31  0.22  0.22    -0.03     0.69 1.01     1607
+ pilogkw[38]    -0.01    -0.01  0.23  0.23    -0.38     0.36 1.00     7168
+ pilogkw[39]    -0.13    -0.13  0.19  0.19    -0.46     0.18 1.00     5737
+ pilogkw[40]     0.02     0.02  0.18  0.18    -0.29     0.32 1.00     6465
+ pilogkw[41]     0.01     0.01  0.22  0.22    -0.35     0.37 1.00     6856
+ pilogkw[42]     0.29     0.29  0.13  0.13     0.09     0.51 1.00     4511
+ pilogkw[43]     0.11     0.11  0.07  0.07    -0.01     0.23 1.00     4844
+ pilogkw[44]    -0.08    -0.08  0.19  0.19    -0.38     0.23 1.00     5226
+ pilogkw[45]    -0.08    -0.08  0.19  0.19    -0.39     0.23 1.00     7100
+ pilogkw[46]     0.22     0.21  0.23  0.23    -0.15     0.60 1.00     5497
+ pilogkw[47]     0.08     0.08  0.10  0.10    -0.09     0.25 1.00     4651
+ pilogkw[48]     0.38     0.38  0.10  0.10     0.21     0.56 1.00     3244
+ pilogkw[49]     0.11     0.11  0.17  0.17    -0.17     0.40 1.00     5151
+ pilogkw[50]    -0.01    -0.01  0.19  0.18    -0.32     0.29 1.00     6667
+ pilogkw[51]     0.35     0.35  0.12  0.12     0.16     0.54 1.00     2620
+ pilogkw[52]     0.11     0.10  0.15  0.15    -0.13     0.34 1.00     4620
+ pilogkw[53]     0.00     0.00  0.17  0.18    -0.29     0.28 1.00     5507
+ pilogkw[54]     0.03     0.03  0.21  0.20    -0.30     0.37 1.00     6960
+ pilogkw[55]    -0.08    -0.07  0.23  0.22    -0.46     0.28 1.00     7531
+ pilogkw[56]    -0.25    -0.24  0.19  0.19    -0.55     0.06 1.00     3421
+ pilogkw[57]     0.21     0.21  0.18  0.18    -0.09     0.52 1.00     4147
+ pilogkw[58]    -0.05    -0.05  0.22  0.22    -0.42     0.31 1.00     8502
+ pilogkw[59]    -0.06    -0.06  0.21  0.20    -0.40     0.28 1.00     6652
+ pilogkw[60]     0.12     0.12  0.10  0.10    -0.04     0.28 1.00     3750
+ pilogkw[61]    -0.16    -0.15  0.21  0.21    -0.51     0.19 1.00     6051
+ pilogkw[62]     0.13     0.13  0.19  0.18    -0.18     0.44 1.00     6864
+ pilogkw[63]     0.01     0.01  0.20  0.19    -0.31     0.34 1.00     7197
+ pilogkw[64]     0.12     0.12  0.20  0.20    -0.20     0.45 1.00     6938
+ pilogkw[65]     0.02     0.01  0.23  0.22    -0.36     0.40 1.00     7674
+ pilogkw[66]    -0.18    -0.17  0.23  0.23    -0.57     0.18 1.00     6869
+ pilogkw[67]     0.10     0.10  0.19  0.19    -0.22     0.42 1.00     6064
+ pilogkw[68]     0.04     0.03  0.15  0.15    -0.21     0.29 1.00     6111
+ pilogkw[69]     0.04     0.03  0.21  0.21    -0.31     0.40 1.00     7065
+ pilogkw[70]     0.09     0.08  0.21  0.20    -0.25     0.44 1.00     6533
+ pilogkw[71]     0.11     0.11  0.15  0.16    -0.13     0.37 1.00     5775
+ pilogkw[72]     0.02     0.03  0.23  0.22    -0.35     0.40 1.00     8034
+ pilogkw[73]     0.03     0.03  0.22  0.21    -0.33     0.38 1.00     8139
+ pilogkw[74]    -0.13    -0.13  0.21  0.20    -0.47     0.20 1.00     6180
+ pilogkw[75]    -0.40    -0.40  0.18  0.18    -0.70    -0.11 1.00     3943
+ pilogkw[76]     0.09     0.08  0.23  0.23    -0.29     0.49 1.00     6777
+ pilogkw[77]     0.01     0.01  0.22  0.22    -0.35     0.37 1.00     7045
+ pilogkw[78]     0.09     0.09  0.23  0.22    -0.28     0.47 1.00     6357
+ pilogkw[79]     0.03     0.02  0.23  0.24    -0.36     0.42 1.00     7517
+ pilogkw[80]     0.16     0.15  0.16  0.16    -0.11     0.43 1.00     4715
+ pilogkw[81]     0.07     0.06  0.23  0.22    -0.31     0.45 1.00     8694
+ pilogkw[82]     0.02     0.02  0.21  0.21    -0.33     0.36 1.00     5873
+ pilogkw[83]     0.22     0.21  0.23  0.22    -0.15     0.60 1.00     4823
+ pilogkw[84]     0.21     0.21  0.15  0.15    -0.03     0.45 1.00     4417
+ pilogkw[85]     0.00    -0.01  0.23  0.23    -0.38     0.38 1.00     7772
+ pilogkw[86]     0.10     0.10  0.21  0.21    -0.23     0.45 1.00     5792
+ pilogkw[87]    -0.11    -0.11  0.21  0.21    -0.46     0.24 1.00     6585
+ pilogkw[88]     0.04     0.03  0.23  0.23    -0.35     0.42 1.00     7374
+ pilogkw[89]     0.14     0.14  0.18  0.18    -0.14     0.44 1.00     5470
+ pilogkw[90]    -0.02    -0.02  0.19  0.18    -0.33     0.28 1.00     6362
+ pilogkw[91]     0.39     0.38  0.19  0.19     0.09     0.71 1.00     3012
+ pilogkw[92]     0.07     0.07  0.21  0.21    -0.27     0.43 1.00     6061
+ pilogkw[93]     0.22     0.22  0.25  0.25    -0.18     0.65 1.00     5616
+ pilogkw[94]    -0.01     0.00  0.23  0.22    -0.38     0.37 1.00     7558
+ pilogkw[95]     0.13     0.13  0.07  0.07     0.01     0.24 1.00     4419
+ pilogkw[96]    -0.03    -0.03  0.17  0.17    -0.32     0.26 1.00     5987
+ pilogkw[97]     0.07     0.07  0.20  0.19    -0.26     0.40 1.00     6111
+ pilogkw[98]     0.26     0.26  0.20  0.19    -0.06     0.59 1.00     5176
+ piS1[1]        -0.08    -0.07  0.23  0.23    -0.45     0.30 1.00     7183
+ piS1[2]         0.23     0.24  0.09  0.09     0.09     0.37 1.00     4255
+ piS1[3]         0.47     0.47  0.27  0.26     0.04     0.92 1.00     5645
+ piS1[4]        -0.21    -0.21  0.26  0.26    -0.65     0.21 1.00     7624
+ piS1[5]         0.64     0.63  0.23  0.23     0.26     1.03 1.00     4268
+ piS1[6]         0.05     0.04  0.18  0.18    -0.24     0.34 1.00     6486
+ piS1[7]        -0.06    -0.06  0.21  0.21    -0.40     0.28 1.00     5579
+ piS1[8]        -0.19    -0.19  0.26  0.25    -0.62     0.21 1.00     6639
+ piS1[9]         0.07     0.07  0.14  0.14    -0.17     0.30 1.00     4490
+ piS1[10]        0.03     0.03  0.19  0.18    -0.28     0.33 1.00     6612
+ piS1[11]        0.02     0.02  0.23  0.23    -0.36     0.40 1.00     5933
+ piS1[12]       -0.17    -0.17  0.24  0.25    -0.57     0.22 1.00     5773
+ piS1[13]        0.06     0.06  0.17  0.17    -0.22     0.33 1.00     5713
+ piS1[14]        0.05     0.05  0.18  0.18    -0.25     0.34 1.00     5901
+ piS1[15]       -0.13    -0.13  0.19  0.19    -0.43     0.18 1.00     6443
+ piS1[16]        0.16     0.16  0.13  0.13    -0.05     0.36 1.00     4997
+ piS1[17]        0.51     0.51  0.09  0.09     0.36     0.66 1.00     3629
+ piS1[18]        0.20     0.19  0.14  0.14    -0.03     0.42 1.00     3923
+ piS1[19]        0.07     0.07  0.13  0.13    -0.14     0.28 1.00     3626
+ piS1[20]        0.15     0.15  0.19  0.18    -0.16     0.46 1.00     4375
+ piS1[21]        0.03     0.03  0.06  0.06    -0.06     0.13 1.00     4331
+ piS1[22]       -0.02    -0.02  0.15  0.14    -0.27     0.22 1.00     4708
+ piS1[23]        0.33     0.33  0.13  0.13     0.12     0.55 1.00     4211
+ piS1[24]        0.22     0.22  0.05  0.05     0.14     0.29 1.00     3658
+ piS1[25]        0.33     0.32  0.15  0.15     0.08     0.58 1.00     4038
+ piS1[26]        0.28     0.28  0.14  0.14     0.05     0.52 1.00     4328
+ piS1[27]       -0.03    -0.02  0.27  0.27    -0.48     0.42 1.00     6181
+ piS1[28]        0.33     0.32  0.17  0.18     0.05     0.61 1.00     4212
+ piS1[29]       -0.04    -0.04  0.24  0.24    -0.43     0.34 1.00     6897
+ piS1[30]        0.23     0.23  0.17  0.17    -0.05     0.49 1.00     3036
+ piS1[31]        0.34     0.34  0.12  0.12     0.14     0.53 1.00     3887
+ piS1[32]        0.21     0.21  0.17  0.16    -0.06     0.48 1.00     2490
+ piS1[33]        0.03     0.02  0.14  0.14    -0.20     0.26 1.00     5386
+ piS1[34]       -0.16    -0.16  0.18  0.18    -0.46     0.15 1.00     5244
+ piS1[35]        0.26     0.26  0.11  0.11     0.08     0.45 1.02      542
+ piS1[36]       -0.04    -0.04  0.13  0.13    -0.27     0.17 1.00     3765
+ piS1[37]        1.38     1.38  0.23  0.23     1.02     1.76 1.01     1358
+ piS1[38]       -0.03    -0.03  0.24  0.24    -0.43     0.36 1.00     5875
+ piS1[39]        0.06     0.05  0.19  0.19    -0.26     0.37 1.00     6208
+ piS1[40]        0.13     0.13  0.17  0.16    -0.14     0.41 1.00     6017
+ piS1[41]       -0.02    -0.02  0.26  0.25    -0.44     0.41 1.00     8026
+ piS1[42]        0.40     0.40  0.11  0.12     0.21     0.59 1.00     3535
+ piS1[43]        0.11     0.11  0.06  0.06     0.01     0.22 1.00     4745
+ piS1[44]       -0.07    -0.07  0.18  0.17    -0.37     0.22 1.00     5307
+ piS1[45]        0.08     0.08  0.19  0.19    -0.23     0.39 1.00     5397
+ piS1[46]       -0.05    -0.05  0.26  0.25    -0.47     0.37 1.00     7495
+ piS1[47]        0.26     0.26  0.09  0.10     0.11     0.42 1.00     4221
+ piS1[48]        0.38     0.38  0.09  0.09     0.23     0.53 1.00     3274
+ piS1[49]        0.00     0.00  0.16  0.16    -0.26     0.26 1.00     4772
+ piS1[50]        0.01     0.01  0.18  0.18    -0.28     0.31 1.00     4556
+ piS1[51]        0.43     0.43  0.10  0.10     0.27     0.59 1.00     2650
+ piS1[52]        0.16     0.16  0.13  0.13    -0.05     0.39 1.00     4654
+ piS1[53]        0.09     0.09  0.16  0.16    -0.18     0.35 1.00     5112
+ piS1[54]       -0.29    -0.29  0.21  0.22    -0.65     0.05 1.00     5411
+ piS1[55]        0.14     0.14  0.26  0.25    -0.30     0.57 1.01     7130
+ piS1[56]        0.07     0.07  0.18  0.18    -0.23     0.36 1.00     4070
+ piS1[57]        0.23     0.23  0.17  0.17    -0.04     0.51 1.00     4174
+ piS1[58]        0.15     0.15  0.26  0.26    -0.27     0.59 1.00     6220
+ piS1[59]        0.23     0.22  0.23  0.23    -0.15     0.61 1.00     7129
+ piS1[60]        0.23     0.23  0.09  0.09     0.09     0.37 1.00     3432
+ piS1[61]        0.12     0.12  0.22  0.23    -0.25     0.49 1.00     6285
+ piS1[62]        0.07     0.07  0.20  0.20    -0.26     0.41 1.00     6061
+ piS1[63]        0.01     0.01  0.22  0.21    -0.35     0.37 1.00     7038
+ piS1[64]        0.06     0.06  0.22  0.21    -0.30     0.42 1.00     6352
+ piS1[65]       -0.02    -0.01  0.26  0.26    -0.45     0.40 1.00     7362
  ess_tail
-     1984
-     1855
-     1810
-      224
-      273
-      841
-     3098
-     2836
-     2712
-     3153
+     1477
+     1568
+     1621
+      245
+      295
+      624
+     2974
+     3065
+     2481
+     2711
+       97
+     1137
        NA
-     2728
-     2728
+     2542
+     2542
        NA
-     3257
-     2462
-     2800
-     2563
-     2980
-     2779
-     2943
-      485
-     3047
-     2588
-     2731
-     3045
-     2252
-     2877
-     3178
-      364
-     2564
-     2613
-     2415
-     2767
-     2944
-     2914
-     2455
-     2571
-     2734
-     2257
-     2465
-     2526
-     2766
-     2625
-     2831
+     2493
+     3040
+     3316
      2540
-     3080
-      301
-     2158
-     3027
-     2798
-     2864
-      497
-     2308
-     2800
-     2894
-     1090
-     2588
-     2566
+     2939
+     3355
+     3544
+     2915
+     3034
+     3166
+     3104
+     2589
+     3124
+     3004
+     2921
+     2959
+     3350
+     3229
+     2989
+     3415
+     3131
+     3534
+     3701
+     2539
+     3189
+     3190
      2851
-     2465
-     3036
-     2596
-     2338
-     2980
-     2758
-     3037
-     2826
-     2703
-     2656
-     2967
-     1540
-     2536
-      520
-     2552
-     2530
-     2802
-     3010
-     2628
-     2462
-     2071
-     2737
-     2549
-     3072
-     2546
-     2889
-     3182
-     2987
-     2998
-     2512
-     2624
-     2695
-     2678
-     2521
-     2783
-     2660
-     2719
-     2550
-     2646
-     2455
-     3174
      3011
-      433
-     2638
-     2957
-     2643
-     2732
-     2816
-     2505
-      336
-     2685
-     3116
-     3026
-     2807
-     2903
-     2888
-     2877
+     3190
+     2935
+     2997
+     3033
+     2954
+     3293
+     3049
+     1091
+     2842
+     2295
+     2989
+     3576
+     3024
+     3060
+     2832
+     3152
+     2735
+     3459
+     3168
+     3374
+     3114
+     3149
+     2682
+     2926
+     3046
+     3316
+     3454
+     2951
+     2697
+     3372
+     3336
+     3080
+     2742
+     3099
+     2905
+     3094
+     2909
+     3106
+     3163
+     3236
+     3379
+     3284
+     3093
+     2946
+     2757
+     3039
+     3126
+     2874
+     2912
+     2788
+     3306
+     3093
+     3111
+     2605
+     3034
+     2881
+     3150
+     3196
+     2843
+     3082
+     3307
+     3150
+     3345
+     2616
+     2802
+     2598
+     3019
+     2943
+     3216
+     2835
+     2946
+     2867
+     3073
+     3364
+     2993
+     3328
+     2962
+     2857
+     3031
+     3272
+     2899
+     3168
+     3256
+     2840
+     2979
+     3173
+     3244
+     3197
      2623
-     2314
-     2601
-     2550
-     2715
-     2592
-     2185
-     2417
-     2212
-     2627
-     2545
-     2588
-     2532
-     3110
-      653
-     2984
-     2580
-     2826
-     2878
-     2969
-     2236
-     2680
-     2545
-     2679
-     2564
-     2476
-     2869
-     2228
-     2703
-     2563
-     2568
-     2801
-     2636
-     2557
-     2249
-     2652
-     2471
-     2524
-     3347
-     2549
-     2648
-     2561
-     2821
-     2986
-     2647
-     3035
-     1185
-     2901
-     2614
-     1619
-     2464
-     2458
-     2172
-     2520
-     2618
-     2087
-     2878
-     2876
-     2686
-     2633
-     2889
-     2562
-     2563
+     3393
+     3390
+     3411
+     3159
+     3027
+     3337
+     3004
+     3515
+     3006
+     3227
+     3052
+     3092
+     2719
+     2895
+     2828
+     3195
+     1694
+     2980
+     2308
+     3140
+     3507
+     3168
+     3037
+     3211
+     3157
+     3234
+     3251
+     2769
+     3041
+     3204
+     3082
+     3041
+     3286
+     2701
+     3195
+     3349
+     2832
+     3036
+     3262
+     3840
+     3621
+     3130
+     2717
+     3127
+     2857
+     2820
+     2778
 
- # showing 180 of 17429 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
+ # showing 180 of 19402 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
 </div>
 </section>
 <section id="trace-plots" class="level2">
 <h2 class="anchored" data-anchor-id="trace-plots">Trace plots</h2>
 <p>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</p>
-<div class="cell" data-hash="mod4_cache/html/trace-plots_22dbb8f85f131264e9d70fd47907c36e">
+<div class="cell" data-hash="mod4_cache/html/trace-plots_1f427a67a21ae8dab53b337aea437099">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"logS2Hat"</span>))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="mod4_files/figure-html/trace-plots-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -1038,10 +1052,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="summary-of-model-parameters-figures" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-model-parameters-figures">Summary of model parameters (figures)</h2>
-<div class="cell" data-hash="mod4_cache/html/mcmc-intervals_1f11ba921f7074453d337d16ff6d183e">
+<div class="cell" data-hash="mod4_cache/html/mcmc-intervals_8d01d873e1f26a9737eb0e71337f1a66">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"logS2Hat"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="mod4_files/figure-html/mcmc-intervals-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -1656,8 +1670,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb32-262"><a href="#cb32-262" aria-hidden="true" tabindex="-1"></a>chargesA0 <span class="ot">&lt;-</span> chargesA[,<span class="dv">1</span>]</span>
 <span id="cb32-263"><a href="#cb32-263" aria-hidden="true" tabindex="-1"></a>chargesB0 <span class="ot">&lt;-</span> chargesB[,<span class="fu">max</span>(R)]</span>
 <span id="cb32-264"><a href="#cb32-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-265"><a href="#cb32-265" aria-hidden="true" tabindex="-1"></a>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
-<span id="cb32-266"><a href="#cb32-266" aria-hidden="true" tabindex="-1"></a>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb32-265"><a href="#cb32-265" aria-hidden="true" tabindex="-1"></a>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>),<span class="fu">which</span>(chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb32-266"><a href="#cb32-266" aria-hidden="true" tabindex="-1"></a>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>),<span class="fu">which</span>(chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
 <span id="cb32-267"><a href="#cb32-267" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-268"><a href="#cb32-268" aria-hidden="true" tabindex="-1"></a>nA0 <span class="ot">&lt;-</span> <span class="fu">length</span>(idxA0)</span>
 <span id="cb32-269"><a href="#cb32-269" aria-hidden="true" tabindex="-1"></a>nB0 <span class="ot">&lt;-</span> <span class="fu">length</span>(idxB0)</span>
@@ -1735,166 +1749,180 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb32-341"><a href="#cb32-341" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxGroupsA=</span>idxGroupsA,</span>
 <span id="cb32-342"><a href="#cb32-342" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxGroupsB=</span>idxGroupsB,</span>
 <span id="cb32-343"><a href="#cb32-343" aria-hidden="true" tabindex="-1"></a>                       <span class="at">logkobs=</span>data<span class="sc">$</span>logk,</span>
-<span id="cb32-344"><a href="#cb32-344" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nA0 =</span> nA0,</span>
-<span id="cb32-345"><a href="#cb32-345" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nB0 =</span> nB0,</span>
-<span id="cb32-346"><a href="#cb32-346" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxA0 =</span> idxA0,</span>
-<span id="cb32-347"><a href="#cb32-347" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxB0 =</span> idxB0,</span>
-<span id="cb32-348"><a href="#cb32-348" aria-hidden="true" tabindex="-1"></a>                       <span class="at">run_estimation=</span><span class="dv">1</span>))</span>
-<span id="cb32-349"><a href="#cb32-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-350"><a href="#cb32-350" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the values for each variable in each chain:</span></span>
-<span id="cb32-351"><a href="#cb32-351" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
-<span id="cb32-352"><a href="#cb32-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(   <span class="at">logkwHat  =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>),</span>
-<span id="cb32-353"><a href="#cb32-353" aria-hidden="true" tabindex="-1"></a>          <span class="at">S1Hat    =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">1</span>),</span>
-<span id="cb32-354"><a href="#cb32-354" aria-hidden="true" tabindex="-1"></a>          <span class="at">dlogkwHat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">0.125</span>),</span>
-<span id="cb32-355"><a href="#cb32-355" aria-hidden="true" tabindex="-1"></a>          <span class="at">dS1Hat   =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.5</span>),</span>
-<span id="cb32-356"><a href="#cb32-356" aria-hidden="true" tabindex="-1"></a>          <span class="at">logS2Hat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="fl">0.3</span>,<span class="fl">0.125</span>),</span>
-<span id="cb32-357"><a href="#cb32-357" aria-hidden="true" tabindex="-1"></a>          <span class="at">beta  =</span> <span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="fu">c</span>(<span class="fl">0.7</span>,<span class="fl">0.5</span>),<span class="fu">c</span>(<span class="fl">0.125</span>,<span class="fl">0.5</span>)),</span>
-<span id="cb32-358"><a href="#cb32-358" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)),</span>
-<span id="cb32-359"><a href="#cb32-359" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
-<span id="cb32-360"><a href="#cb32-360" aria-hidden="true" tabindex="-1"></a>          <span class="at">paramN =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
-<span id="cb32-361"><a href="#cb32-361" aria-hidden="true" tabindex="-1"></a>          <span class="at">sigma  =</span>  <span class="fl">0.05</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.5</span>))</span>
-<span id="cb32-362"><a href="#cb32-362" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb32-363"><a href="#cb32-363" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb32-364"><a href="#cb32-364" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-365"><a href="#cb32-365" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-366"><a href="#cb32-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-367"><a href="#cb32-367" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fitting the model</span></span>
-<span id="cb32-368"><a href="#cb32-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-369"><a href="#cb32-369" aria-hidden="true" tabindex="-1"></a>We compiled the model using cmdstanr:</span>
-<span id="cb32-370"><a href="#cb32-370" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-371"><a href="#cb32-371" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stancompile, eval = FALSE}</span></span>
-<span id="cb32-372"><a href="#cb32-372" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">paste0</span>(model_dir,<span class="st">".stan"</span>), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
-<span id="cb32-373"><a href="#cb32-373" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-374"><a href="#cb32-374" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-375"><a href="#cb32-375" aria-hidden="true" tabindex="-1"></a>We used optimization for initial testing:</span>
-<span id="cb32-376"><a href="#cb32-376" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-377"><a href="#cb32-377" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stanoptimize, eval = FALSE}</span></span>
-<span id="cb32-378"><a href="#cb32-378" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">optimize</span>(</span>
-<span id="cb32-379"><a href="#cb32-379" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> datastruct,</span>
-<span id="cb32-380"><a href="#cb32-380" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> stanfiles_dir,</span>
-<span id="cb32-381"><a href="#cb32-381" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_basename =</span> <span class="fu">paste0</span>(model_name, <span class="st">"-opt"</span>),</span>
-<span id="cb32-382"><a href="#cb32-382" aria-hidden="true" tabindex="-1"></a>  <span class="at">init =</span> init,</span>
-<span id="cb32-383"><a href="#cb32-383" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">5000</span></span>
-<span id="cb32-384"><a href="#cb32-384" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb32-385"><a href="#cb32-385" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-386"><a href="#cb32-386" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">max_rows=</span><span class="dv">100</span>)</span>
+<span id="cb32-344"><a href="#cb32-344" aria-hidden="true" tabindex="-1"></a>                       <span class="at">K =</span> K,</span>
+<span id="cb32-345"><a href="#cb32-345" aria-hidden="true" tabindex="-1"></a>                       <span class="at">fgrp =</span> functional_groups,</span>
+<span id="cb32-346"><a href="#cb32-346" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nA0 =</span> nA0,</span>
+<span id="cb32-347"><a href="#cb32-347" aria-hidden="true" tabindex="-1"></a>                       <span class="at">nB0 =</span> nB0,</span>
+<span id="cb32-348"><a href="#cb32-348" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxA0 =</span> idxA0,</span>
+<span id="cb32-349"><a href="#cb32-349" aria-hidden="true" tabindex="-1"></a>                       <span class="at">idxB0 =</span> idxB0,</span>
+<span id="cb32-350"><a href="#cb32-350" aria-hidden="true" tabindex="-1"></a>                       <span class="at">run_estimation=</span><span class="dv">1</span>))</span>
+<span id="cb32-351"><a href="#cb32-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-352"><a href="#cb32-352" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the values for each variable in each chain:</span></span>
+<span id="cb32-353"><a href="#cb32-353" aria-hidden="true" tabindex="-1"></a>init <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb32-354"><a href="#cb32-354" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(   <span class="at">logkwHat  =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">2</span>),</span>
+<span id="cb32-355"><a href="#cb32-355" aria-hidden="true" tabindex="-1"></a>          <span class="at">S1Hat    =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">1</span>),</span>
+<span id="cb32-356"><a href="#cb32-356" aria-hidden="true" tabindex="-1"></a>          <span class="at">dlogkwHat =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">0.125</span>),</span>
+<span id="cb32-357"><a href="#cb32-357" aria-hidden="true" tabindex="-1"></a>          <span class="at">dS1Hat   =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.5</span>),</span>
+<span id="cb32-358"><a href="#cb32-358" aria-hidden="true" tabindex="-1"></a>          <span class="at">S2Hat =</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="fl">0.125</span>)),</span>
+<span id="cb32-359"><a href="#cb32-359" aria-hidden="true" tabindex="-1"></a>          <span class="at">beta  =</span> <span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="fu">c</span>(<span class="fl">0.7</span>,<span class="fl">0.5</span>),<span class="fu">c</span>(<span class="fl">0.125</span>,<span class="fl">0.5</span>)),</span>
+<span id="cb32-360"><a href="#cb32-360" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)),</span>
+<span id="cb32-361"><a href="#cb32-361" aria-hidden="true" tabindex="-1"></a>          <span class="at">kappa =</span> <span class="fu">c</span>(<span class="fl">0.25</span>,<span class="fl">0.25</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>, <span class="dv">0</span>, <span class="fl">0.125</span>)),</span>
+<span id="cb32-362"><a href="#cb32-362" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
+<span id="cb32-363"><a href="#cb32-363" aria-hidden="true" tabindex="-1"></a>          <span class="at">paramN =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
+<span id="cb32-364"><a href="#cb32-364" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pilogkw =</span> <span class="fu">rep</span>(<span class="dv">0</span>,K),</span>
+<span id="cb32-365"><a href="#cb32-365" aria-hidden="true" tabindex="-1"></a>          <span class="at">piS1 =</span> <span class="fu">rep</span>(<span class="dv">0</span>,K),</span>
+<span id="cb32-366"><a href="#cb32-366" aria-hidden="true" tabindex="-1"></a>          <span class="at">sdpi =</span> <span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>)<span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)),</span>
+<span id="cb32-367"><a href="#cb32-367" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwA0 =</span> <span class="fu">rnorm</span>(nA0,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb32-368"><a href="#cb32-368" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1A0 =</span> <span class="fu">rnorm</span>(nA0,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb32-369"><a href="#cb32-369" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwB0 =</span> <span class="fu">rnorm</span>(nB0,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb32-370"><a href="#cb32-370" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1B0 =</span> <span class="fu">rnorm</span>(nB0,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb32-371"><a href="#cb32-371" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwA =</span> <span class="fu">rnorm</span>(nGroupsA,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb32-372"><a href="#cb32-372" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1A =</span> <span class="fu">rnorm</span>(nGroupsA,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb32-373"><a href="#cb32-373" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadlogkwB =</span> <span class="fu">rnorm</span>(nGroupsB,<span class="dv">0</span>,<span class="fl">0.125</span>),</span>
+<span id="cb32-374"><a href="#cb32-374" aria-hidden="true" tabindex="-1"></a>          <span class="at">etadS1B =</span> <span class="fu">rnorm</span>(nGroupsB,<span class="dv">0</span>,<span class="fl">0.125</span>), </span>
+<span id="cb32-375"><a href="#cb32-375" aria-hidden="true" tabindex="-1"></a>          <span class="at">sigma  =</span>  <span class="fl">0.05</span><span class="sc">*</span><span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.5</span>))</span>
+<span id="cb32-376"><a href="#cb32-376" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-377"><a href="#cb32-377" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-378"><a href="#cb32-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-379"><a href="#cb32-379" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-380"><a href="#cb32-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-381"><a href="#cb32-381" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fitting the model</span></span>
+<span id="cb32-382"><a href="#cb32-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-383"><a href="#cb32-383" aria-hidden="true" tabindex="-1"></a>We compiled the model using cmdstanr:</span>
+<span id="cb32-384"><a href="#cb32-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-385"><a href="#cb32-385" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stancompile, eval = FALSE}</span></span>
+<span id="cb32-386"><a href="#cb32-386" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">paste0</span>(model_dir,<span class="st">".stan"</span>), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
 <span id="cb32-387"><a href="#cb32-387" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb32-388"><a href="#cb32-388" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-389"><a href="#cb32-389" aria-hidden="true" tabindex="-1"></a><span class="in">```{r optplots, eval=FALSE}</span></span>
-<span id="cb32-390"><a href="#cb32-390" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>logkopt<span class="ot">&lt;-</span>fit_opt<span class="sc">$</span><span class="fu">mle</span>(<span class="st">"logkx"</span>)</span>
-<span id="cb32-391"><a href="#cb32-391" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-392"><a href="#cb32-392" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
-<span id="cb32-393"><a href="#cb32-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">20</span><span class="sc">:</span><span class="dv">30</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb32-394"><a href="#cb32-394" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb32-395"><a href="#cb32-395" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb32-396"><a href="#cb32-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logkopt)) <span class="sc">+</span> </span>
-<span id="cb32-397"><a href="#cb32-397" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>ID) <span class="sc">+</span></span>
-<span id="cb32-398"><a href="#cb32-398" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(logk)) <span class="sc">+</span> </span>
-<span id="cb32-399"><a href="#cb32-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
-<span id="cb32-400"><a href="#cb32-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
-<span id="cb32-401"><a href="#cb32-401" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-402"><a href="#cb32-402" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-403"><a href="#cb32-403" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-404"><a href="#cb32-404" aria-hidden="true" tabindex="-1"></a>For local computations one can use cmdstanr:</span>
+<span id="cb32-389"><a href="#cb32-389" aria-hidden="true" tabindex="-1"></a>We used optimization for initial testing:</span>
+<span id="cb32-390"><a href="#cb32-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-391"><a href="#cb32-391" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stanoptimize, eval = FALSE}</span></span>
+<span id="cb32-392"><a href="#cb32-392" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">optimize</span>(</span>
+<span id="cb32-393"><a href="#cb32-393" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> datastruct,</span>
+<span id="cb32-394"><a href="#cb32-394" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_dir =</span> stanfiles_dir,</span>
+<span id="cb32-395"><a href="#cb32-395" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_basename =</span> <span class="fu">paste0</span>(model_name, <span class="st">"-opt"</span>),</span>
+<span id="cb32-396"><a href="#cb32-396" aria-hidden="true" tabindex="-1"></a>  <span class="at">init =</span> init,</span>
+<span id="cb32-397"><a href="#cb32-397" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">5000</span></span>
+<span id="cb32-398"><a href="#cb32-398" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-399"><a href="#cb32-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-400"><a href="#cb32-400" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">max_rows=</span><span class="dv">100</span>)</span>
+<span id="cb32-401"><a href="#cb32-401" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-402"><a href="#cb32-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-403"><a href="#cb32-403" aria-hidden="true" tabindex="-1"></a><span class="in">```{r optplots, eval=FALSE}</span></span>
+<span id="cb32-404"><a href="#cb32-404" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>logkopt<span class="ot">&lt;-</span>fit_opt<span class="sc">$</span><span class="fu">mle</span>(<span class="st">"logkx"</span>)</span>
 <span id="cb32-405"><a href="#cb32-405" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-406"><a href="#cb32-406" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stansample, eval = FALSE}</span></span>
-<span id="cb32-407"><a href="#cb32-407" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">sample</span>(</span>
-<span id="cb32-408"><a href="#cb32-408" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
-<span id="cb32-409"><a href="#cb32-409" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> stanfiles_dir,</span>
-<span id="cb32-410"><a href="#cb32-410" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="fu">paste0</span>(model_name, <span class="st">"-loc"</span>),</span>
-<span id="cb32-411"><a href="#cb32-411" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
-<span id="cb32-412"><a href="#cb32-412" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
-<span id="cb32-413"><a href="#cb32-413" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
-<span id="cb32-414"><a href="#cb32-414" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb32-415"><a href="#cb32-415" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
-<span id="cb32-416"><a href="#cb32-416" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
-<span id="cb32-417"><a href="#cb32-417" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
-<span id="cb32-418"><a href="#cb32-418" aria-hidden="true" tabindex="-1"></a> )</span>
-<span id="cb32-419"><a href="#cb32-419" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-420"><a href="#cb32-420" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-421"><a href="#cb32-421" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
-<span id="cb32-422"><a href="#cb32-422" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-423"><a href="#cb32-423" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
-<span id="cb32-424"><a href="#cb32-424" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-425"><a href="#cb32-425" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dumpfiles, eval = FALSE}</span></span>
-<span id="cb32-426"><a href="#cb32-426" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-427"><a href="#cb32-427" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-428"><a href="#cb32-428" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-429"><a href="#cb32-429" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-430"><a href="#cb32-430" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-431"><a href="#cb32-431" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-432"><a href="#cb32-432" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-433"><a href="#cb32-433" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-434"><a href="#cb32-434" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-435"><a href="#cb32-435" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-406"><a href="#cb32-406" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
+<span id="cb32-407"><a href="#cb32-407" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">20</span><span class="sc">:</span><span class="dv">30</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb32-408"><a href="#cb32-408" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb32-409"><a href="#cb32-409" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb32-410"><a href="#cb32-410" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logkopt)) <span class="sc">+</span> </span>
+<span id="cb32-411"><a href="#cb32-411" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>ID) <span class="sc">+</span></span>
+<span id="cb32-412"><a href="#cb32-412" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(logk)) <span class="sc">+</span> </span>
+<span id="cb32-413"><a href="#cb32-413" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
+<span id="cb32-414"><a href="#cb32-414" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
+<span id="cb32-415"><a href="#cb32-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-416"><a href="#cb32-416" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-417"><a href="#cb32-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-418"><a href="#cb32-418" aria-hidden="true" tabindex="-1"></a>For local computations one can use cmdstanr:</span>
+<span id="cb32-419"><a href="#cb32-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-420"><a href="#cb32-420" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stansample, eval = FALSE}</span></span>
+<span id="cb32-421"><a href="#cb32-421" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">sample</span>(</span>
+<span id="cb32-422"><a href="#cb32-422" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
+<span id="cb32-423"><a href="#cb32-423" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> stanfiles_dir,</span>
+<span id="cb32-424"><a href="#cb32-424" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="fu">paste0</span>(model_name, <span class="st">"-loc"</span>),</span>
+<span id="cb32-425"><a href="#cb32-425" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
+<span id="cb32-426"><a href="#cb32-426" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
+<span id="cb32-427"><a href="#cb32-427" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
+<span id="cb32-428"><a href="#cb32-428" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb32-429"><a href="#cb32-429" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
+<span id="cb32-430"><a href="#cb32-430" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
+<span id="cb32-431"><a href="#cb32-431" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
+<span id="cb32-432"><a href="#cb32-432" aria-hidden="true" tabindex="-1"></a> )</span>
+<span id="cb32-433"><a href="#cb32-433" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-434"><a href="#cb32-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-435"><a href="#cb32-435" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
 <span id="cb32-436"><a href="#cb32-436" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-437"><a href="#cb32-437" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
+<span id="cb32-437"><a href="#cb32-437" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
 <span id="cb32-438"><a href="#cb32-438" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-439"><a href="#cb32-439" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb32-440"><a href="#cb32-440" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
-<span id="cb32-441"><a href="#cb32-441" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb32-442"><a href="#cb32-442" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-443"><a href="#cb32-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-444"><a href="#cb32-444" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
-<span id="cb32-445"><a href="#cb32-445" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-446"><a href="#cb32-446" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stanload}</span></span>
-<span id="cb32-447"><a href="#cb32-447" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb32-448"><a href="#cb32-448" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_1.csv"</span>),</span>
-<span id="cb32-449"><a href="#cb32-449" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_2.csv"</span>),</span>
-<span id="cb32-450"><a href="#cb32-450" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_3.csv"</span>),</span>
-<span id="cb32-451"><a href="#cb32-451" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_4.csv"</span>),</span>
-<span id="cb32-452"><a href="#cb32-452" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_5.csv"</span>),</span>
-<span id="cb32-453"><a href="#cb32-453" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_6.csv"</span>),</span>
-<span id="cb32-454"><a href="#cb32-454" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_7.csv"</span>),</span>
-<span id="cb32-455"><a href="#cb32-455" aria-hidden="true" tabindex="-1"></a>                                 <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"_8.csv"</span>)</span>
-<span id="cb32-456"><a href="#cb32-456" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb32-439"><a href="#cb32-439" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dumpfiles, eval = FALSE}</span></span>
+<span id="cb32-440"><a href="#cb32-440" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-441"><a href="#cb32-441" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-442"><a href="#cb32-442" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-443"><a href="#cb32-443" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-444"><a href="#cb32-444" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-445"><a href="#cb32-445" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-446"><a href="#cb32-446" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-447"><a href="#cb32-447" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-448"><a href="#cb32-448" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-449"><a href="#cb32-449" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-450"><a href="#cb32-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-451"><a href="#cb32-451" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
+<span id="cb32-452"><a href="#cb32-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-453"><a href="#cb32-453" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb32-454"><a href="#cb32-454" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
+<span id="cb32-455"><a href="#cb32-455" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb32-456"><a href="#cb32-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb32-457"><a href="#cb32-457" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-458"><a href="#cb32-458" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-458"><a href="#cb32-458" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
 <span id="cb32-459"><a href="#cb32-459" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-460"><a href="#cb32-460" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
-<span id="cb32-461"><a href="#cb32-461" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-462"><a href="#cb32-462" aria-hidden="true" tabindex="-1"></a><span class="in">```{r standiagnose, eval = FALSE}</span></span>
-<span id="cb32-463"><a href="#cb32-463" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
-<span id="cb32-464"><a href="#cb32-464" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(stanfiles_dir)</span>
-<span id="cb32-465"><a href="#cb32-465" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod1_*.csv'</span>)</span>
-<span id="cb32-466"><a href="#cb32-466" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
-<span id="cb32-467"><a href="#cb32-467" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb32-468"><a href="#cb32-468" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-469"><a href="#cb32-469" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
-<span id="cb32-470"><a href="#cb32-470" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-471"><a href="#cb32-471" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb32-472"><a href="#cb32-472" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
-<span id="cb32-473"><a href="#cb32-473" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb32-474"><a href="#cb32-474" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-460"><a href="#cb32-460" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stanload}</span></span>
+<span id="cb32-461"><a href="#cb32-461" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
+<span id="cb32-462"><a href="#cb32-462" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb32-463"><a href="#cb32-463" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb32-464"><a href="#cb32-464" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb32-465"><a href="#cb32-465" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb32-466"><a href="#cb32-466" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb32-467"><a href="#cb32-467" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb32-468"><a href="#cb32-468" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb32-469"><a href="#cb32-469" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(stanfiles_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb32-470"><a href="#cb32-470" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb32-471"><a href="#cb32-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-472"><a href="#cb32-472" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-473"><a href="#cb32-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-474"><a href="#cb32-474" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
 <span id="cb32-475"><a href="#cb32-475" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-476"><a href="#cb32-476" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
-<span id="cb32-477"><a href="#cb32-477" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-478"><a href="#cb32-478" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
-<span id="cb32-479"><a href="#cb32-479" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-480"><a href="#cb32-480" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-481"><a href="#cb32-481" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
-<span id="cb32-482"><a href="#cb32-482" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">max_rows =</span> <span class="dv">180</span>)</span>
-<span id="cb32-483"><a href="#cb32-483" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-476"><a href="#cb32-476" aria-hidden="true" tabindex="-1"></a><span class="in">```{r standiagnose, eval = FALSE}</span></span>
+<span id="cb32-477"><a href="#cb32-477" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
+<span id="cb32-478"><a href="#cb32-478" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(stanfiles_dir)</span>
+<span id="cb32-479"><a href="#cb32-479" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod1_*.csv'</span>)</span>
+<span id="cb32-480"><a href="#cb32-480" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
+<span id="cb32-481"><a href="#cb32-481" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-482"><a href="#cb32-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-483"><a href="#cb32-483" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
 <span id="cb32-484"><a href="#cb32-484" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-485"><a href="#cb32-485" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
-<span id="cb32-486"><a href="#cb32-486" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-487"><a href="#cb32-487" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
-<span id="cb32-488"><a href="#cb32-488" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-489"><a href="#cb32-489" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
-<span id="cb32-490"><a href="#cb32-490" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"logS2Hat"</span>))) </span>
-<span id="cb32-491"><a href="#cb32-491" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>))) </span>
-<span id="cb32-492"><a href="#cb32-492" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-485"><a href="#cb32-485" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb32-486"><a href="#cb32-486" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
+<span id="cb32-487"><a href="#cb32-487" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb32-488"><a href="#cb32-488" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-489"><a href="#cb32-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-490"><a href="#cb32-490" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
+<span id="cb32-491"><a href="#cb32-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-492"><a href="#cb32-492" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
 <span id="cb32-493"><a href="#cb32-493" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-494"><a href="#cb32-494" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
-<span id="cb32-495"><a href="#cb32-495" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-496"><a href="#cb32-496" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
-<span id="cb32-497"><a href="#cb32-497" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"logS2Hat"</span>)))</span>
-<span id="cb32-498"><a href="#cb32-498" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>)))</span>
-<span id="cb32-499"><a href="#cb32-499" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-494"><a href="#cb32-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-495"><a href="#cb32-495" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
+<span id="cb32-496"><a href="#cb32-496" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">max_rows =</span> <span class="dv">180</span>)</span>
+<span id="cb32-497"><a href="#cb32-497" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-498"><a href="#cb32-498" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-499"><a href="#cb32-499" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
 <span id="cb32-500"><a href="#cb32-500" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-501"><a href="#cb32-501" aria-hidden="true" tabindex="-1"></a><span class="in">```{r info}</span></span>
-<span id="cb32-502"><a href="#cb32-502" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb32-503"><a href="#cb32-503" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-501"><a href="#cb32-501" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
+<span id="cb32-502"><a href="#cb32-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-503"><a href="#cb32-503" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
+<span id="cb32-504"><a href="#cb32-504" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span>
+<span id="cb32-505"><a href="#cb32-505" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>))) </span>
+<span id="cb32-506"><a href="#cb32-506" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-507"><a href="#cb32-507" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-508"><a href="#cb32-508" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
+<span id="cb32-509"><a href="#cb32-509" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-510"><a href="#cb32-510" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
+<span id="cb32-511"><a href="#cb32-511" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span>
+<span id="cb32-512"><a href="#cb32-512" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>)))</span>
+<span id="cb32-513"><a href="#cb32-513" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb32-514"><a href="#cb32-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-515"><a href="#cb32-515" aria-hidden="true" tabindex="-1"></a><span class="in">```{r info}</span></span>
+<span id="cb32-516"><a href="#cb32-516" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb32-517"><a href="#cb32-517" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
