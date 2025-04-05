@@ -4,7 +4,7 @@
 #SBATCH -N 1
 #SBATCH -n 8
 #SBATCH -p batch
-#SBATCH --time=60:00:00
+#SBATCH --time=48:00:00
 #SBATCH --mem=2gb
 
 # load modules

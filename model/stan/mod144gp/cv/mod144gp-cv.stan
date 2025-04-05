@@ -130,13 +130,18 @@ data {
   vector[nObs] logkobs;                 // observed retention factors 
   matrix[nAnalytes_corr,nAnalytes_corr] simmat; //  
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
+  int nObscv; // subset of analytes and measurments
+  array[nObscv] int idxcv; // indices
 }
 
 transformed data{
   
+  vector[nObscv] logkobscv; 
   array[nAnalytes] vector[maxR] alphax;
   array[nAnalytes] vector[maxR] pKawx;
   real delta=0.001;
+  
+  logkobscv = logkobs[idxcv];
   for (i in 1 : nAnalytes) { 
    pKawx[i, : ]  = [0,0,0]';
    alphax[i, : ] = [0,0,0]'; 
@@ -261,7 +266,7 @@ model {
   sigma ~ normal(0,0.05);
   
   if (run_estimation == 1) {
-  logkobs ~ normal(logkx, sigma);
+  logkobscv ~ normal(logkx[idxcv], sigma);
   }
 }
 

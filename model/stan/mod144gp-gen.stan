@@ -137,6 +137,8 @@ transformed data{
   array[nAnalytes] vector[maxR] alphax;
   array[nAnalytes] vector[maxR] pKawx;
   real delta=0.001;
+  vector[11] fisim = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]';
+  
   for (i in 1 : nAnalytes) { 
    pKawx[i, : ]  = [0,0,0]';
    alphax[i, : ] = [0,0,0]'; 
@@ -266,6 +268,100 @@ model {
 }
 
 generated quantities {
+  corr_matrix[2] rho;
+  
+  matrix[nAnalytes,2] sparam_pop;
+  matrix[nAnalytes,2] sparam_ind;
+  array[nAnalytes] vector[2] seta_ind;
+  array[nAnalytes] vector[maxR + 1] logkwx_pop;
+  array[nAnalytes] vector[maxR + 1] S1x_pop;
+  
+  vector[nObs] slogkHat_ind;
+  vector[nObs] slogkHat_pop;
+  vector[nObs] slogk_ind;
+  vector[nObs] slogk_pop;
+  real<lower=0> sS2Hat;
+  
+  matrix[nAnalytes,11] simlogkHat_ind;
+  matrix[nAnalytes,11] simlogkHat_pop;
+  matrix[nAnalytes,11] simlogk_ind;
+  matrix[nAnalytes,11] simlogk_pop;
+  matrix[nAnalytes,2] eta_pop;
+    
+  rho = rhoc * rhoc';
+  
+  slogkHat_ind = logkx;
+  sS2Hat = S2Hat;
+  sparam_ind = param;
+  
+  for (i in 1 : nAnalytes) {
+    for (j in 1 : 2) {
+  eta_pop[i,j]=normal_rng(0,1);
+  }}
+  
+  
+    {
+   matrix[nAnalytes_corr, nAnalytes_corr] K_pop;
+   matrix[nAnalytes_corr, nAnalytes_corr] L_K_pop;
+   matrix[nAnalytes_corr,2] param1_pop;
+   matrix[nAnalytes_uncorr,2] param2_pop;
+   for (i in 1:(nAnalytes_corr - 1)) {
+      K_pop[i, i] = 1 + delta;
+   for (j in (i + 1):nAnalytes_corr) {
+      K_pop[i, j] = alpha*(simmat[i,j]-0.6)/0.4;
+      K_pop[j, i] = K_pop[i, j];
+     }
+   }
+  K_pop[nAnalytes_corr, nAnalytes_corr] = 1 + delta;
+  L_K_pop = cholesky_decompose(K_pop);
+  param1_pop = L_K_pop * eta_pop[idx_corr,1:2] * diag_pre_multiply(omega, rhoc)';
+  param2_pop = diag_pre_multiply(omega, rhoc * eta_pop[idx_uncorr,1:2]')';
+    
+  sparam_pop[idx_corr,1:2]=param1_pop;
+  sparam_pop[idx_uncorr,1:2]=param2_pop;
+  }
+   
+  sparam_pop = sparam_pop + miu;  
 
+    
+  for (i in 1 : nAnalytes) { 
+    seta_ind[i] = (sparam_ind[i,1:2] - miu[i,1:2])'./omega[1:2];
+    logkwx_pop[i, : ]  =  sparam_pop[i,1]*[1,1,1,1]';
+      S1x_pop[i, : ]  =  sparam_pop[i,2]*[1,1,1,1]';
+  }
+
+  for (d in 1 : nGroupsA) {
+      logkwx_pop[idxGroupsA[d,1],  (idxGroupsA[d,2]+1) : 4] += dlogkwHat ;
+         S1x_pop[idxGroupsA[d,1],  (idxGroupsA[d,2]+1) : 4] += dS1Hat ;
+         }
+  
+  for (d in 1 : nGroupsB) {
+      logkwx_pop[idxGroupsB[d,1], 1:idxGroupsB[d,2]] += dlogkwHat ;
+      S1x_pop[idxGroupsB[d,1],    1:idxGroupsB[d,2]] += dS1Hat ;
+      }
+  
+  for (z in 1 : nObs) {
+   slogkHat_pop[z] = funlogki(logkwx_pop[analyte[z],:], S1x_pop[analyte[z],:], S2Hat, 
+                      pKawx[analyte[z],:], alphax[analyte[z],:], R[analyte[z]],
+                      fi[z]);
+    slogk_ind[z] = normal_rng(slogkHat_ind[z], sigma);
+    slogk_pop[z] = normal_rng(slogkHat_pop[z], sigma);
+   }
+   
+  // dense grid simulations 
+   for (f in 1 : 11) {
+       for (a in 1 : nAnalytes) {
+     simlogkHat_ind[a,f] = funlogki(logkwx[a,:], S1x[a,:], S2Hat, 
+                      pKawx[a,:], alphax[a,:], R[a],
+                      fisim[f]);
+     simlogkHat_pop[a,f] = funlogki(logkwx_pop[a,:], S1x_pop[a,:], S2Hat, 
+                      pKawx[a,:], alphax[a,:], R[a],
+                      fisim[f]);
+                      
+     simlogk_ind[a,f] = normal_rng(simlogkHat_ind[a,f], sigma);
+     simlogk_pop[a,f] = normal_rng(simlogkHat_pop[a,f], sigma);
+       
+       }}
+   
 }
 
