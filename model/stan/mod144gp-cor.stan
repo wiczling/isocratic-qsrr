@@ -130,6 +130,8 @@ data {
   vector[nObs] logkobs;                 // observed retention factors 
   matrix[nAnalytes_corr,nAnalytes_corr] simmat; //  
   int<lower=0, upper=1> run_estimation; // 0 for prior predictive, 1 for estimation
+  int nObscor; // subset of analytes and measurments
+  array[nObscor] int idxcor; // indices
 }
 
 transformed data{
@@ -137,6 +139,8 @@ transformed data{
   array[nAnalytes] vector[maxR] alphax;
   array[nAnalytes] vector[maxR] pKawx;
   real delta=0.001;
+  vector[11] fisim = [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]';
+  
   for (i in 1 : nAnalytes) { 
    pKawx[i, : ]  = [0,0,0]';
    alphax[i, : ] = [0,0,0]'; 
@@ -267,5 +271,75 @@ model {
 
 generated quantities {
 
+  
+  matrix[nAnalytes,2] sparam_pop;
+  array[nAnalytes] vector[maxR + 1] logkwx_pop;
+  array[nAnalytes] vector[maxR + 1] S1x_pop;
+  
+  vector[nObs] slogkHat_pop;
+  vector[nObs] slogk_pop;
+
+  matrix[nAnalytes,11] simlogkHat_pop;
+  matrix[nAnalytes,11] simlogk_pop;
+  matrix[nAnalytes,2] eta_pop;
+   real<lower=0> sS2Hat;
+   
+  sS2Hat = S2Hat;
+  for (i in 1 : nAnalytes) {
+    for (j in 1 : 2) {
+  eta_pop[i,j]=normal_rng(0,1);
+  }}
+  
+  eta_pop[idxcor,1:2] = eta[idxcor,1:2]; // perfect knowledge
+  
+    {
+   matrix[nAnalytes_corr, nAnalytes_corr] K_pop;
+   matrix[nAnalytes_corr, nAnalytes_corr] L_K_pop;
+   matrix[nAnalytes_corr,2] param1_pop;
+   matrix[nAnalytes_uncorr,2] param2_pop;
+   for (i in 1:(nAnalytes_corr - 1)) {
+      K_pop[i, i] = 1 + delta;
+   for (j in (i + 1):nAnalytes_corr) {
+      K_pop[i, j] = alpha*(simmat[i,j]-0.6)/0.4;
+      K_pop[j, i] = K_pop[i, j];
+     }
+   }
+  K_pop[nAnalytes_corr, nAnalytes_corr] = 1 + delta;
+  L_K_pop = cholesky_decompose(K_pop);
+  param1_pop = L_K_pop * eta_pop[idx_corr,1:2] * diag_pre_multiply(omega, rhoc)';
+  param2_pop = diag_pre_multiply(omega, rhoc * eta_pop[idx_uncorr,1:2]')';
+    
+  sparam_pop[idx_corr,1:2]=param1_pop;
+  sparam_pop[idx_uncorr,1:2]=param2_pop;
+  }
+   
+  sparam_pop = sparam_pop + miu;  
+
+  for (i in 1 : nAnalytes) { 
+    logkwx_pop[i, : ]  =  sparam_pop[i,1]*[1,1,1,1]';
+      S1x_pop[i, : ]  =  sparam_pop[i,2]*[1,1,1,1]';
+  }
+
+  for (d in 1 : nGroupsA) {
+      logkwx_pop[idxGroupsA[d,1],  (idxGroupsA[d,2]+1) : 4] += dlogkwHat ;
+         S1x_pop[idxGroupsA[d,1],  (idxGroupsA[d,2]+1) : 4] += dS1Hat ;
+         }
+  
+  for (d in 1 : nGroupsB) {
+      logkwx_pop[idxGroupsB[d,1], 1:idxGroupsB[d,2]] += dlogkwHat ;
+      S1x_pop[idxGroupsB[d,1],    1:idxGroupsB[d,2]] += dS1Hat ;
+      }
+
+   
+  // dense grid simulations 
+   for (f in 1 : 11) {
+       for (a in 1 : nAnalytes) {
+     simlogkHat_pop[a,f] = funlogki(logkwx_pop[a,:], S1x_pop[a,:], S2Hat, 
+                      pKawx[a,:], alphax[a,:], R[a],
+                      fisim[f]);
+     simlogk_pop[a,f] = normal_rng(simlogkHat_pop[a,f], sigma);
+       
+       }}
+   
 }
 
