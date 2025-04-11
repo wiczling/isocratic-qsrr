@@ -24,7 +24,7 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 
 # Introductions
 
-Heterogenous sigma
+...
 
 # Setup
 ```{r message=FALSE}
@@ -33,6 +33,7 @@ library(bbr.bayes)
 library(dplyr)
 library(ggplot2)
 library(patchwork)
+library(gridExtra)
 library(naniar)
 library(knitr)
 library(data.table)
@@ -43,63 +44,38 @@ library(here)
 library(cmdstanr)
 library(gridExtra)
 library(posterior)
+library(bayesplot)
 library(tidybayes)
-library(GGally)
+library(reshape2)
+library(pracma)
 library(mrgmisc)
-
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 set.seed(10271998) ## not required but assures repeatable results
 ```
 
 ```{r settings}
-data_dir = here::here("data","rawdata")
-data_derived_dir <- here::here("data","derived") 
-model_dir <- here::here("model","cmdstanr")  
-figures_dir <- here::here("deliv","figures", "cmdstanr")
-tables_dir <- here::here("deliv","tables", "cmdstanr")
+data_dir = here::here("data")
+model_dir <- here::here("model","stan")  
+figures_dir <- here::here("deliv","figures", "stan")
+tables_dir <- here::here("deliv","tables", "stan")
 if(!file.exists(figures_dir)) dir.create(figures_dir, recursive = T)
 if(!file.exists(model_dir)) dir.create(model_dir, recursive = T)
 if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
-if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
 ```
 
-# EDA
 
 We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
 
+The values of molecular mass MM were added to the dataset. They were calculated using [ACD/Labs program](www.acdlabs.com) based on the provided structures of analytes. The MM ranged from 73.09 to 656.8. The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
 
-```{r rxnsim-similarity, eval=FALSE}
-#' R version needs to be higher to run Rxnsim (will fix later)
-#' Rxnsim package
-smiles <- read.csv("../data/smiles1026_kekulized.smi", sep = "\t", header = FALSE)
-simMat <- ms.compute.sim.matrix(smiles$V1)
-write.csv(simMat,'../data/similarity-matrix.csv') 
-```
 
 ```{r load-data, message=FALSE, warning=FALSE}
 # load data
 data       <- read.csv("../data/database_logk_1026.csv", header = TRUE)
 analytes_names  <- read.csv("../data/database_logk_1026_analyte_names.csv", header = TRUE)
 
-#' obtained using Rxnsim package
-simMat <-read.csv("../data/similarity-matrix-ltri.csv")%>%
-  select(-X)
-rownames(simMat)<-colnames(simMat)
-
-makeSymm <- function(m) {
-    m[upper.tri(m)] <- t(m)[upper.tri(m)]
-    return(m)}
-
-simMat <- makeSymm(simMat)
-
-data<-data %>%
-  left_join(analytes_names) %>%
-  mutate(mm_group =case_when(
-             MW_ACD < 200 ~ "MM < 200",
-             MW_ACD < 300 & MW_ACD >= 200 ~ "200 \u2264 MM < 300",
-             MW_ACD < 400 & MW_ACD >= 300 ~ "300 \u2264 MM < 400",
-             .default = "400 \u2264 MM"))
+data<-data %>%left_join(analytes_names) 
 
 functional_groups = read.csv('../data/checkmol_functional_groups.csv')
 functional_groups_names = read.csv('../data/checkmol_functional_group_names.csv')
@@ -128,109 +104,10 @@ data_ACD = read.csv('../data/ACD_pKas.csv')
 data_ACD$R = rowSums(data_ACD[,3:5]<14) # No of dissociation steps
 ```
 
-# Exploratory data analysis
-
-During the exploratory data analysis phase, we create a series of plots to better understand our data.
-
-
-```{r similarity-matrixplot}
-library(ggcorrplot)
-ggcorrplot((simMat[001:100,001:100]-0.5)*2)
-# ggcorrplot((simMat[101:200,101:200]-0.5)*2)
-# ggcorrplot((simMat[201:300,201:300]-0.5)*2)
-# ggcorrplot((simMat[301:400,301:400]-0.5)*2)
-# ggcorrplot((simMat[401:500,401:500]-0.5)*2)
-# ggcorrplot((simMat[501:600,501:600]-0.5)*2)
-# ggcorrplot((simMat[601:700,601:700]-0.5)*2)
-# ggcorrplot((simMat[701:800,701:800]-0.5)*2)
-# ggcorrplot((simMat[801:900,801:900]-0.5)*2)
-# ggcorrplot((simMat[901:1026,901:1026]-0.5)*2)
-
-x=which(simMat>0.95 & simMat!=1, arr.ind = TRUE)
-
-pair_names = cbind(analytes_names$Analyte[unname(x[,1])],analytes_names$Analyte[unname(x[,2])])
-                              
-selected_compounds = unique(c(x))
-
-ggcorrplot((simMat[selected_compounds,selected_compounds]-0.5)*2)
-```
-
-```{r raw-data, message=FALSE, warning=FALSE}
-ggplot(data, aes(x=fi, y=logk, group=ID)) + 
-  geom_line(aes(color=logP_ACD)) + 
-  facet_wrap(~mm_group, ncol=2) +
-  labs(x = "\u03C6", y = expression(log~k[obs])) + 
-  theme_gray(base_size = 14) + theme(legend.position="none") 
-```
-
-The pH value of the mobile phase was verified experimentally for the purpose of this work. It equaled 2.66 with a standard deviation of 0.19 for the range of acetonitrile contents from 5 to 95%.
-
-```{r pH-plot, message=FALSE, warning=FALSE}
-data_pH <- read.csv("../data/pH.csv",header = TRUE)
-
-ggplot(data=data_pH, aes(x=fi, y=pH)) + labs(x = "\u03C6", y = "pH") + 
-  geom_point() + geom_hline(yintercept=mean(data_pH$pH), color = "red") +
-  geom_hline(yintercept=mean(data_pH$pH)-sd(data_pH$pH), linetype="dashed", color = "red") +
-  geom_hline(yintercept=mean(data_pH$pH)+sd(data_pH$pH), linetype="dashed", color = "red") + 
-  ylim(c(2.0,3.5))
-```
-
-The values of molecular mass MM were added to the dataset. They were calculated using [ACD/Labs program](www.acdlabs.com) based on the provided structures of analytes. The MM ranged from 73.09 to 656.8.
-
-```{r hist-MW-logP,message=FALSE, warning=FALSE}
-
-df <- data %>% distinct(ID, .keep_all = TRUE) 
-
-p1<-ggplot(data=df)+
-  geom_histogram(aes(x=MW_ACD))+
-  xlab("molecular mass")+
-  ylab("count")
-
-p2<-ggplot(data=df)+
-  geom_histogram(aes(x=logP_ACD))+
-  xlab("logP")+
-  ylab("count")
-
-p1+p2
-
-```
-
-The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
-
-
-```{r functional-group-summary, message=FALSE, warning=FALSE}
-
-sumdata=data.frame(value=apply(functional_groups,2,sum))
-
-sumdata$key=functional_groups_names[,2]
-sumdata <- sumdata[order(sumdata$value),]
-sumdata$split <- rep(c(1,2),each=49)
-
-layout(c(1,2), widths=c(1,3))
-
-p1 <- ggplot(data=sumdata[which(sumdata$split==1),], aes(x=reorder(key, +value), y=value, fill=key)) +
-  geom_bar(fill="gray", stat="identity") + 
-  theme(legend.position = "none",
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank()) + 
-  coord_flip()+
-  scale_y_continuous(breaks=c(0,5,10))
-
-p2 <- ggplot(data=sumdata[which(sumdata$split==2),], aes(x=reorder(key, +value), y=value, fill=key)) +
-  geom_bar(fill="gray", stat="identity") + 
-  theme(legend.position = "none",
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank()) + 
-  coord_flip() + scale_y_continuous(trans='log10',breaks=c(1,10,100,1000))
-
-# Combine the plots with a custom layout
-p1 + p2 + plot_layout(design = "1222")
-
-```
-
 # Prepare data for calculations
 
 ```{r}
+df <- data %>% distinct(ID, .keep_all = TRUE) 
 pKaslit = data_ACD[,3:5]           # pKa values as predicted by ACD
 pKasliterror = data_ACD[,17:19]    # pKa error as predicted by ACD
 chargesA = abs(data_ACD[,9:12])    # number of ionized groups (anions)
@@ -268,7 +145,6 @@ nAnalytes <- length(unique(data$ID))
 
 start <- (1:nObs)[!duplicated(data$ID)]
 end <- c(start[-1] - 1, nObs)
-
 ```
 
 ```{r initial-estimates}
@@ -291,13 +167,6 @@ init_aprox$S2 <- rep(2,nAnalytes)
 init_aprox$S1 <- -initial_param[,1]/(1+2)
 init_aprox$chargesB0 <-chargesB[,2]
 init_aprox$chargesA0 <-chargesA0
-```
-
-```{r initial-estimates-plot}
-init_aprox %>%
-  ggplot(aes(x=logkw,y=S1,color=factor(chargesB0+chargesA0)))+
-  geom_point()+
-  labs(color="charges")
 ```
 
 
@@ -351,129 +220,64 @@ $$
 
 LKJ(2) ensure that the density is uniform over correlation matrices of order 2 and u denotes the unique lower triangular elements of correlation matrix (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
 
-
 # Stan
 
 Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linked with R/ [cmdstanr](https://mc-stan.org/cmdstanr/). For the inference we used 500 iterations, 1000 warmup iterations, and 8 Markov chains. The reduce_sum function was selected to accelerate the calculations. It works by parallelizing the execution of a single Stan chain across multiple cores. Convergence diagnostics were checked using Gelman−Rubin statistics and trace plots.
 
-# Model 301
-```{r mod-paths}
-model_figures_dir <- here::here(figures_dir, "301")
-model_tables_dir <- here::here(tables_dir,"301")
-dir.create(model_figures_dir, recursive = T)
-dir.create(model_tables_dir, recursive = T)
+### Initialize variables and parameters
+
+```{r stansetup}
+# create Stan data set:
+datastruct <- with(data,
+                  list(nAnalytes=length(unique(data$ID)),
+                       nObs=length(data$ID),
+                       analyte=match(data$ID, unique(data$ID)),
+                       fi=data$fi,
+                       logPobs=logPobs, 
+                       start = start,
+                       end= end,
+                       pKaslit = pKaslit,
+                       charges = charges,
+                       logkobs=logk,
+                       run_estimation=1))
+
+# initialize the values for each variable in each chain:
+init <- function(){
+  list(   logkwHat  = rnorm(1,2,2),
+          S1Hat    = rnorm(1,5,1),
+          dlogkwHat  = rnorm(1,-1,0.125),
+          dS1Hat    = rnorm(1,0,0.5),
+          S2Hat = 2*exp(rnorm(1,0,0.125)),
+          beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
+          omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
+          rho = matrix(c(1,0.75,0.75,1), nrow=2),
+          #param = cbind(matrix(2, 1, nrow=nSteps), matrix(5, 1, nrow=nSteps)),
+          param = cbind(init_aprox$logkw,init_aprox$S1),
+          sigma  =  0.05*exp(rnorm(1, 0, 0.5))
+  )
+}
+
 ```
-
-### New model
-```{r  new-model, eval = FALSE}
-#read_model(file.path(model_dir, "300")) %>% copy_model_from("301", .overwrite = TRUE)
-```
-
-### Run existing model
-```{r  run-model, eval = FALSE}
-# mod301  <- read_model(file.path(model_dir, "301"))
-# mod301_res <- mod301 %>% submit_model(.overwrite = TRUE) 
-```
-
-### Generated quantities
-```{r gq, eval=FALSE}
-#mod301_gq  <- read_model(file.path(model_dir, "301")) %>%  copy_model_as_stan_gq()
-# mod301_gq  <- read_model(file.path(model_dir, "301_gq"))
-# mod301_gq <- mod8_gq %>% submit_model(.overwrite = TRUE)
-```
-
-### Read results
-```{r read-rezults}
- # mod_to_plot  <- read_model(here::here(model_dir, "301"))%>%
- #   read_fit_model()
- # mod_to_plot_gq <- read_model(here::here(model_dir, "301_gq")) %>%
- #   read_fit_model()
-```
-
-# Trytonp
-```{r dump-files, eval = FALSE}
-mod301  <- read_model(file.path(model_dir, "301"))
-model_path = mod301$absolute_model_path;
-model_output <- "301-output"
-
-if(!file.exists(here(model_path,model_output))) {
-  dir.create(here(model_path,model_output), recursive = T)}
-
-source(paste0(model_path, "/301-init.R"))
-source(paste0(model_path, "/301-standata.R"))
-
-data <- make_standata()
-init <- make_init(.data=data)
-write_stan_json(data, here(model_path, "standata.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-1.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-2.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-3.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-4.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-5.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-6.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-7.json"), always_decimal = FALSE)
-write_stan_json(init(), here(model_path, "init-8.json"), always_decimal = FALSE)
-```
-
-```{r read-tryton-files}
-mod301  <- read_model(file.path(model_dir, "301"))
-model_path = mod301$absolute_model_path;
-model_output <- "301-output"
-mod_to_plot <- cmdstanr::as_cmdstan_fit(c(
-                                 here(model_path, model_output, 'output_1.csv'),
-                                 here(model_path, model_output, 'output_2.csv'),
-                                 here(model_path, model_output, 'output_3.csv'),
-                                  here(model_path, model_output, 'output_4.csv'),
-                                  here(model_path, model_output, 'output_5.csv'),
-                                  here(model_path, model_output, 'output_6.csv'),
-                                  here(model_path, model_output, 'output_7.csv'),
-                                  here(model_path, model_output, 'output_8.csv')
-                                ))
-```
-
-```{r tryton-gq, eval = FALSE}
-
-#read_model(file.path(model_dir, "301")) %>%  copy_model_as_stan_gq()
-model_path_gq <-  "C:/Users/GUMed/Documents/Chromprojects/dilutions/model/cmdstanr/301_gq";
-model_output_gq <- "301_gq-output"
-if(!file.exists(here(model_path_gq,model_output_gq))) dir.create(here(model_path_gq,model_output_gq), recursive = T)
-source(paste0(model_path_gq, "/301_gq-fitted-params.R"))
-source(paste0(model_path_gq, "/301_gq-standata.R"))
-
-data <- make_standata()
-paths <- make_fitted_params()
-
-mod301_gq <- cmdstan_model(here(model_path_gq, "301_gq.stan"))
-mod301_gq  <- mod301_gq$generate_quantities(paths,
-                                         data = data,
-                                         seed = 123,
-                                         parallel_chains = 8,
-                                         output_basename = "output_gq",
-                                         output_dir = here(model_path_gq,model_output_gq))
-```
-
-```{r tryton-gq-load-files}
-model_path_gq <-  "C:/Users/GUMed/Documents/Chromprojects/dilutions/model/cmdstanr/301_gq";
-model_output_gq <- "301_gq-output"
-mod_to_plot_gq <- cmdstanr::read_cmdstan_csv(c(
-                                  here(model_path_gq, model_output_gq, 'output_gq-1.csv'),
-                                  #here(model_path_gq, model_output_gq, 'output_gq-2.csv'),
-                                  here(model_path_gq, model_output_gq, 'output_gq-3.csv'),
-                                  #here(model_path_gq, model_output_gq, 'output_gq-4.csv'),
-                                  here(model_path_gq, model_output_gq, 'output_gq-5.csv'),
-                                 # here(model_path_gq, model_output_gq, 'output_gq-6.csv'),
-                                 # here(model_path_gq, model_output_gq, 'output_gq-7.csv'),
-                                  here(model_path_gq, model_output_gq, 'output_gq-8.csv')
-                                ))
-```
-
 
 ### Fitting the model
-
 We compiled the model using cmdstanr:
+```{r mod-settings}
+model_name <- "mod1"
+model_name_ext <- paste0(model_name,".stan")
+#' folder shortcuts:
+mod_figures_dir <- here::here("deliv", "figures", model_name)
+mod_tabels_dir  <- here::here("deliv", "tables", model_name)
+mod_model_dir   <- here::here("model", "stan", model_name)
+mod_output_dir   <- here::here("model", "stan", model_name, "output")
+
+if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir)
+if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir)
+if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
+if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+```
 
 ```{r stancompile, eval = FALSE}
-mod1 <- cmdstan_model(paste0(model_dir,".stan"), stanc_options = list("O1"))
+mod1 <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
 ```
 
 We used optimization for initial testing:
@@ -481,7 +285,7 @@ We used optimization for initial testing:
 ```{r stanoptimize, eval = FALSE}
 fit_opt <- mod1$optimize(
   data = datastruct,
-  output_dir = stanfiles_dir,
+  output_dir = mod_output_dir,
   output_basename = "mod1-opt",
   init = init,
   iter=1000
@@ -502,7 +306,7 @@ datax<-data %>%
   labs(x = "\u03C6", y = expression(logk)) + 
   theme_gray(base_size = 14) + 
   theme(legend.position="none")
-
+datax
 ```
 
 For local computations one can use cmdstanr:
@@ -510,7 +314,7 @@ For local computations one can use cmdstanr:
 ```{r stansample, eval = FALSE}
  fit <- mod1$sample(
    data = datastruct,
-   output_dir = stanfiles_dir,
+   output_dir = mod_output_dir,
    output_basename = "mod1-loc",
    init = init,
    iter_warmup = 500,
@@ -521,8 +325,7 @@ For local computations one can use cmdstanr:
    adapt_delta=0.9
  )
 
-fit$save_object(file = paste0(stanfiles_dir,"/mod1-loc.RDS")
-
+# fit$save_object(file = here(mod_output_dir,"mod1-loc.RDS"))
 ```
 
 We performed out computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
@@ -530,15 +333,15 @@ We performed out computations at the Academic Computer Center in Gdańsk, [Tryto
 1.  we dumped the necessary data to .json format
 
 ```{r dumpfiles, eval = FALSE}
-write_stan_json(datastruct, paste0(model_dir,"/standata.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-1.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-2.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-3.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-4.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-5.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-6.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-7.json"), always_decimal = FALSE)
-write_stan_json(init(), paste0(model_dir,"/init-8.json"), always_decimal = FALSE)
+write_stan_json(datastruct, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-3.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-4.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-5.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-6.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-7.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE)
 ```
 
 2.  we run the model using the batch file:
@@ -552,24 +355,23 @@ write_stan_json(init(), paste0(model_dir,"/init-8.json"), always_decimal = FALSE
 
 ```{r stanload}
 fit <- cmdstanr::as_cmdstan_fit(c(
-                                  paste0(stanfiles_dir,"/",  model_name, "-1.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-2.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-3.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-4.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-5.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-6.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-7.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-8.csv")
+                                  paste0(mod_output_dir,"/",  model_name, "-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-8.csv")
                                 ))
-
 ```
 
 4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
 
 ```{r standiagnose, eval = FALSE}
  #fit$cmdstan_diagnose()
- setwd(stanfiles_dir)
- str = paste0(cmdstan_path(), '/bin/diagnose  mod1_*.csv')
+ setwd(mod_output_dir)
+ str = paste0(cmdstan_path(), '/bin/diagnose  mod1-*.csv')
  system(str,intern=TRUE)
 ```
 
@@ -592,33 +394,40 @@ fit$print(max_rows = 180)
 
 # Genereted quantitites
 
+```{r paths}
+modelqg_name <- "mod1gq"
+modelqg_name_ext <- paste0(modelqg_name,".stan")
+modgq_model_dir   <- here::here("model", "stan", modelqg_name)
+modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
+
+if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
+if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+
+```
+
 ```{r generete-quntities, eval=FALSE}
-model_gen <- cmdstan_model(paste0(stan_dir, "/", model_name, "-gen.stan"))
-fit_gen  <- model_gen$generate_quantities(fit,
+mod1gq <- cmdstan_model(here(modgq_model_dir,model_name_ext))
+fitgq  <- mod1gq$generate_quantities(fit,
                                           data = datastruct,
                                           seed = 123,
                                           parallel_chains = 4,
-                                          output_dir = stanfiles_dir,
-                                          output_basename = "mod1-gen",)
-
+                                          output_dir = modgq_output_dir,
+                                          output_basename = modelqg_name)
 ```
 
 # Results
 
 ## Load
-
-
 ```{r etaload}
 x <- cmdstanr::read_cmdstan_csv(c(
-                                  paste0(stanfiles_dir,"/",  model_name, "-gen-1.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-gen-2.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-gen-3.csv"),
-                                  paste0(stanfiles_dir,"/",  model_name, "-gen-4.csv")
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv")
                                 ))
 draws_gen_df <- as_draws_df(x$generated_quantities)
 
 ```
-
 
 ## Trace plots
 
@@ -769,11 +578,6 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
         labeller = "label_parsed",upper = list(continuous = "points"))
 
 print(p)
-```
-
-
-```{r info}
-sessionInfo()
 ```
 
 # Session info

@@ -1,0 +1,431 @@
+---
+title: "QSRR revisited. Hierarchical models"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+```
+
+# Introductions
+
+...
+
+# Setup
+```{r message=FALSE}
+library(cmdstanr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(rstan)
+library(tidyr)
+library(dplyr)
+library(posterior)
+library(bayesplot)
+library(GGally)
+library(reshape2)
+library(pracma)
+library(brms)
+library(here)
+library(magick)
+#remotes::install_github("metrumresearchgroup/mrgmisc")
+set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
+set.seed(10271998) ## not required but assures repeatable results
+
+source("helper-functions.R")
+```
+
+```{r settings}
+data_deliv_dir = here::here("data","deliv")
+data_derived_dir = here::here("data","derived")
+if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
+if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
+
+figures_structure_dir <- here::here("deliv","figures", "structures")
+tables_structure_dir <- here::here("deliv","tables", "structures")
+if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
+if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
+```
+
+```{r load-data, message=FALSE, warning=FALSE}
+# load data
+data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
+analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
+smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
+functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
+functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
+data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
+smiles<-smiles %>% rename(METID=V2,smiles=V1) %>% select(ID,smiles)
+```
+
+# Python
+
+```{r load-conda-environment}
+library(reticulate)
+use_condaenv("rdkit-ertl", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
+
+# test 
+rdkit <- import("rdkit")
+mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
+rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
+```
+## Save 2D structures to png
+```{r save-molecules-2Dstructures}
+# Import RDKit modules
+rdkit <- import("rdkit")
+Chem <- import("rdkit.Chem")
+Draw <- import("rdkit.Chem.Draw")
+AllChem <- import("rdkit.Chem.AllChem")
+
+smiles_vec <- smiles$smiles
+
+save_png_fun <- function(i) {
+  ismiles <- smiles_vec[i]
+  mol <- Chem$MolFromSmiles(ismiles)
+  AllChem$Compute2DCoords(mol)
+  
+  img <- Draw$MolToImage(mol, size = tuple(300L, 300L))
+  filename <- here::here(figures_structure_dir, 
+                         paste0(make_filename_safe(analytes_names[i, 2]), "_", i, ".png"))
+  img$save(filename)
+  invisible(NULL)
+}
+
+lapply(seq_along(smiles_vec), save_png_fun)
+```
+
+## Similarity matrix
+
+```{r similarity}
+# Import RDKit modules
+rdkit <- import("rdkit")
+Chem <- import("rdkit.Chem")
+DataStructs <- import("rdkit.DataStructs")
+
+smiles_vec <- smiles$smiles
+
+compute_tanimoto_similarity <- function(smiles1, smiles2) {
+  mol1 <- Chem$MolFromSmiles(smiles1)
+  mol2 <- Chem$MolFromSmiles(smiles2)
+  
+  # Generate molecular fingerprints (e.g., Morgan fingerprints with radius 2)
+  fingerprint1 <- Chem$RDKFingerprint(mol1)
+  fingerprint2 <- Chem$RDKFingerprint(mol2)
+  
+  # Calculate Tanimoto similarity
+  similarity <- DataStructs$TanimotoSimilarity(fingerprint1, fingerprint2)
+  
+  return(similarity)
+}
+
+n <- length(smiles_vec)
+similarity_matrix <- matrix(0, nrow = n, ncol = n)
+
+# Compute Tanimoto similarity only for upper triangle (including diagonal)
+for (i in 1:n) {
+  for (j in i:n) {  # Start from i to avoid redundant calculations
+    similarity <- compute_tanimoto_similarity(smiles_vec[i], smiles_vec[j])
+    similarity_matrix[i, j] <- similarity
+    similarity_matrix[j, i] <- similarity  # Mirror to lower triangle
+  }
+}
+
+# Set diagonal to 1 if Tanimoto similarity of a molecule with itself is 1
+diag(similarity_matrix) <- 1
+
+write.csv(similarity_to_ltr_fun(similarity_matrix), file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), row.names = FALSE)
+```
+
+## Functional groups
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+MolFromSmiles <- Chem$MolFromSmiles
+FunctionalGroups <- rdkit$Chem$FunctionalGroups
+MolFromSmarts <- Chem$MolFromSmarts
+
+# Define a vector of SMILES strings
+smiles_vector <- smiles$smiles[1:50]
+
+# Load the default Ertl functional group hierarchy
+fg_hierarchy <- FunctionalGroups$BuildFuncGroupHierarchy()
+fg_names_default <- sapply(fg_hierarchy, function(fg) fg$name)
+
+# Define a custom list of additional functional groups with SMARTS patterns
+custom_fg  <- list(
+  "Allenic Carbon" = "[CX2](=C)=C",
+  "Vinylic Carbon" = "[CX3]=[CX3]",
+  # Alkynes
+  "Acetylenic Carbon" = "[CX2]#C",
+  # Carbonyl-related groups
+  "Carbonyl (Low Specificity)" = "[CX3]=[OX1]",
+  "Carbonyl (Both Resonance Forms)" = "[$([CX3]=[OX1]),$([CX3+]-[OX1-])]",
+  "Carbonyl with Carbon" = "[CX3](=[OX1])C",
+  "Carbonyl with Nitrogen" = "[OX1]=CN",
+  "Carbonyl with Oxygen" = "[CX3](=[OX1])O",
+  "Acyl Halide" = "[CX3](=[OX1])[F,Cl,Br,I]",
+  "Aldehyde" = "[CX3H1](=O)[#6]",
+  "Anhydride" = "[CX3](=[OX1])[OX2][CX3](=[OX1])",
+  "Amide" = "[NX3][CX3](=[OX1])[#6]",
+  "Amidinium" = "[NX3][CX3]=[NX3+]",
+  "Carbamate" = "[NX3,NX4+][CX3](=[OX1])[OX2,OX1-]",
+  "Carbamic Ester" = "[NX3][CX3](=[OX1])[OX2H0]",
+  "Carbamic Acid" = "[NX3,NX4+][CX3](=[OX1])[OX2H,OX1-]",
+  "Carboxylate Ion" = "[CX3](=O)[O-]",
+  "Carbonic Acid or Ester" = "[CX3](=[OX1])(O)O",
+  "Carbonic Acid or Monoester" = "[CX3](=[OX1])([OX2])[OX2H,OX1H0-1]",
+  "Carbonic Diester" = "C[OX2][CX3](=[OX1])[OX2]C",
+  "Carboxylic Acid" = "[CX3](=O)[OX2H1]",
+  "Carboxylic Acid or Conjugate Base" = "[CX3](=O)[OX1H0-,OX2H1]",
+  "Cyanamide" = "[NX3][CX2]#[NX1]",
+  "Ester" = "[#6][CX3](=O)[OX2H0][#6]",
+  "Ketone" = "[#6][CX3](=O)[#6]",
+
+  # Ethers
+  "Ether" = "[OD2]([#6])[#6]",
+
+  # Hydrogen-related
+  "Hydrogen Atom" = "[H]",
+  "Not Hydrogen Atom" = "[!#1]",
+  "Proton" = "[H+]",
+  "Mono-Hydrogenated Cation" = "[+H]",
+  "Not Mono-Hydrogenated" = "[!H1]",
+
+  # Nitrogen-containing groups
+  "Primary or Secondary Amine" = "[NX3;H2,H1;!$(NC=O)]",
+  "Enamine" = "[NX3][CX3]=[CX3]",
+  "Primary Amine (Not Amide)" = "[NX3;H2;!$(NC=[!#6]);!$(NC#[!#6])][#6]",
+  "Two Primary or Secondary Amines" = "[NX3;H2,H1;!$(NC=O)].[NX3;H2,H1;!$(NC=O)]",
+  "Enamine or Aniline Nitrogen" = "[NX3][$(C=C),$(cc)]",
+  
+  # Azides
+  "Azide Group" = "[$(*-[NX2-]-[NX2+]#[NX1]),$(*-[NX2]=[NX2+]=[NX1-])]",
+  "Azide Ion" = "[$([NX1-]=[NX2+]=[NX1-]),$([NX1]#[NX2+]-[NX1-2])]",
+
+  # Azo compounds
+  "Azo Nitrogen (Low Specificity)" = "[NX2]=N",
+  "Diazene" = "[NX2]=[NX2]",
+  "Azoxy Nitrogen" = "[$([NX2]=[NX3+]([O-])[#6]),$([NX2]=[NX3+0](=[O])[#6])]",
+  "Diazo Nitrogen" = "[$([#6]=[N+]=[N-]),$([#6-]-[N+]#[N])]",
+  "Azole" = "[$([nr5]:[nr5,or5,sr5]),$([nr5]:[cr5]:[nr5,or5,sr5])]",
+
+  # Hydrazines and hydrazones
+  "Hydrazine" = "[NX3][NX3]",
+  "Hydrazone" = "[NX3][NX2]=[*]",
+
+  # Imines
+  "Substituted Imine" = "[CX3;$([C]([#6])[#6]),$([CH][#6])]=[NX2][#6]",
+  "Imine (Schiff Base)" = "[$([CX3]([#6])[#6]),$([CX3H][#6])]=[$([NX2][#6]),$([NX2H])]",
+  "Iminium" = "[NX3+]=[CX3]",
+
+  # Imides
+  "Unsubstituted Dicarboximide" = "[CX3](=[OX1])[NX3H][CX3](=[OX1])",
+  "Substituted Dicarboximide" = "[CX3](=[OX1])[NX3H0]([#6])[CX3](=[OX1])",
+  "Dicarboxdiimide" = "[CX3](=[OX1])[NX3H0]([NX3H0]([CX3](=[OX1]))[CX3](=[OX1]))[CX3](=[OX1])",
+
+  # Nitrates
+  "Nitrate Group" = "[$([NX3](=[OX1])(=[OX1])O),$([NX3+]([OX1-])(=[OX1])O)]",
+  "Nitrate Anion" = "[$([OX1]=[NX3](=[OX1])[OX1-]),$([OX1]=[NX3+]([OX1-])[OX1-])]",
+
+  # Nitriles
+  "Nitrile" = "[NX1]#[CX2]",
+  "Isonitrile" = "[CX1-]#[NX2+]",
+
+  # Nitro compounds
+  "Nitro Group" = "[$([NX3](=O)=O),$([NX3+](=O)[O-])][!#8]",
+  "Two Nitro Groups" = "[$([NX3](=O)=O),$([NX3+](=O)[O-])][!#8].[$([NX3](=O)=O),$([NX3+](=O)[O-])][!#8]",
+
+  # Nitroso
+  "Nitroso Group" = "[NX2]=[OX1]",
+
+  # N-Oxides
+  "N-Oxide" = "[$([#7+][OX1-]),$([#7v5]=[OX1]);!$([#7](~[O])~[O]);!$([#7]=[#7])]",
+
+  # Hydroxyl groups
+  "Hydroxyl" = "[OX2H]",
+  "Hydroxyl in Alcohol" = "[#6][OX2H]",
+  "Hydroxyl in Carboxylic Acid" = "[OX2H][CX3]=[OX1]",
+  "Hydroxyl in H-O-P-" = "[OX2H]P",
+  "Enol" = "[OX2H][#6X3]=[#6]",
+  "Phenol" = "[OX2H][cX3]:[c]",
+  "Enol or Phenol" = "[OX2H][$(C=C),$(cc)]",
+  "Acidic Hydroxyl" = "[$([OH]-*=[!#6])]",
+
+  # Peroxides
+  "Peroxide" = "[OX2,OX1-][OX2,OX1-]",
+
+  # Phosphoric compounds
+  "Phosphoric Acid Groups" = "[$(P(=[OX1])([$([OX2H]),$([OX1-]),$([OX2]P)])([$([OX2H]),$([OX1-]),$([OX2]P)])[$([OX2H]),$([OX1-]),$([OX2]P)]),$([P+]([OX1-])([$([OX2H]),$([OX1-]),$([OX2]P)])([$([OX2H]),$([OX1-]),$([OX2]P)])[$([OX2H]),$([OX1-]),$([OX2]P)])]",
+  "Phosphoric Ester Groups" = "[$(P(=[OX1])([OX2][#6])([$([OX2H]),$([OX1-]),$([OX2][#6])])[$([OX2H]),$([OX1-]),$([OX2][#6]),$([OX2]P)]),$([P+]([OX1-])([OX2][#6])([$([OX2H]),$([OX1-]),$([OX2][#6])])[$([OX2H]),$([OX1-]),$([OX2][#6]),$([OX2]P)])]",
+
+  # Sulfur-containing groups
+  "Carbo-Thiocarboxylate" = "[S-][CX3](=S)[#6]",
+  "Carbo-Thioester" = "S([#6])[CX3](=O)[#6]",
+  "Thio Analog of Carbonyl" = "[#6X3](=[SX1])([!N])[!N]",
+  "Thiol, Sulfide, or Disulfide Sulfur" = "[SX2]",
+  "Thiol" = "[#16X2H]",
+  "Sulfur with At Least One Hydrogen" = "[#16!H0]",
+
+  # Sulfides
+  "Sulfide" = "[#16X2H0]",
+  "Mono-Sulfide" = "[#16X2H0][!#16]",
+  "Di-Sulfide" = "[#16X2H0][#16X2H0]",
+  "Two Sulfides" = "[#16X2H0][!#16].[#16X2H0][!#16]",
+
+  # Sulfinates
+  "Sulfinate" = "[$([#16X3](=[OX1])[OX2H0]),$([#16X3+]([OX1-])[OX2H0])]",
+  "Sulfinic Acid" = "[$([#16X3](=[OX1])[OX2H,OX1H0-]),$([#16X3+]([OX1-])[OX2H,OX1H0-])]",
+
+  # Sulfones
+  "Sulfone (Low Specificity)" = "[$([#16X4](=[OX1])=[OX1]),$([#16X4+2]([OX1-])[OX1-])]",
+  "Sulfone (High Specificity)" = "[$([#16X4](=[OX1])(=[OX1])([#6])[#6]),$([#16X4+2]([OX1-])([OX1-])([#6])[#6])]",
+  "Sulfonic Acid" = "[$([#16X4](=[OX1])(=[OX1])([#6])[OX2H,OX1H0-]),$([#16X4+2]([OX1-])([OX1-])([#6])[OX2H,OX1H0-])]",
+  "Sulfonate" = "[$([#16X4](=[OX1])(=[OX1])([#6])[OX2H0]),$([#16X4+2]([OX1-])([OX1-])([#6])[OX2H0])]",
+  "Sulfonamide" = "[$([#16X4]([NX3])(=[OX1])(=[OX1])[#6]),$([#16X4+2]([NX3])([OX1-])([OX1-])[#6])]",
+  "Carbo-Azosulfone" = "[SX4](C)(C)(=O)=N",
+
+  # Sulfoxides
+  "Sulfoxide (Low Specificity)" = "[$([#16X3]=[OX1]),$([#16X3+][OX1-])]",
+  "Sulfoxide (High Specificity)" = "[$([#16X3](=[OX1])([#6])[#6]),$([#16X3+]([OX1-])([#6])[#6])]",
+
+  # Sulfates
+  "Sulfate" = "[$([#16X4](=[OX1])(=[OX1])([OX2H,OX1H0-])[OX2][#6]),$([#16X4+2]([OX1-])([OX1-])([OX2H,OX1H0-])[OX2][#6])]",
+  "Sulfuric Acid Ester (Low Specificity)" = "[$([SX4](=O)(=O)(O)O),$([SX4+2]([O-])([O-])(O)O)]",
+  "Sulfuric Acid Diester" = "[$([#16X4](=[OX1])(=[OX1])([OX2][#6])[OX2][#6]),$([#16X4](=[OX1])(=[OX1])([OX2][#6])[OX2][#6])]",
+
+  # Sulfamates
+  "Sulfamate" = "[$([#16X4]([NX3])(=[OX1])(=[OX1])[OX2][#6]),$([#16X4+2]([NX3])([OX1-])([OX1-])[OX2][#6])]",
+  "Sulfamic Acid" = "[$([#16X4]([NX3])(=[OX1])(=[OX1])[OX2H,OX1H0-]),$([#16X4+2]([NX3])([OX1-])([OX1-])[OX2H,OX1H0-])]",
+
+  # Sulfenes
+  "Sulfenic Acid" = "[#16X2][OX2H,OX1H0-]",
+  "Sulfenate" = "[#16X2][OX2H0]",
+
+  # Halides
+  "Any Carbon with Halogen" = "[#6][F,Cl,Br,I]",
+  "Halogen" = "[F,Cl,Br,I]",
+  "Three Halides" = "[F,Cl,Br,I].[F,Cl,Br,I].[F,Cl,Br,I]"
+)
+
+# Convert custom SMARTS to RDKit patterns
+custom_fg_patterns <- lapply(custom_fg, function(smarts) MolFromSmarts(smarts))
+fg_names_custom <- names(custom_fg)
+
+# Combine all functional group names
+all_fg_names <- c(fg_names_default, fg_names_custom)
+
+# Initialize a matrix for functional group counts
+fg_matrix <- matrix(0, 
+                    nrow = length(smiles_vector), 
+                    ncol = length(all_fg_names),
+                    dimnames = list(smiles_vector, all_fg_names))
+
+# Process each SMILES string
+for (i in seq_along(smiles_vector)) {
+  ismile <- smiles_vector[i]
+  
+  # Convert SMERVICES to RDKit molecule object
+  mol <- MolFromSmiles(ismile)
+  
+  # Skip if molecule parsing fails
+  if (is.null(mol)) {
+    warning(sprintf("Invalid SMILES string: %s", ismile))
+    next
+  }
+  
+  # 1. Check default functional groups from hierarchy
+  for (fg in fg_hierarchy) {
+    matches <- mol$GetSubstructMatches(fg$pattern)
+    if (length(matches) > 0) {
+      fg_matrix[i, fg$name] <- length(matches)
+    }
+  }
+  
+  # 2. Check custom functional groups
+  for (fg_name in fg_names_custom) {
+    pattern <- custom_fg_patterns[[fg_name]]
+    if (!is.null(pattern)) {
+      matches <- mol$GetSubstructMatches(pattern)
+      if (length(matches) > 0) {
+        fg_matrix[i, fg_name] <- length(matches)
+      }
+    }
+  }
+}
+
+# Convert matrix to data frame and filter to non-zero columns
+fg_df <- as.data.frame(fg_matrix)
+fg_df <- fg_df[, colSums(fg_df) > 0, drop = FALSE]
+
+# Print the resulting matrix
+cat("Functional group counts per analyte:\n")
+print(fg_df)
+
+# Summary statistics
+cat("\nSummary:\n")
+cat("Total analytes processed:", length(smiles_vector), "\n")
+cat("Unique functional groups detected:", ncol(fg_df), "\n")
+```
+
+# Functional groups simple
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+MolFromSmiles <- Chem$MolFromSmiles
+FunctionalGroups <- rdkit$Chem$FunctionalGroups
+
+smiles_vector <- smiles$smiles
+
+fg_hierarchy <- FunctionalGroups$BuildFuncGroupHierarchy()
+fg_names <- sapply(fg_hierarchy, function(fg) fg$name)
+
+fg_matrix <- matrix(0, 
+                    nrow = length(smiles_vector), 
+                    ncol = length(fg_names),
+                    dimnames = list(smiles_vector, fg_names))
+
+for (i in seq_along(smiles_vector)) {
+  ismile <- smiles_vector[i]
+  mol <- MolFromSmiles(ismile)
+  if (is.null(mol)) {
+    warning(sprintf("Invalid SMILES string: %s", ismile))
+    next
+  }
+  
+  for (fg in fg_hierarchy) {
+    matches <- mol$GetSubstructMatches(fg$pattern)
+    if (length(matches) > 0) {
+      fg_matrix[i, fg$name] <- length(matches)
+    }
+  }
+}
+
+
+fg_df <- as.data.frame(fg_matrix)
+
+# Print the resulting matrix/data frame
+cat("Functional group counts per analyte:\n")
+print(fg_df)
+```
+
+
+# Session info
+
+```{r}
+sessionInfo()
+```
