@@ -1,0 +1,26 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p test
+#SBATCH --time=00:15:00
+#SBATCH --mem=2gb
+#SBATCH --array=1%1 
+
+# load modules
+module load tryton/cmdstan/2.30.1-conda
+
+export STAN_THREADS=false
+
+# model name
+export CMDSTAN_MODEL_NAME="mod6"
+
+# folder name
+export MODEL_SRC_DIR=${PWD}
+cd ${MODEL_SRC_DIR}
+
+# compile
+[ -f ${CMDSTAN_MODEL_NAME} ] && echo "Model "${CMDSTAN_MODEL_NAME}" does not exists." || cmdstan_model ${CMDSTAN_MODEL_NAME}
+
+wait
