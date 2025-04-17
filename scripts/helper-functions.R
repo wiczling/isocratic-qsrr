@@ -33,3 +33,11 @@ make_filename_safe <- function(name) {
     (\(x) gsub("^_|_$", "", x))() |>
     (\(x) substr(x, 1, 100))()
 }
+
+to_pylist <- function(vec) {
+  if (length(vec) == 0) {
+    list()
+  } else {
+    as.list(vec)
+  }
+}

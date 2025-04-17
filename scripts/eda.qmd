@@ -195,6 +195,18 @@ ggplot(data, aes(x=fi, y=logk, group=ID)) +
   facet_wrap(~mm_group, ncol=2) +
   labs(x = "\u03C6", y = expression(log~k[obs])) + 
   theme_gray(base_size = 14) + theme(legend.position="none") 
+
+
+temp_tri<-lower_tri_df%>%arrange(desc(similarity))%>%filter(row!=col, similarity>0.8)
+
+i=349;
+data %>% 
+  filter(ID %in% c(temp_tri$row[i],temp_tri$col[i])) %>%
+  ggplot(aes(x=fi, y=logk, group=ID)) + 
+  geom_line(aes(color=logP_ACD)) + 
+  labs(title = paste(analytes_names$Analyte[temp_tri$row[i]], "\n", analytes_names$Analyte[temp_tri$col[i]], temp_tri$similarity[i]), x = "\u03C6", y = expression(log~k[obs])) + 
+  theme_gray(base_size = 10) + theme(legend.position="none")
+
 ```
 ## pH changes
 
