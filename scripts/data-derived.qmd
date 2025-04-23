@@ -43,6 +43,8 @@ library(reticulate)
 set.seed(10271998) ## not required but assures repeatable results
 
 source("helper-functions.R")
+
+#py_install(c("matplotlib", "pillow"))
 ```
 
 ```{r settings}
@@ -66,35 +68,34 @@ functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.cs
 functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
-
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
 
 functional_groups_lf = functional_groups %>%
-  mutate(ID = 1:n(), .before = "cation")%>%pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
+  mutate(ID = 1:n(), .before = "cation")%>%
+  pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
   filter(Ngroups>0)
-
-
 ```
 
 # Python
 
 ```{r load-conda-environment}
 use_condaenv("rdkit-ertl", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
-# test 
+
+# Import RDKit modules
 rdkit <- import("rdkit")
+Chem <- import("rdkit.Chem")
+Draw <- import("rdkit.Chem.Draw")
+AllChem <- import("rdkit.Chem.AllChem")
+DataStructs <- import("rdkit.DataStructs")
+
+# test 
 mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
 rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
 ```
 
 ## Save 2D structures to png
 ```{r save-molecules-2Dstructures}
-# Import RDKit modules
-rdkit <- import("rdkit")
-Chem <- import("rdkit.Chem")
-Draw <- import("rdkit.Chem.Draw")
-AllChem <- import("rdkit.Chem.AllChem")
-
-smiles_vec <- smiles$smiles
-
 save_png_fun <- function(i) {
   ismiles <- smiles_vec[i]
   mol <- Chem$MolFromSmiles(ismiles)
@@ -107,16 +108,12 @@ save_png_fun <- function(i) {
   invisible(NULL)
 }
 
-lapply(seq_along(smiles_vec), save_png_fun)
+lapply(seq_along(smiles$smiles), save_png_fun)
 ```
 
 ## Similarity matrix
 
-```{r similarity}
-# Import RDKit modules
-rdkit <- import("rdkit")
-Chem <- import("rdkit.Chem")
-DataStructs <- import("rdkit.DataStructs")
+```{r similarity, eval=FALSE}
 
 smiles_vec <- smiles$smiles
 
@@ -136,489 +133,21 @@ compute_tanimoto_similarity <- function(smiles1, smiles2) {
 
 n <- length(smiles_vec)
 similarity_matrix <- matrix(0, nrow = n, ncol = n)
-
-# Compute Tanimoto similarity only for upper triangle (including diagonal)
+ 
 for (i in 1:n) {
-  for (j in i:n) {  # Start from i to avoid redundant calculations
+  for (j in i:n) {  
     similarity <- compute_tanimoto_similarity(smiles_vec[i], smiles_vec[j])
     similarity_matrix[i, j] <- similarity
-    similarity_matrix[j, i] <- similarity  # Mirror to lower triangle
+    similarity_matrix[j, i] <- similarity 
   }
 }
 
-# Set diagonal to 1 if Tanimoto similarity of a molecule with itself is 1
 diag(similarity_matrix) <- 1
 
 write.csv(similarity_to_ltr_fun(similarity_matrix), file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), row.names = FALSE)
 ```
 
-## Functional groups
-```{r}
-rdkit <- import("rdkit")
-Chem <- rdkit$Chem
-MolFromSmiles <- Chem$MolFromSmiles
-MolFromSmarts <- Chem$MolFromSmarts
-AllChem <- rdkit$Chem$AllChem
-
-# Define a vector of SMILES strings
-smiles_vector <- smiles$smiles[1:20]  # Replace with your actual data
-
-# Define functional group replacement map with attachment points
-fg_replacements <- list(
-  "Ester_to_Alkyl" = list(
-    from = "[*:1][CX3](=O)[OX2H0][*:2]",  # Ester: R-C(=O)-O-R'
-    to = "[*:1]CC[*:2]"                   # Replace with propane chain
-  ),
-  "Ketone_to_Alkyl" = list(
-    from = "[*:1][CX3](=O)[*:2]",        # Ketone: R-C(=O)-R'
-    to = "[*:1]C[*:2]"                   # Replace with methane chain
-  ),
-  "Aldehyde_to_Alkyl" = list(
-    from = "[CX3H1](=O)[*:1]",           # Aldehyde: R-C(=O)H
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "CarboxylicAcid_to_Alkyl" = list(
-    from = "[*:1][CX3](=O)[OX2H1]",      # Carboxylic acid: R-C(=O)OH
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Ether_to_Alkyl" = list(
-    from = "[*:1][OD2][*:2]",            # Ether: R-O-R'
-    to = "[*:1]C[*:2]"                   # Replace with methane chain
-  ),
-  "Phenol_to_H" = list(
-    from = "[cX3:1][OX2H1]",             # Phenol: aromatic C-OH
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Hydroxyl_to_h" = list(
-    from = "[C!X3:1][OX2H1]",            # Aliphatic alcohol: R-OH (non-aromatic carbon)
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Amine_to_Alkyl" = list(
-    from = "[*:1][NX3;H0,H1,H2]",        # Amine: R-NH2, R2NH, or R3N
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Amide_to_Alkyl" = list(
-    from = "[*:1][CX3](=O)[NX3]",        # Amide: R-C(=O)-N
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Nitro_to_h" = list(
-    from = "[*:1][N+](=O)[O-]",          # Nitro: R-NO2
-    to = "[*:1]"                         # Replace with hydrogen
-  ),
-  "Thiol_to_h" = list(
-    from = "[*:1][SX2H1]",               # Thiol: R-SH
-    to = "[*:1]"                         # Replace with hydrogen
-  )
-)
-
-# Initialize results
-modified_smiles_list <- list()
-fg_names <- names(fg_replacements)
-fg_matrix <- matrix(0, nrow = length(smiles_vector), ncol = length(fg_names),
-                    dimnames = list(smiles_vector, fg_names))
-
-# Process each SMILES
-for (i in seq_along(smiles_vector)) {
-  ismile <- smiles_vector[i]
-  mol <- Chem$MolFromSmiles(ismile)
-
-  if (is.null(mol)) {
-    warning(sprintf("Invalid SMILES string: %s", ismile))
-    modified_smiles_list[[ismile]] <- NA
-    next
-  }
-
-  mol_new <- mol
-
-  # Apply replacements in order
-  for (fg_name in fg_names) {
-    fg_pair <- fg_replacements[[fg_name]]
-    pattern_smarts <- fg_pair$from
-    replacement_smiles <- fg_pair$to
-
-    # Create reaction SMARTS
-    reaction_smarts <- paste0(pattern_smarts, ">>", replacement_smiles)
-    tryCatch({
-      rxn <- AllChem$ReactionFromSmarts(reaction_smarts)
-
-      # Check if molecule has the functional group
-      pattern <- Chem$MolFromSmarts(pattern_smarts)
-      matches <- mol_new$GetSubstructMatches(pattern)
-
-      if (length(matches) > 0) {
-        fg_matrix[i, fg_name] <- length(matches)
-
-        # Run the reaction
-        products <- rxn$RunReactants(list(mol_new))
-        if (length(products) > 0 && length(products[[1]]) > 0) {
-          mol_new <- products[[1]][[1]]  # Take first product
-          Chem$SanitizeMol(mol_new)      # Sanitize to fix valency/bonds
-        }
-      }
-    }, error = function(e) {
-      message(sprintf("Error processing reaction for %s, %s: %s", ismile, fg_name, e$message))
-    })
-  }
-
-  # Generate new SMILES
-  tryCatch({
-    new_smiles <- Chem$MolToSmiles(mol_new)
-    modified_smiles_list[[ismile]] <- new_smiles
-  }, error = function(e) {
-    modified_smiles_list[[ismile]] <- NA
-    message(sprintf("Error generating SMILES for %s: %s", ismile, e$message))
-  })
-}
-
-# Output results
-print("Modified SMILES:")
-print(modified_smiles_list)
-print("Functional group match matrix:")
-print(fg_matrix)
-```
-
-# Functional groups simple
-```{r}
-rdkit <- import("rdkit")
-Chem <- rdkit$Chem
-MolFromSmiles <- Chem$MolFromSmiles
-FunctionalGroups <- rdkit$Chem$FunctionalGroups
-
-smiles_vector <- smiles$smiles
-
-fg_hierarchy <- FunctionalGroups$BuildFuncGroupHierarchy()
-fg_names <- sapply(fg_hierarchy, function(fg) fg$name)
-
-fg_matrix <- matrix(0, 
-                    nrow = length(smiles_vector), 
-                    ncol = length(fg_names),
-                    dimnames = list(smiles_vector, fg_names))
-
-for (i in seq_along(smiles_vector)) {
-  ismile <- smiles_vector[i]
-  mol <- MolFromSmiles(ismile)
-  if (is.null(mol)) {
-    warning(sprintf("Invalid SMILES string: %s", ismile))
-    next
-  }
-  
-  for (fg in fg_hierarchy) {
-    matches <- mol$GetSubstructMatches(fg$pattern)
-    if (length(matches) > 0) {
-      fg_matrix[i, fg$name] <- length(matches)
-    }
-  }
-}
-
-
-fg_df <- as.data.frame(fg_matrix)
-
-# Print the resulting matrix/data frame
-cat("Functional group counts per analyte:\n")
-print(fg_df)
-```
-
-# Maximum Common Substructure
-
-```{r mcs}
-# Import RDKit modules
-rdkit <- import("rdkit")
-Chem <- rdkit$Chem
-MCS <- rdkit$Chem$rdFMCS
-Draw <- import("rdkit.Chem.Draw")
-AllChem <- rdkit$Chem$AllChem
-
-smiles1 <- smiles$smiles[155]
-smiles2 <- smiles$smiles[156]
-
-# Convert SMILES to molecule objects
-mol1 <- Chem$MolFromSmiles(smiles1)
-mol2 <- Chem$MolFromSmiles(smiles2)
-
-# Find MCS
-mcs_result <- MCS$FindMCS(list(mol1, mol2))
-common_smarts <- mcs_result$smartsString
-cat("Common SMARTS pattern:", common_smarts, "\n")
-
-# Convert SMARTS to molecule
-common_mol <- Chem$MolFromSmarts(common_smarts)
-
-# Get MCS atom indices
-match1 <- mol1$GetSubstructMatch(common_mol)
-match2 <- mol2$GetSubstructMatch(common_mol)
-
-# Generate coordinates
-AllChem$Compute2DCoords(mol1)
-AllChem$Compute2DCoords(mol2)
-
-# Combine molecules into a list
-mol_list <- list(mol1, mol2)
-highlight_atoms <- list(match1, match2)
-
-# Generate a grid image
-img <- Draw$MolsToGridImage(
-  mols = mol_list,
-  highlightAtomLists = highlight_atoms,
-  subImgSize = tuple(300L, 300L), # size per molecule
-  legends = list("1", "2")
-)
-
-# Save and display image
-tmpfile <- tempfile(fileext = ".png")
-img$save(tmpfile)
-browseURL(tmpfile)
-```
-
-```{r}
-
-smiles1 <- smiles$smiles[861]
-smiles2 <- smiles$smiles[512]
-
-mol1 <- Chem$MolFromSmiles(smiles1)
-mol2 <- Chem$MolFromSmiles(smiles2)
-
-# Find Maximum Common Substructure
-mcs_result <- MCS$FindMCS(list(mol1, mol2))
-mcs_smarts <- mcs_result$smartsString
-mcs_mol <- Chem$MolFromSmarts(mcs_smarts)
-
-# Get atom indices in each molecule that match the MCS
-match1 <- mol1$GetSubstructMatch(mcs_mol)
-match2 <- mol2$GetSubstructMatch(mcs_mol)
-
-# Function to get difference atoms and extract them as a separate fragment
-get_difference_smiles <- function(mol, match_atoms) {
-  # Get atoms that are NOT part of the MCS
-  all_atoms <- 0:(mol$GetNumAtoms() - 1)
-  diff_atoms <- setdiff(all_atoms, match_atoms)
-
-  # If there are no differences, return NULL
-  if (length(diff_atoms) == 0) return(NULL)
-
-  # Create editable molecule
-  emol <- Chem$RWMol(mol)
-
-  # Delete atoms not in the diff
-  keep_atoms <- diff_atoms
-  delete_atoms <- setdiff(all_atoms, keep_atoms)
-
-  for (i in rev(delete_atoms)) {
-    emol$RemoveAtom(as.integer(i))
-  }
-
-  # Sanitize and get SMILES
-  newmol <- emol
-  Chem$SanitizeMol(newmol)
-  Chem$MolToSmiles(newmol)
-}
-
-# Get difference parts as SMILES
-diff1_smiles <- get_difference_smiles(mol1, match1)
-diff2_smiles <- get_difference_smiles(mol2, match2)
-
-# Print
-cat("Molecule 1 - Unique part:", diff1_smiles, "\n")
-cat("Molecule 2 - Unique part:", diff2_smiles, "\n")
-```
-# Substruct functional groups
-
-```{r}
-
-
-visualize_molecules <- function(original_smiles, modified_smiles) {
-  mol1 <- Chem$MolFromSmiles(original_smiles)
-  mol2 <- Chem$MolFromSmiles(modified_smiles)
-
-  # Prepare drawing options
-img <- Draw$MolsToGridImage(
-    list(mol1, mol2),
-    molsPerRow = 2L,
-    subImgSize = tuple(300L, 300L),
-    legends = list("Original", "Modified")
-  )
-
-# Save and display image
-tmpfile <- tempfile(fileext = ".png")
-img$save(tmpfile)
-browseURL(tmpfile)
-}
-
-
-Chem <- import("rdkit.Chem")
-AllChem <- import("rdkit.Chem.AllChem")
-
-# SMARTS pattern for aryl hydroxyl group
-aryl_oh_smarts <- "[c][OX2H]"
-
-remove_all_aryl_hydroxyls <- function(smiles) {
-  # Convert to RDKit mol
-  mol <- Chem$MolFromSmiles(smiles)
-  if (is.null(mol)) stop("Invalid SMILES")
-
-  # Add hydrogens to ensure -OH hydrogens are explicitly present
-  molH <- Chem$AddHs(mol)
-
-  # Compile SMARTS pattern
-  pattern <- Chem$MolFromSmarts(aryl_oh_smarts)
-
-  # Find all matches
-  matches <- molH$GetSubstructMatches(pattern)
-  if (length(matches) == 0) {
-    message("No aryl hydroxyl groups found.")
-    return(Chem$MolToSmiles(mol))  # Return original, canonical SMILES
-  }
-
-  # Convert to editable mol
-  emol <- Chem$RWMol(molH)
-
-  # Collect atoms to remove
-  atoms_to_remove <- c()
-  for (match in matches) {
-    o_atom_idx <- match[[2]]  # O in pattern [c][O]
-    o_atom <- emol$GetAtomWithIdx(o_atom_idx)
-
-    # Find H attached to this O
-    for (nbr in o_atom$GetNeighbors()) {
-      if (nbr$GetAtomicNum() == 1) {
-        atoms_to_remove <- c(atoms_to_remove, nbr$GetIdx())
-      }
-    }
-
-    # Include the oxygen itself
-    atoms_to_remove <- c(atoms_to_remove, o_atom_idx)
-  }
-
-  # Remove all matched atoms in reverse order
-  for (idx in sort(unique(atoms_to_remove), decreasing = TRUE)) {
-    emol$RemoveAtom(as.integer(idx))
-  }
-
-  # Remove hydrogens and sanitize
-  cleaned_mol <- Chem$RemoveHs(emol)
-  tryCatch({
-    Chem$SanitizeMol(cleaned_mol)
-    Chem$MolToSmiles(cleaned_mol, canonical = TRUE)
-  }, error = function(e) {
-    warning("Sanitization failed.")
-    return(NA)
-  })
-}
-
-# Example with multiple aryl OH groups
-original_smiles <- smiles$smiles[1]  # A molecule with 3 aryl OH groups
-cat("Original SMILES:", example_smiles, "\n")
-
-modified_smiles <- remove_all_aryl_hydroxyls(original_smiles)
-cat("Modified SMILES:", result, "\n")
-
-
-
-
-visualize_molecules(original_smiles, modified_smiles)
-```
-
-# Transformation network
-
-
-```{r}
-# Load RDKit
-rdkit <- import("rdkit")
-Chem <- rdkit$Chem
-
-# Extended functional groups (ranked by size/specificity)
-functional_groups <- list(
-  sulfonamide = "NS(=O)(=O)[#6]",          # R-SO2-NH-R
-  sulfonic_acid = "S(=O)(=O)[OH]",         # R-SO3H
-  carbamate = "OC(=O)N",                   # R-O-C(=O)-NH-R
-  urea = "NC(=O)N",                        # R-NH-C(=O)-NH-R
-  amide = "C(=O)N",                        # R-C(=O)-NR2
-  carboxylic_acid = "C(=O)[OH]",           # COOH
-  aldehyde = "[CX3H1](=O)[#6]",            # R-CHO
-  ketone = "[CX3](=O)[#6]",                # R-CO-R
-  amino = "[NX3;H2,H1;!$(NC=O)]",          # Primary/secondary amines
-  hydroxyl = "[OX2H]",                     # OH
-  methyl = "[CH3]",                        # CH3
-  halide = "[F,Cl,Br,I]",                  # Any halogen
-
-  # Heterocycles (aromatic rings with heteroatoms)
-  pyridine = "n1ccccc1",                   # Pyridine ring
-  furan = "c1ccoc1",                       # Furan ring
-  thiophene = "c1ccsc1",                   # Thiophene ring
-  imidazole = "c1cnc[nH]1",                # Imidazole ring
-  triazole = "c1nnn[cH]1",                 # Triazole ring
-  pyrrole = "c1cc[nH]c1"                   # Pyrrole ring
-)
-
-# Compile SMARTS to RDKit Mol
-fg_mols <- lapply(functional_groups, Chem$MolFromSmarts)
-fg_names <- names(fg_mols)
-
-# Sample molecules with some advanced groups
-molecules <- list(
-  toluene = "Cc1ccccc1",
-  benzoic_acid = "OC(=O)c1ccccc1",
-  sulfanilamide = "Nc1ccc(cc1)S(=O)(=O)N",         # Sulfonamide
-  urea = "NC(=O)N",                                # Urea
-  pyridine = "n1ccccc1",
-  furan = "c1ccoc1",
-  imidazole = "c1cnc[nH]1",
-  aniline = "Nc1ccccc1"
-)
-
-mol_objs <- lapply(molecules, Chem$MolFromSmiles)
-
-# Function to detect largest, non-overlapping groups
-detect_largest_fgs <- function(mol) {
-  detected <- c()
-  matched_atoms <- c()
-  
-  for (fg_name in fg_names) {
-    fg_pattern <- fg_mols[[fg_name]]
-    matches <- mol$GetSubstructMatches(fg_pattern)
-    
-    for (match in matches) {
-      if (length(intersect(match, matched_atoms)) == 0) {
-        detected <- c(detected, fg_name)
-        matched_atoms <- unique(c(matched_atoms, match))
-        break
-      }
-    }
-  }
-  unique(detected)
-}
-
-# Detect functional groups
-mol_fgs <- lapply(mol_objs, detect_largest_fgs)
-
-# Compare each pair and show inferred transformations
-cat("Inferred Functional Group Transformations (Advanced Fragments):\n")
-mol_names <- names(mol_fgs)
-for (i in seq_along(mol_names)) {
-  for (j in seq_along(mol_names)) {
-    if (i >= j) next
-    from <- mol_names[[i]]
-    to <- mol_names[[j]]
-    fgs_from <- mol_fgs[[from]]
-    fgs_to <- mol_fgs[[to]]
-    
-    added <- setdiff(fgs_to, fgs_from)
-    removed <- setdiff(fgs_from, fgs_to)
-    
-    if (length(added) + length(removed) > 0) {
-      cat(sprintf(
-        "%s → %s | +[%s] -[%s]\n",
-        from, to,
-        paste(added, collapse = ", "),
-        paste(removed, collapse = ", ")
-      ))
-    }
-  }
-}
-```
-
-
 # Session info
-
 ```{r}
 sessionInfo()
 ```

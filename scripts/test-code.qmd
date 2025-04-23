@@ -1,0 +1,492 @@
+---
+title: "QSRR revisited. Hierarchical models"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+```
+
+# Introductions
+
+...
+
+# Setup
+```{r message=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(GGally)
+library(reshape2)
+library(pracma)
+library(here)
+library(magick)
+library(reticulate)
+
+set.seed(10271998) ## not required but assures repeatable results
+
+source("helper-functions.R")
+
+#py_install(c("matplotlib", "pillow"))
+```
+
+```{r settings}
+data_deliv_dir = here::here("data","deliv")
+data_derived_dir = here::here("data","derived")
+if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
+if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
+
+figures_structure_dir <- here::here("deliv","figures", "structures")
+tables_structure_dir <- here::here("deliv","tables", "structures")
+if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
+if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
+```
+
+```{r load-data, message=FALSE, warning=FALSE}
+# load data
+data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
+analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
+smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
+functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
+functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
+data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
+smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
+
+functional_groups_lf = functional_groups %>%
+  mutate(ID = 1:n(), .before = "cation")%>%
+  pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
+  filter(Ngroups>0)
+```
+
+# Python
+
+```{r load-conda-environment}
+use_condaenv("rdkit-ertl", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
+# test 
+rdkit <- import("rdkit")
+mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
+rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
+```
+
+# Functional groups replace
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+MolFromSmiles <- Chem$MolFromSmiles
+MolFromSmarts <- Chem$MolFromSmarts
+AllChem <- rdkit$Chem$AllChem
+
+# Define a vector of SMILES strings
+smiles_vector <- smiles$smiles[1:20]  # Replace with your actual data
+
+# Define functional group replacement map with attachment points
+fg_replacements <- list(
+  "Aldehyde" = list(
+    from = "[CX3H1](=O)[*:1]",           # Aldehyde: R-C(=O)H
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "CarboxylicAcid" = list(
+    from = "[*:1][CX3](=O)[OX2H1]",      # Carboxylic acid: R-C(=O)OH
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Phenol" = list(
+    from = "[cX3:1][OX2H1]",             # Phenol: aromatic C-OH
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Hydroxyl" = list(
+    from = "[C!X3:1][OX2H1]",            # Aliphatic alcohol: R-OH (non-aromatic carbon)
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Amine" = list(
+    from = "[*:1][NX3;H0,H1,H2]",        # Amine: R-NH2, R2NH, or R3N
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Amide" = list(
+    from = "[*:1][CX3](=O)[NX3]",        # Amide: R-C(=O)-N
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Nitro" = list(
+    from = "[*:1][N+](=O)[O-]",          # Nitro: R-NO2
+    to = "[*:1]"                         # Replace with hydrogen
+  ),
+  "Thiol" = list(
+    from = "[*:1][SX2H1]",               # Thiol: R-SH
+    to = "[*:1]"                         # Replace with hydrogen
+  )
+)
+
+# Initialize results
+modified_smiles_list <- list()
+fg_names <- names(fg_replacements)
+fg_matrix <- matrix(0, nrow = length(smiles_vector), ncol = length(fg_names),
+                    dimnames = list(smiles_vector, fg_names))
+
+# Process each SMILES
+for (i in seq_along(smiles_vector)) {
+  ismile <- smiles_vector[i]
+  mol <- Chem$MolFromSmiles(ismile)
+
+  if (is.null(mol)) {
+    warning(sprintf("Invalid SMILES string: %s", ismile))
+    modified_smiles_list[[ismile]] <- NA
+    next
+  }
+
+  mol_new <- mol
+
+  # Apply replacements in order
+  for (fg_name in fg_names) {
+    fg_pair <- fg_replacements[[fg_name]]
+    pattern_smarts <- fg_pair$from
+    replacement_smiles <- fg_pair$to
+
+    # Create reaction SMARTS
+    reaction_smarts <- paste0(pattern_smarts, ">>", replacement_smiles)
+    tryCatch({
+      rxn <- AllChem$ReactionFromSmarts(reaction_smarts)
+
+      # Check if molecule has the functional group
+      pattern <- Chem$MolFromSmarts(pattern_smarts)
+      matches <- mol_new$GetSubstructMatches(pattern)
+
+      if (length(matches) > 0) {
+        fg_matrix[i, fg_name] <- length(matches)
+
+        # Run the reaction
+        products <- rxn$RunReactants(list(mol_new))
+        if (length(products) > 0 && length(products[[1]]) > 0) {
+          mol_new <- products[[1]][[1]]  # Take first product
+          Chem$SanitizeMol(mol_new)      # Sanitize to fix valency/bonds
+        }
+      }
+    }, error = function(e) {
+      message(sprintf("Error processing reaction for %s, %s: %s", ismile, fg_name, e$message))
+    })
+  }
+
+  # Generate new SMILES
+  tryCatch({
+    new_smiles <- Chem$MolToSmiles(mol_new)
+    modified_smiles_list[[ismile]] <- new_smiles
+  }, error = function(e) {
+    modified_smiles_list[[ismile]] <- NA
+    message(sprintf("Error generating SMILES for %s: %s", ismile, e$message))
+  })
+}
+
+# Output results
+print("Modified SMILES:")
+print(modified_smiles_list)
+print("Functional group match matrix:")
+print(fg_matrix)
+```
+
+# Duplicates
+```{r}
+# Canonicalize a SMILES string using RDKit
+canonicalize_smiles <- function(smiles) {
+  mol <- Chem$MolFromSmiles(smiles)
+  if (is.null(mol)) return(NA)
+  canon <- Chem$MolToSmiles(mol, canonical = TRUE)
+  return(canon)
+}
+
+find_duplicate_molecules <- function(smiles_vector) {
+  canonical_smiles <- sapply(smiles_vector, canonicalize_smiles)
+  duplicated_indices <- which(duplicated(canonical_smiles) | duplicated(canonical_smiles, fromLast = TRUE))
+  
+  data.frame(
+    Original_SMILES = smiles_vector[duplicated_indices],
+    Canonical_SMILES = canonical_smiles[duplicated_indices],
+    Index = duplicated_indices
+  )
+}
+
+duplicates <- find_duplicate_molecules(smiles$smiles)
+duplicates %>% distinct(Canonical_SMILES, .keep_all = TRUE)
+```
+
+# Functional groups simple
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+MolFromSmiles <- Chem$MolFromSmiles
+FunctionalGroups <- rdkit$Chem$FunctionalGroups
+
+smiles_vector <- smiles$smiles
+
+fg_hierarchy <- FunctionalGroups$BuildFuncGroupHierarchy()
+fg_names <- sapply(fg_hierarchy, function(fg) fg$name)
+
+fg_matrix <- matrix(0, 
+                    nrow = length(smiles_vector), 
+                    ncol = length(fg_names),
+                    dimnames = list(smiles_vector, fg_names))
+
+for (i in seq_along(smiles_vector)) {
+  ismile <- smiles_vector[i]
+  mol <- MolFromSmiles(ismile)
+  if (is.null(mol)) {
+    warning(sprintf("Invalid SMILES string: %s", ismile))
+    next
+  }
+  
+  for (fg in fg_hierarchy) {
+    matches <- mol$GetSubstructMatches(fg$pattern)
+    if (length(matches) > 0) {
+      fg_matrix[i, fg$name] <- length(matches)
+    }
+  }
+}
+fg_df <- as.data.frame(fg_matrix)
+cat("Functional group counts per analyte:\n")
+print(fg_df)
+```
+
+# Maximum Common Substructure
+```{r mcs}
+# Import RDKit modules
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+MCS <- rdkit$Chem$rdFMCS
+Draw <- import("rdkit.Chem.Draw")
+AllChem <- rdkit$Chem$AllChem
+
+smiles1 <- smiles$smiles[155]
+smiles2 <- smiles$smiles[156]
+
+# Convert SMILES to molecule objects
+mol1 <- Chem$MolFromSmiles(smiles1)
+mol2 <- Chem$MolFromSmiles(smiles2)
+
+# Find MCS
+mcs_result <- MCS$FindMCS(list(mol1, mol2))
+common_smarts <- mcs_result$smartsString
+cat("Common SMARTS pattern:", common_smarts, "\n")
+
+# Convert SMARTS to molecule
+common_mol <- Chem$MolFromSmarts(common_smarts)
+
+# Get MCS atom indices
+match1 <- mol1$GetSubstructMatch(common_mol)
+match2 <- mol2$GetSubstructMatch(common_mol)
+
+# Generate coordinates
+AllChem$Compute2DCoords(mol1)
+AllChem$Compute2DCoords(mol2)
+
+# Combine molecules into a list
+mol_list <- list(mol1, mol2)
+highlight_atoms <- list(match1, match2)
+
+# Generate a grid image
+img <- Draw$MolsToGridImage(
+  mols = mol_list,
+  highlightAtomLists = highlight_atoms,
+  subImgSize = tuple(300L, 300L), # size per molecule
+  legends = list("1", "2")
+)
+
+# Save and display image
+tmpfile <- tempfile(fileext = ".png")
+img$save(tmpfile)
+browseURL(tmpfile)
+```
+
+# BRICS
+```{r}
+# Load RDKit
+Chem <- import("rdkit.Chem")
+BRICS <- import("rdkit.Chem.BRICS")
+
+
+# Example vector of SMILES strings (replace with your own data)
+smiles_vec <- smiles$smiles
+
+# Convert SMILES to Mol objects
+mols <- lapply(smiles_vec, function(smi) Chem$MolFromSmiles(smi))
+
+# Initialize an empty list to store fragments
+allfrags <- list() 
+
+# BRICS fragmentation
+for (i in 1:length(mols)) {
+    frags <- BRICS$BRICSDecompose(mols[[i]])
+    fragsc <- reticulate::iterate(frags)
+    allfrags[[i]] <- fragsc
+}
+
+# Convert the list to a unique list (i.e., remove duplicates)
+allfrags_unique <- unique(unlist(allfrags))
+
+# Convert the list of fragments into a data frame
+frag_data <- data.frame(matrix(0, nrow = length(smiles_vec), ncol = length(allfrags_unique))) # Start with empty df
+
+# Loop over each molecule's fragments and add to the data frame
+for (i in 1:length(smiles_vec)) {
+  frag_list <- unlist(allfrags[[i]]) # Get unique fragments for the molecule
+  for (j in 1:length(allfrags_unique)) {
+  frag_data[i,j] <- sum(as.integer(allfrags_unique[j] == frag_list))
+  }
+}
+
+
+column_sums <- apply(frag_data, 2, sum, na.rm = TRUE)
+sorted_indices <- order(column_sums, decreasing = TRUE)
+
+df = data.frame(frag = allfrags_unique[sorted_indices], n=column_sums[sorted_indices])
+df %>% filter(n>1)
+df %>% filter(n==1)
+```
+
+# RECAP
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+Recap <- rdkit$Chem$Recap
+
+# Example vector of SMILES strings (replace with your own data)
+smiles_vec <- smiles$smiles
+
+# Convert SMILES to Mol objects
+mols <- lapply(smiles_vec, function(smi) Chem$MolFromSmiles(smi))
+
+# Initialize an empty list to store fragments
+allfrags <- list() 
+
+# RECAP fragmentation
+for (i in 1:length(mols)) {
+    recap_tree <- Recap$RecapDecompose(mols[[i]])
+    frags <- recap_tree$GetLeaves()   
+    allfrags[[i]] <- names(frags)
+}
+
+# Convert the list to a unique list (i.e., remove duplicates)
+allfrags_unique <- unique(unlist(allfrags))
+
+# Convert the list of fragments into a data frame
+frag_data <- data.frame(matrix(0, nrow = length(smiles_vec), ncol = length(allfrags_unique))) # Start with empty df
+
+# Loop over each molecule's fragments and add to the data frame
+for (i in 1:length(smiles_vec)) {
+  frag_list <- unlist(allfrags[[i]]) # Get unique fragments for the molecule
+  for (j in 1:length(allfrags_unique)) {
+  frag_data[i,j] <- sum(as.integer(allfrags_unique[j] == frag_list))
+  }
+}
+
+column_sums <- apply(frag_data, 2, sum, na.rm = TRUE)
+sorted_indices <- order(column_sums, decreasing = TRUE)
+
+row_sums <- apply(frag_data, 1, sum, na.rm = TRUE)
+
+df = data.frame(frag = allfrags_unique[sorted_indices], n=column_sums[sorted_indices])
+df %>% filter(n>1)
+df %>% filter(n==1)
+smiles$smiles[row_sums==0]
+```
+
+# Network
+```{r}
+# Import necessary RDKit modules
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+ScaffoldNetwork <- rdkit$Chem$Scaffolds$rdScaffoldNetwork
+
+# Define vector of SMILES
+smiles_vec <- c(
+  "CC1=CC(=CC=C1)C(=O)O",
+  "CCOC1=CC=CC=C1C(=O)O",
+  "CCN(CC)CC1=CC=CC=C1"
+)
+
+# Convert SMILES to RDKit molecule objects
+mols <- lapply(smiles_vec, Chem$MolFromSmiles)
+
+# Define scaffold network parameters (you can customize this!)
+params <- ScaffoldNetwork$ScaffoldNetworkParams()
+params$includeGenericScaffolds <- TRUE
+params$includeScaffoldTrees <- TRUE
+
+# Create scaffold network
+network <- ScaffoldNetwork$CreateScaffoldNetwork(mols, params)
+
+# Get number of scaffold nodes
+cat("Number of scaffolds found:", length(network$nodes), "\n")
+fragsc <- reticulate::iterate(network$nodes)
+
+fragsc
+```
+
+## Visualize in Cytoscape
+```{r}
+rdkit <- import("rdkit")
+Chem <- rdkit$Chem
+ScaffoldNetwork <- rdkit$Chem$Scaffolds$rdScaffoldNetwork
+Draw <- rdkit$Chem$Draw
+
+# Define vector of SMILES
+smiles_vec <- smiles$smiles
+
+# Convert SMILES to RDKit molecule objects
+mols <- lapply(smiles_vec, Chem$MolFromSmiles)
+
+# Define scaffold network parameters
+params <- ScaffoldNetwork$ScaffoldNetworkParams()
+params$includeGenericScaffolds <- TRUE
+params$includeScaffoldTrees <- TRUE
+
+# Create scaffold network
+network <- ScaffoldNetwork$CreateScaffoldNetwork(mols, params)
+
+# Get nodes (scaffolds as SMILES)
+nodes <- reticulate::iterate(network$nodes)
+cat("Number of scaffolds found:", length(nodes), "\n")
+
+# Get edges (as pairs of node indices)
+edges <- reticulate::iterate(network$edges)
+edges <- lapply(edges, function(e) c(e$beginIdx, e$endIdx))
+
+# Export to GraphML
+py_run_string("
+import networkx as nx
+
+G = nx.DiGraph()
+nodes = r.nodes
+for i, smiles in enumerate(nodes):
+    G.add_node(i, smiles=smiles)
+edges = r.edges
+for edge in edges:
+    G.add_edge(edge[0], edge[1])
+
+nx.write_graphml(G, 'scaffold_network.graphml')
+print('Network exported to scaffold_network.graphml')
+")
+
+cat("Network exported to 'scaffold_network.graphml'. Open in Cytoscape for visualization.\n")
+```
+
+
+# Session info
+```{r}
+sessionInfo()
+```

@@ -18,7 +18,7 @@ knitr:
     dev: "ragg_png"
 ---
 
-```{r setup, include=FALSE}
+```{r knitr, include=FALSE}
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 ```
 
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 ...
 
 # Setup
-```{r message=FALSE}
+```{r setup, message=FALSE}
 library(ggplot2)
 library(gridExtra)
 library(patchwork)
@@ -40,6 +40,8 @@ library(here)
 library(magick)
 library(reticulate)
 library(kableExtra)
+require(visNetwork, quietly = TRUE)
+library(igraph)
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 
 set.seed(10271998) ## not required but assures repeatable results
@@ -72,7 +74,6 @@ We used a publicly available [dataset](www.retentionprediction.org/hplc/database
 
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
-# load data
 data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
@@ -80,52 +81,26 @@ functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.cs
 functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
-lower_tri_df <-read.csv(here(data_deliv_dir,"similarity_ltri_rcdk.csv"))
+results <-read.csv(here(data_deliv_dir,"results_table.csv"))
+
 #similarity_matrix <- make_similarity_matrix_fun(lower_tri_df)
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
 ```
 
 # Python
-
 ```{r load-conda-environment}
 use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
 ```
 
-
-```{r}
-temp_tri<-lower_tri_df %>% arrange(row,col)
-
-df_temp = data %>% distinct(ID, .keep_all = TRUE)
-temp_tri$dMW = abs(df_temp$MW_ACD[temp_tri$row]- df_temp$MW_ACD[temp_tri$col])
-
-temp_tri<-temp_tri %>% 
-  filter(row!=col) %>%
-  group_by(row) %>%
-  slice_max(similarity, n = 1, with_ties = TRUE) %>%
-  slice_min(dMW, n = 1, with_ties = TRUE) %>%
-  ungroup() %>%
-  arrange(desc(similarity)) %>% 
-  filter(similarity>0.5) 
-
-k2 = df_temp$MW_ACD[temp_tri$row]> df_temp$MW_ACD[temp_tri$col]
-temp_tri$xrow = temp_tri$row
-temp_tri$xcol = temp_tri$col
-
-temp_tri$xrow[k2] = temp_tri$col[k2]
-temp_tri$xcol[k2] = temp_tri$row[k2]
-```
-
-# Maximum Common Substructure
-
-```{r mcs, eval=FALSE}
-
-# Import RDKit modules
+```{r imoprt-modules}
 Chem <- import("rdkit.Chem")
 AllChem <- import("rdkit.Chem.AllChem")
 Draw <- import("rdkit.Chem.Draw")
 rdFMCS <- import("rdkit.Chem.rdFMCS")
 rdmolops <- import("rdkit.Chem.rdmolops")
-# Settings 
+
 # Create MCS parameters
 mcs_params <- rdFMCS$MCSParameters()
 mcs_params$AtomCompareParameters$MatchValences <- TRUE 
@@ -136,8 +111,71 @@ mcs_params$BondCompareParameters$Compare <- rdFMCS$BondCompare$CompareOrder
 mcs_params$MaximizeBonds <- TRUE
 mcs_params$Timeout <- 20L           
 #mcs_params$Verbose <- FALSE
-mcs_params$Threshold <- 0.5  
+mcs_params$Threshold <- 0.5 
+```
 
+# Maximum Common Substructure
+```{r select-maximal, eval = FALSE}
+smiles_vec <- smiles$smiles
+mols <- lapply(smiles_vec, function(smi) Chem$MolFromSmiles(smi))
+
+n <- length(mols)
+pair_count <- choose(n, 2)
+
+# Pre-allocate result list
+results_list <- vector("list", pair_count)
+pair_idx <- 1
+
+# Faster nested loop with list output
+for (i in 1:(n - 1)) {
+  mol1 <- mols[[i]]
+  for (j in (i + 1):n) {
+    mol2 <- mols[[j]]
+    
+    # Skip if any molecule is NULL
+    if (is.null(mol1) || is.null(mol2)) {
+      mcs_size <- NA
+    } else {
+      mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
+      mcs_size <- mcs_result$numAtoms
+    }
+
+    results_list[[pair_idx]] <- list(
+      mol1_index = i,
+      mol2_index = j,
+      mcs_size = mcs_size
+    )
+    pair_idx <- pair_idx + 1
+  }
+}
+
+# Convert to data.frame once
+results <- do.call(rbind, lapply(results_list, as.data.frame))
+
+write.csv(results, file = here(data_deliv_dir,"results_table.csv"), row.names = FALSE)
+```
+
+## Subsets
+```{r subset}
+# Function to get number of atoms from SMILES
+get_atom_count <- function(smiles) {
+  mol <- Chem$MolFromSmiles(smiles)
+  return(mol$GetNumAtoms())
+}
+
+atom_count <- unlist(lapply(smiles$smiles, get_atom_count))
+results$mol1_count = atom_count[results$mol1_index]
+results$mol2_count = atom_count[results$mol2_index]
+
+results_selected <- results %>%
+  mutate(crit = mol1_count + mol2_count - 2*mcs_size)%>%
+  group_by(mol1_index) %>%
+  slice(which.min(crit))%>%
+  filter(crit<12)
+```
+
+## MCS Subsets
+```{r mcs-subset, eval=FALSE}
 extract_common_fragments <- function(mol, match_atoms) {
   
 editable_mol <- Chem$RWMol(mol)
@@ -162,10 +200,7 @@ num_atoms <- common_mol$GetNumAtoms()
      }
  }
 
- res <- try({
-     Chem$SanitizeMol(common_mol)
-    }, 
-    silent = TRUE)
+ res <- try({Chem$SanitizeMol(common_mol)}, silent = TRUE)
   
   if (inherits(res, "try-error")) {
   common_smiles <- Chem$MolToSmiles(common_mol)
@@ -192,6 +227,9 @@ for (atom_idx in match_atoms) {
     nbr_idx <- bond$GetOtherAtomIdx(atom_idx)
     if (!(nbr_idx %in% match_atoms)) {
       nbr_atom <- mol$GetAtomWithIdx(nbr_idx)
+      
+      
+      
       nbr_symbol <- nbr_atom$GetSymbol()
       bond_type <- as.character(bond$GetBondType())
 
@@ -214,7 +252,6 @@ extract_diff_fragments <- function(mol, match_atoms) {
   diff_atoms <- setdiff(all_atoms, match_atoms)
   
   if (length(diff_atoms) == 0) return("")
-  
   rw_mol <- Chem$RWMol(mol)
   
   # Set atoms to remove (in reverse order to preserve indices)
@@ -224,8 +261,7 @@ extract_diff_fragments <- function(mol, match_atoms) {
 
   res <- try({
     mol_frags <- rdmolops$GetMolFrags(rw_mol, asMols = TRUE)
-    }, 
-    silent = TRUE)
+    }, silent = TRUE)
   
   if (inherits(res, "try-error")) {
   mol_frags <- rdmolops$GetMolFrags(rw_mol, asMols = TRUE, sanitizeFrags = FALSE)
@@ -309,9 +345,8 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
 }
 
 # Extract the vectors
-rows <- smiles$smiles[temp_tri$row]
-cols <- smiles$smiles[temp_tri$col]
-
+rows <- smiles$smiles[results_selected$mol1_index]
+cols <- smiles$smiles[results_selected$mol2_index]
 
 comparison_table <- purrr::map2_df(rows, cols, compare_smiles_pair,
                                    .progress = list(
@@ -322,14 +357,43 @@ comparison_table <- purrr::map2_df(rows, cols, compare_smiles_pair,
 write.csv(comparison_table, file = here(data_deliv_dir,"comparison_table.csv"), row.names = FALSE)
 ```
 
-```{r print table}
+## Add membership groups
+```{r add-membership-groups}
+uid = unique(c(results_selected$mol1_index,results_selected$mol2_index))
+nodes <- data.frame(id = uid,label = paste(uid))
+edges <- data.frame(from = results_selected$mol1_index,
+                    to = results_selected$mol2_index, 
+                    length=results_selected$crit*10,
+                    label = paste(results_selected$crit))
+g <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
+components <- clusters(g, mode = "weak")
+nodes$group <- components$membership
+
+results_selected <- results_selected%>%
+  mutate(id=mol1_index) %>%
+  left_join(nodes) %>%
+  mutate(group = if_else(is.na(group), 999, group))
+```
+
+## Visualise Network
+
+```{r vis-network}
+visNetwork(nodes, edges, width = "100%") %>% 
+  visLegend(width = 0.1, position = "right", main = "Group")
+```
+
+# Print Tables
+```{r print-tables}
 comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
-comparison_table$similarity = round(temp_tri$similarity,2)
-comparison_table$id1 = temp_tri$row
-comparison_table$id2 = temp_tri$col
+comparison_table$similarity = results_selected$crit
+comparison_table$id1 = results_selected$mol1_index
+comparison_table$id2 = results_selected$mol2_index
+comparison_table$group = results_selected$group
+
+comparison_table <- comparison_table %>% arrange(group)
 
 comparison_table %>%
-  select("id1", "id2", "similarity", "structure") %>%
+  select("id1", "id2", "group", "similarity", "structure") %>%
   kbl(escape = FALSE, format = "html", align = "l") %>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 
@@ -339,15 +403,15 @@ comparison_table %>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-```{r visualise}
-require(visNetwork, quietly = TRUE)
-# minimal example
-nodes <- data.frame(id = unique(c(temp_tri$row,temp_tri$col)),
-                    label = paste(unique(c(temp_tri$row,temp_tri$col))))
-
-edges <- data.frame(from = temp_tri$row, to = temp_tri$col)
-visNetwork(nodes, edges, width = "100%") %>% 
-    visEdges(arrows ="to") 
+# Test
+```{r test, eval=FALSE}
+# Extract the vectors
+rows <- smiles$smiles[1]
+cols <- smiles$smiles[824]
+comparison_table <- purrr::map2_df(rows, cols, compare_smiles_pair) %>%
+  select( "structure") %>%
+  kbl(escape = FALSE, format = "html", align = "l") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 # Session info
