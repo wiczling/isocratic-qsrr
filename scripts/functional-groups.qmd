@@ -18,7 +18,7 @@ knitr:
     dev: "ragg_png"
 ---
 
-```{r setup, include=FALSE}
+```{r knitr, include=FALSE}
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 ```
 
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 ...
 
 # Setup
-```{r message=FALSE}
+```{r setup, message=FALSE}
 library(ggplot2)
 library(gridExtra)
 library(patchwork)
@@ -39,12 +39,16 @@ library(pracma)
 library(here)
 library(magick)
 library(reticulate)
+library(kableExtra)
+require(visNetwork, quietly = TRUE)
+library(igraph)
+#remotes::install_github("metrumresearchgroup/mrgmisc")
+library(tidyverse)
+library(patchwork)
 
 set.seed(10271998) ## not required but assures repeatable results
 
 source("helper-functions.R")
-
-#py_install(c("matplotlib", "pillow"))
 ```
 
 ```{r settings}
@@ -53,86 +57,213 @@ data_derived_dir = here::here("data","derived")
 if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
 if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
 
-figures_structure_dir <- here::here("deliv","figures", "structures")
-tables_structure_dir <- here::here("deliv","tables", "structures")
-if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
-if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
+figures_eda_dir <- here::here("deliv","figures", "eda")
+tables_eda_dir <- here::here("deliv","tables", "eda")
+if(!file.exists(figures_eda_dir)) dir.create(figures_eda_dir, recursive = T)
+if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
+
+model_dir <- here::here("model","stan")  
+figures_dir <- here::here("deliv","figures", "stan")
+tables_dir <- here::here("deliv","tables", "stan")
+if(!file.exists(figures_dir)) dir.create(figures_dir, recursive = T)
+if(!file.exists(model_dir)) dir.create(model_dir, recursive = T)
+if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
 ```
 
+# EDA
+
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
+
+## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
-# load data
 data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
 functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
 functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
+data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
+results <-read.csv(here(data_deliv_dir,"results_table.csv"))
+
+#similarity_matrix <- make_similarity_matrix_fun(lower_tri_df)
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
 smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
 smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
 
-functional_groups_lf = functional_groups %>%
-  mutate(ID = 1:n(), .before = "cation")%>%
-  pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
-  filter(Ngroups>0)
+analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
 ```
 
 # Python
-
 ```{r load-conda-environment}
-use_condaenv("rdkit-ertl", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
-# test 
-rdkit <- import("rdkit")
-mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
-rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
+use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
 ```
 
-# Functional groups replace
-```{r}
+```{r imoprt-modules}
 rdkit <- import("rdkit")
 Chem <- rdkit$Chem
 MolFromSmiles <- Chem$MolFromSmiles
 MolFromSmarts <- Chem$MolFromSmarts
 AllChem <- rdkit$Chem$AllChem
+```
 
+# Functional groups replace
+```{r fg}
 # Define a vector of SMILES strings
-smiles_vector <- smiles$smiles[1:20]  # Replace with your actual data
+smiles_vector <- smiles$smiles[1:50]  # Replace with your actual data
 
 # Define functional group replacement map with attachment points
 fg_replacements <- list(
+  # Amines (Aliphatic, as in your example)
+  "Primary_Acyclic_Aliphatic_Amine" = list(
+    from = "[C;X4:1][NH2;X3;!R;!$(NC=O)]",  # sp3 carbon - NH2
+    to = "[C:1]"
+  ),
+  "Secondary_Acyclic_Aliphatic_Amine" = list(
+    from = "[C;X4:1][NH;X3;!R;!$(NC=O)]",   # sp3 carbon - NH
+    to = "[C:1]"
+  ),
+  "Tertiary_Acyclic_Aliphatic_Amine" = list(
+    from = "[C;X4:1][N;X3;H0;!R;!$(NC=O)]", # sp3 carbon - N
+    to = "[C:1]"
+  ),
+
+  # Amines (Aromatic, as in your example)
+  "Primary_Acyclic_Aromatic_Amine" = list(
+    from = "[c:1][NH2;X3;!R;!$(NC=O)]",      # aromatic carbon - NH2
+    to = "[c:1]"
+  ),
+  "Secondary_Acyclic_Aromatic_Amine" = list(
+    from = "[c:1][NH;X3;!R;!$(NC=O)]",       # aromatic carbon - NH
+    to = "[c:1]"
+  ),
+  "Tertiary_Acyclic_Aromatic_Amine" = list(
+    from = "[c:1][N;X3;H0;!R;!$(NC=O)]",     # aromatic carbon - N
+    to = "[c:1]"
+  ),
+
+  # Alcohols (Aliphatic)
+  "Primary_Aliphatic_Alcohol" = list(
+    from = "[C;X4:1][OH;X2;!R]",            # sp3 carbon - OH
+    to = "[C:1]"
+  ),
+  "Secondary_Aliphatic_Alcohol" = list(
+    from = "[C;X4:1]([C])[OH;X2;!R]",       # sp3 carbon with one other carbon - OH
+    to = "[C:1]"
+  ),
+  "Tertiary_Aliphatic_Alcohol" = list(
+    from = "[C;X4:1]([C])([C])[OH;X2;!R]",  # sp3 carbon with two other carbons - OH
+    to = "[C:1]"
+  ),
+
+  # Alcohols (Aromatic, Phenols)
+  "Aromatic_Alcohol" = list(
+    from = "[c:1][OH;X2;!R]",               # aromatic carbon - OH
+    to = "[c:1]"
+  ),
+
+  # Carbonyls (Ketones, Aldehydes, Carboxylic Acids)
+  "Ketone" = list(
+    from = "[C;X4:1][C;X3](=O)[C]",         # sp3 carbon - C=O - carbon
+    to = "[C:1]"
+  ),
   "Aldehyde" = list(
-    from = "[CX3H1](=O)[*:1]",           # Aldehyde: R-C(=O)H
-    to = "[*:1]"                         # Replace with hydrogen
+    from = "[C;X4:1][CH1;X3]=O",            # sp3 carbon - CHO
+    to = "[C:1]"
   ),
-  "CarboxylicAcid" = list(
-    from = "[*:1][CX3](=O)[OX2H1]",      # Carboxylic acid: R-C(=O)OH
-    to = "[*:1]"                         # Replace with hydrogen
+  "Carboxylic_Acid" = list(
+    from = "[C;X4:1][C;X3](=O)[OH]",        # sp3 carbon - COOH
+    to = "[C:1]"
   ),
-  "Phenol" = list(
-    from = "[cX3:1][OX2H1]",             # Phenol: aromatic C-OH
-    to = "[*:1]"                         # Replace with hydrogen
+
+  # Esters
+  "Ester" = list(
+    from = "[C;X4:1][C;X3](=O)[O;X2][C]",   # sp3 carbon - COO - carbon
+    to = "[C:1]"
   ),
-  "Hydroxyl" = list(
-    from = "[C!X3:1][OX2H1]",            # Aliphatic alcohol: R-OH (non-aromatic carbon)
-    to = "[*:1]"                         # Replace with hydrogen
+
+  # Ethers
+  "Aliphatic_Ether" = list(
+    from = "[C;X4:1][O;X2;H0;!R][C]",       # sp3 carbon - O - carbon
+    to = "[C:1]"
   ),
-  "Amine" = list(
-    from = "[*:1][NX3;H0,H1,H2]",        # Amine: R-NH2, R2NH, or R3N
-    to = "[*:1]"                         # Replace with hydrogen
+  "Aromatic_Ether" = list(
+    from = "[c:1][O;X2;H0;!R][C]",          # aromatic carbon - O - carbon
+    to = "[c:1]"
   ),
-  "Amide" = list(
-    from = "[*:1][CX3](=O)[NX3]",        # Amide: R-C(=O)-N
-    to = "[*:1]"                         # Replace with hydrogen
+
+  # Halides (Aliphatic)
+  "Aliphatic_Fluoride" = list(
+    from = "[C;X4:1][F;X1]",                # sp3 carbon - F
+    to = "[C:1]"
   ),
-  "Nitro" = list(
-    from = "[*:1][N+](=O)[O-]",          # Nitro: R-NO2
-    to = "[*:1]"                         # Replace with hydrogen
+  "Aliphatic_Chloride" = list(
+    from = "[C;X4:1][Cl;X1]",               # sp3 carbon - Cl
+    to = "[C:1]"
   ),
-  "Thiol" = list(
-    from = "[*:1][SX2H1]",               # Thiol: R-SH
-    to = "[*:1]"                         # Replace with hydrogen
+  "Aliphatic_Bromide" = list(
+    from = "[C;X4:1][Br;X1]",               # sp3 carbon - Br
+    to = "[C:1]"
+  ),
+  "Aliphatic_Iodide" = list(
+    from = "[C;X4:1][I;X1]",                # sp3 carbon - I
+    to = "[C:1]"
+  ),
+
+  # Halides (Aromatic)
+  "Aromatic_Fluoride" = list(
+    from = "[c:1][F;X1]",                   # aromatic carbon - F
+    to = "[c:1]"
+  ),
+  "Aromatic_Chloride" = list(
+    from = "[c:1][Cl;X1]",                  # aromatic carbon - Cl
+    to = "[c:1]"
+  ),
+  "Aromatic_Bromide" = list(
+    from = "[c:1][Br;X1]",                  # aromatic carbon - Br
+    to = "[c:1]"
+  ),
+  "Aromatic_Iodide" = list(
+    from = "[c:1][I;X1]",                   # aromatic carbon - I
+    to = "[c:1]"
+  ),
+
+  # Nitro Groups
+  "Aliphatic_Nitro" = list(
+    from = "[C;X4:1][N;X3](=O)=O",          # sp3 carbon - NO2
+    to = "[C:1]"
+  ),
+  "Aromatic_Nitro" = list(
+    from = "[c:1][N;X3](=O)=O",             # aromatic carbon - NO2
+    to = "[c:1]"
+  ),
+
+  # Sulfones and Sulfoxides
+  "Sulfone" = list(
+    from = "[C;X4:1][S;X4](=O)(=O)[C]",     # sp3 carbon - SO2 - carbon
+    to = "[C:1]"
+  ),
+  "Sulfoxide" = list(
+    from = "[C;X4:1][S;X3](=O)[C]",         # sp3 carbon - SO - carbon
+    to = "[C:1]"
+  ),
+
+  # Thiols
+  "Aliphatic_Thiol" = list(
+    from = "[C;X4:1][SH;X2;!R]",            # sp3 carbon - SH
+    to = "[C:1]"
+  ),
+  "Aromatic_Thiol" = list(
+    from = "[c:1][SH;X2;!R]",               # aromatic carbon - SH
+    to = "[c:1]"
+  ),
+
+  # Phosphates
+  "Phosphate" = list(
+    from = "[C;X4:1][O;X2][P;X4](=O)([O])[O]", # sp3 carbon - O - PO3
+    to = "[C:1]"
   )
-)
+  )
+
 
 # Initialize results
 modified_smiles_list <- list()
@@ -485,101 +616,6 @@ print('Network exported to scaffold_network.graphml')
 cat("Network exported to 'scaffold_network.graphml'. Open in Cytoscape for visualization.\n")
 ```
 
-# Name transformation
-
-```{r}
-```
-
-
-```{r}
-DataStructs <- rdkit$DataStructs
-
-smiles1 <- smiles$smiles[comparison_table$id1[100]]
-smiles2 <- smiles$smiles[comparison_table$id2[100]]
-
-
-  mol1 <- Chem$MolFromSmiles(smiles1)
-  mol2 <- Chem$MolFromSmiles(smiles2)
-  
-  
-# Step 1: Find MCS
-mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
-smarts <- mcs_result$smartsString
-common_mol <- Chem$MolFromSmarts(smarts)
-
-match1 <- mol1$GetSubstructMatch(common_mol)
-match2 <- mol2$GetSubstructMatch(common_mol)
-
-# Step 2: Find bonds NOT part of MCS
-mcs_match_set1 <- match1
-mcs_match_set2 <- match2
-
-bonds1 <- reticulate::iterate(mol1$GetBonds())
-bonds2 <- reticulate::iterate(mol2$GetBonds())
-
-bonds_to_break1 <- list()
-for (bond in bonds1) {
-  a1 <- bond$GetBeginAtomIdx()
-  a2 <- bond$GetEndAtomIdx()
-  if (!(a1 %in% mcs_match_set1 && a2 %in% mcs_match_set1)) {
-    bonds_to_break1 <- c(bonds_to_break1, bond$GetIdx())
-  }
-}
-
-bonds_to_break2 <- list()
-for (bond in bonds2) {
-  a1 <- bond$GetBeginAtomIdx()
-  a2 <- bond$GetEndAtomIdx()
-  if (!(a1 %in% mcs_match_set2 && a2 %in% mcs_match_set2)) {
-    bonds_to_break2 <- c(bonds_to_break2, bond$GetIdx())
-  }
-}
-
-# Step 3: Fragment molecules
-mol1_frag <- Chem$FragmentOnBonds(mol1, bonds_to_break1, addDummies=TRUE)
-mol2_frag <- Chem$FragmentOnBonds(mol2, bonds_to_break2, addDummies=TRUE)
-
-# Step 4: Get fragments
-frags1 <- Chem$GetMolFrags(mol1_frag, asMols=TRUE)
-frags2 <- Chem$GetMolFrags(mol2_frag, asMols=TRUE)
-
-# Step 5: Define functional group SMARTS
-functional_groups <- list(
-  "Hydroxyl" = "[OX2H]",              # -OH group
-  "Carboxyl" = "C(=O)[OH]",            # -COOH group
-  "Aldehyde" = "[CX3H1](=O)[#6]",      # -CHO group attached to carbon
-  "Carbonyl" = "C=O",                  # C=O
-  "Amine" = "[NX3;H2,H1,H0]",          # general amine
-  "Amide" = "C(=O)N",                  # amide
-  "Ester" = "C(=O)O",                  # ester
-  "Thiol" = "[#16X2H]"                 # -SH group
-)
-
-# Helper: Assign group to a fragment
-assign_functional_group <- function(mol) {
-  for (name in names(functional_groups)) {
-    pattern <- Chem$MolFromSmarts(functional_groups[[name]])
-    if (mol$HasSubstructMatch(pattern)) {
-      return(name)
-    }
-  }
-  return("Unknown")
-}
-
-# Step 6: Analyze fragments
-frag_labels1 <- sapply(frags1, assign_functional_group)
-frag_labels2 <- sapply(frags2, assign_functional_group)
-
-# Step 7: Compare and find transformations
-transformations <- list()
-for (i in seq_along(frag_labels1)) {
-  group1 <- frag_labels1[[i]]
-  group2 <- ifelse(i <= length(frag_labels2), frag_labels2[[i]], "Deleted")
-  transformations[[length(transformations) + 1]] <- list(from = group1, to = group2)
-}
-
-transformations
-```
 
 # Session info
 ```{r}

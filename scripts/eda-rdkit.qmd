@@ -95,7 +95,8 @@ analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8",
 
 # Python
 ```{r load-conda-environment}
-use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
+# use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
+#.Renviron
 ```
 
 ```{r imoprt-modules}
@@ -109,12 +110,15 @@ rdmolops <- import("rdkit.Chem.rdmolops")
 mcs_params <- rdFMCS$MCSParameters()
 mcs_params$AtomCompareParameters$MatchValences <- TRUE 
 mcs_params$AtomCompareParameters$RingMatchesRingOnly <- TRUE  
+mcs_params$AtomCompareParameters$CompleteRingsOnly <- TRUE
+
+mcs_params$BondCompareParameters$Compare <- rdFMCS$BondCompare$CompareOrderExact
 mcs_params$AtomCompareParameters$Compare <- rdFMCS$AtomCompare$CompareElements
-mcs_params$BondCompareParameters$CompleteRingsOnly <- TRUE 
-mcs_params$BondCompareParameters$Compare <- rdFMCS$BondCompare$CompareOrder
-mcs_params$MaximizeBonds <- TRUE
+
+mcs_params$BondCompareParameters$CompleteRingsOnly <- TRUE
+mcs_params$BondCompareParameters$RingMatchesRingOnly <- TRUE 
 mcs_params$Timeout <- 20L           
-#mcs_params$Verbose <- FALSE
+mcs_params$Verbose <- FALSE
 mcs_params$Threshold <- 1 
 ```
 
@@ -126,37 +130,66 @@ mols <- lapply(smiles_vec, function(smi) Chem$MolFromSmiles(smi))
 n <- length(mols)
 pair_count <- choose(n, 2)
 
-# Pre-allocate result list
-results_list <- vector("list", pair_count)
+# Pre-allocate empty data.frame
+results <- data.frame(
+  mol1_index = integer(pair_count),
+  mol2_index = integer(pair_count),
+  mcs_size = numeric(pair_count)
+)
+
 pair_idx <- 1
 
-# Faster nested loop with list output
+# Faster nested loop
 for (i in 1:(n - 1)) {
   mol1 <- mols[[i]]
   for (j in (i + 1):n) {
     mol2 <- mols[[j]]
     
-    # Skip if any molecule is NULL
+    # Calculate MCS size
     if (is.null(mol1) || is.null(mol2)) {
-      mcs_size <- NA
+      mcs_size <- NA_real_
     } else {
       mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
       mcs_size <- mcs_result$numAtoms
     }
-
-    results_list[[pair_idx]] <- list(
-      mol1_index = i,
-      mol2_index = j,
-      mcs_size = mcs_size
-    )
+    
+    # Fill in the pre-allocated data.frame directly
+    results$mol1_index[pair_idx] <- i
+    results$mol2_index[pair_idx] <- j
+    results$mcs_size[pair_idx] <- mcs_size
+    
     pair_idx <- pair_idx + 1
   }
 }
 
-# Convert to data.frame once
-results <- do.call(rbind, lapply(results_list, as.data.frame))
-
 write.csv(results, file = here(data_deliv_dir,"results_table.csv"), row.names = FALSE)
+```
+
+
+```{r}
+library(future.apply)
+
+future::plan(multisession)
+
+pairs <- combn(seq_along(mols), 2, simplify = FALSE)
+
+results_list <- future_lapply(pairs, function(idx_pair) {
+  i <- idx_pair[1]
+  j <- idx_pair[2]
+  
+  mol1 <- mols[[i]]
+  mol2 <- mols[[j]]
+  
+  if (is.null(mol1) || is.null(mol2)) {
+    mcs_size <- NA_real_
+  } else {
+    mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
+    mcs_size <- mcs_result$numAtoms
+  }
+  
+  list(mol1_index = i, mol2_index = j, mcs_size = mcs_size)
+})
+results <- do.call(rbind, lapply(results_list, as.data.frame))
 ```
 
 ## Subsets
@@ -240,27 +273,8 @@ comparison_table %>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-# Test
-```{r test, eval=FALSE}
-# Extract the vectors
-
-idx<-which(str_detect(comparison_table$common, fixed("Err:")))
-
-smiles1 <- smiles$smiles[comparison_table$id1[idx]]
-smiles2 <- smiles$smiles[comparison_table$id2[idx]]
-
-
-comparison_table_x <- purrr::map2_df(smiles1, smiles2, compare_smiles_pair) %>%
-  select( "structure") %>%
-  kbl(escape = FALSE, format = "html", align = "l") %>%
-  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
-
-comparison_table_x
-```
-
 # Plot
 ```{r plot}
-
 plotting_i = function(i, .ilist) {
   data %>% 
     filter(ID %in% c(.ilist$id1[i], .ilist$id2[i])) %>%
@@ -288,8 +302,48 @@ map(1:min(20, nrow(list2)), \(x) plotting_i(x, list2)) %>% wrap_plots(ncol = 4)
 map(1:min(20, nrow(list10)), \(x) plotting_i(x, list10)) %>% wrap_plots(ncol = 4)
 ```
 
-# Session info
+# Test
+```{r test, eval=FALSE}
+# Extract the vectors
 
+
+idx<-which(str_detect(comparison_table$common, fixed("Err:")))
+idx=1018          
+smiles1 <- smiles$smiles[comparison_table$id1[idx]]
+smiles2 <- smiles$smiles[comparison_table$id2[idx]]
+
+comparison_table_x <- purrr::map2_df(smiles1, smiles2, compare_smiles_pair)
+comparison_table_x$id1 = results_selected$mol1_index[idx]
+comparison_table_x$id2 = results_selected$mol2_index[idx]
+
+comparison_table_x%>%
+  select("id1", "id2", "structure") %>%
+  kbl(escape = FALSE, format = "html", align = "l") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
+
+comparison_table_x
+```
+
+
+```{r}
+
+idadd<-which(comparison_table$to_add == "")
+idremove<-which(comparison_table$to_remove == "")
+
+comparison_table %>%
+   filter(similarity==1) %>%
+  select("id1", "id2", "group", "similarity", "structure") %>%
+  kbl(escape = FALSE, format = "html", align = "l") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
+
+comparison_table %>%
+ filter(similarity==1) %>%
+  select("id1", "id2", "similarity", "common", "to_remove","to_remove_str","to_add", "to_add_str") %>%
+  kbl(escape = FALSE, format = "html", align = "l") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+# Session info
 ```{r}
 sessionInfo()
 ```

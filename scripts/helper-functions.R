@@ -160,8 +160,8 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
   
   gc()
   py_run_string("import gc; gc.collect()")
-  # img_magick <- image_read(img_file)
-  # print(img_magick)  # Displays in RStudio viewer or default graphics device
+   img_magick <- image_read(img_file)
+   print(img_magick)  # Displays in RStudio viewer or default graphics device
   
   # Return data frame row
   data.frame(
