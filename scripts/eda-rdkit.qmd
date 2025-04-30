@@ -42,6 +42,7 @@ library(reticulate)
 library(kableExtra)
 require(visNetwork, quietly = TRUE)
 library(igraph)
+library(ggraph)
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 library(tidyverse)
 library(patchwork)
@@ -83,9 +84,8 @@ functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.cs
 functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
-results <-read.csv(here(data_deliv_dir,"results_table.csv"))
-
-#similarity_matrix <- make_similarity_matrix_fun(lower_tri_df)
+results <-read.csv(here(data_deliv_dir,"results_table_max_frag_size.csv"))
+comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
 smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
 smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
@@ -108,104 +108,52 @@ rdmolops <- import("rdkit.Chem.rdmolops")
 
 # Create MCS parameters
 mcs_params <- rdFMCS$MCSParameters()
-mcs_params$AtomCompareParameters$MatchValences <- TRUE 
-mcs_params$AtomCompareParameters$RingMatchesRingOnly <- TRUE  
+mcs_params$AtomCompareParameters$MatchValences <- TRUE
+mcs_params$AtomCompareParameters$RingMatchesRingOnly <- TRUE
 mcs_params$AtomCompareParameters$CompleteRingsOnly <- TRUE
-
-mcs_params$BondCompareParameters$Compare <- rdFMCS$BondCompare$CompareOrderExact
-mcs_params$AtomCompareParameters$Compare <- rdFMCS$AtomCompare$CompareElements
-
+mcs_params$AtomCompare <- rdFMCS$AtomCompare$CompareElements
+mcs_params$BondCompare <- rdFMCS$BondCompare$CompareOrderExact
 mcs_params$BondCompareParameters$CompleteRingsOnly <- TRUE
-mcs_params$BondCompareParameters$RingMatchesRingOnly <- TRUE 
-mcs_params$Timeout <- 20L           
+mcs_params$BondCompareParameters$RingMatchesRingOnly <- TRUE
+mcs_params$Timeout <- 20L
 mcs_params$Verbose <- FALSE
-mcs_params$Threshold <- 1 
+mcs_params$Threshold <- 1.0
+mcs_params$MaximizeBonds<-TRUE
 ```
 
 # Maximum Common Substructure
-```{r select-maximal, eval = FALSE}
-smiles_vec <- smiles$smiles
-mols <- lapply(smiles_vec, function(smi) Chem$MolFromSmiles(smi))
 
-n <- length(mols)
-pair_count <- choose(n, 2)
-
-# Pre-allocate empty data.frame
-results <- data.frame(
-  mol1_index = integer(pair_count),
-  mol2_index = integer(pair_count),
-  mcs_size = numeric(pair_count)
-)
-
-pair_idx <- 1
-
-# Faster nested loop
-for (i in 1:(n - 1)) {
-  mol1 <- mols[[i]]
-  for (j in (i + 1):n) {
-    mol2 <- mols[[j]]
-    
-    # Calculate MCS size
-    if (is.null(mol1) || is.null(mol2)) {
-      mcs_size <- NA_real_
-    } else {
-      mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
-      mcs_size <- mcs_result$numAtoms
-    }
-    
-    # Fill in the pre-allocated data.frame directly
-    results$mol1_index[pair_idx] <- i
-    results$mol2_index[pair_idx] <- j
-    results$mcs_size[pair_idx] <- mcs_size
-    
-    pair_idx <- pair_idx + 1
-  }
-}
-
-write.csv(results, file = here(data_deliv_dir,"results_table.csv"), row.names = FALSE)
-```
-
-
-```{r}
+```{r select-maxfragment-parallel, eval=FALSE}
+library(reticulate)
 library(future.apply)
 
-future::plan(multisession)
-
-pairs <- combn(seq_along(mols), 2, simplify = FALSE)
+smiles_vec <- smiles$smiles  
+pairs <- combn(seq_along(smiles_vec), 2, simplify = FALSE)
+plan(multisession, workers = 20)  
 
 results_list <- future_lapply(pairs, function(idx_pair) {
+  
+  library(reticulate)
+  library(here)
+  source_python(here("scripts/mcs_single_maxfragment.py"))  # re-import inside worker
+  
   i <- idx_pair[1]
   j <- idx_pair[2]
   
-  mol1 <- mols[[i]]
-  mol2 <- mols[[j]]
-  
-  if (is.null(mol1) || is.null(mol2)) {
-    mcs_size <- NA_real_
-  } else {
-    mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
-    mcs_size <- mcs_result$numAtoms
-  }
+  mcs_size <- compute_mcs_and_fragment_diff(smiles_vec[i], smiles_vec[j])
   
   list(mol1_index = i, mol2_index = j, mcs_size = mcs_size)
-})
+}, future.seed = TRUE)
+
+# Bind all results
 results <- do.call(rbind, lapply(results_list, as.data.frame))
+write.csv(results, file = here(data_deliv_dir,"results_table_max_frag_size.csv"), row.names = FALSE)
 ```
 
 ## Subsets
 ```{r subset}
-# Function to get number of atoms from SMILES
-get_atom_count <- function(smiles) {
-  mol <- Chem$MolFromSmiles(smiles)
-  return(mol$GetNumAtoms())
-}
-
-atom_count <- unlist(lapply(smiles$smiles, get_atom_count))
-results$mol1_count = atom_count[results$mol1_index]
-results$mol2_count = atom_count[results$mol2_index]
-
 results_selected <- results %>%
-  mutate(crit = mol1_count + mol2_count - 2*mcs_size)%>%
+  mutate(crit = mcs_size)%>%
   group_by(mol1_index) %>%
   slice(which.min(crit))
 ```
@@ -225,10 +173,19 @@ comparison_table <- purrr::map2_df(rows, cols, compare_smiles_pair,
 write.csv(comparison_table, file = here(data_deliv_dir,"comparison_table.csv"), row.names = FALSE)
 ```
 
+## Similarity of MCS
+```{r similarity of MCSs}
+# Extract the vectors
+rows <- comparison_table$common1
+cols <- comparison_table$common2
+
+comparison_table$are_similar <- as.double(purrr::map2_lgl(rows, cols, are_smiles_identical))
+```
+
 ## Add membership groups
 ```{r add-membership-groups}
-results_selected_crit<-results_selected %>%
-  filter(crit<12) 
+results_selected <- results_selected %>% select(-any_of("group"))
+results_selected_crit<-results_selected %>% filter(crit<7) 
 
 uid = unique(c(results_selected_crit$mol1_index,results_selected_crit$mol2_index))
 nodes <- data.frame(id = uid,label = paste(uid))
@@ -236,29 +193,125 @@ edges <- data.frame(from = results_selected_crit$mol1_index,
                     to = results_selected_crit$mol2_index, 
                     width =results_selected_crit$crit,
                     label = paste(results_selected_crit$crit))
-g <- graph_from_data_frame(d = edges, vertices = nodes, directed = TRUE)
+g <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
 components <- components(g, mode = "weak")
-nodes$temp <- components$membership
+nodes$group <- components$membership
+
+nodes$atom_count <- unlist(lapply(smiles$smiles[nodes$id], get_atom_count)) 
 
 results_selected <- results_selected%>%
   mutate(id=mol1_index) %>%
   left_join(nodes) %>%
-mutate(group12=temp) %>% select(-c(temp, label, id))
+   select(-c(label, id)) %>%
+  mutate(group = ifelse(is.na(group), 0, group))
+
+tabulate(results_selected$group+1)
 ```
 
-## Visualise Network
-```{r vis-network}
-nodes$group = nodes$temp
+
+### Visualise Network
+```{r vis-network, eval=FALSE}
 visNetwork(nodes, edges, width = "100%")
+```
+
+## Orient graph
+```{r orient-graph}
+
+orient_graph_no_multiple_incoming <- function(g) {
+  stopifnot(!is_directed(g))
+  
+  degs <- degree(g)
+  node_order <- names(sort(degs, decreasing = TRUE))
+  
+  g_directed <- make_empty_graph(n = vcount(g), directed = TRUE)
+  V(g_directed)$name <- V(g)$name
+  
+  has_parent <- setNames(rep(FALSE, vcount(g)), V(g)$name)
+  
+  for (node in node_order) {
+    neighbors_node <- neighbors(g, node, mode = "all")
+    
+    for (nbr in neighbors_node) {
+      nbr_name <- V(g)[nbr]$name
+      
+      # Only consider edge if neighbor has no incoming edge
+      if (!has_parent[nbr_name] && node != nbr_name) {
+        
+        # Check if adding edge would introduce a cycle
+        temp_graph <- add_edges(g_directed, c(node, nbr_name))
+        if (is_dag(temp_graph)) {
+          g_directed <- temp_graph
+          has_parent[nbr_name] <- TRUE
+        }
+      }
+    }
+  }
+  
+  return(g_directed)
+}
+
+# Apply it
+g_directed <- orient_graph_no_multiple_incoming(g)
+
+```
+
+### Visualise Network
+```{r}
+# Create nodes data frame
+nodes <- data.frame(
+  id = V(g_directed)$name,
+  label = V(g_directed)$name,
+  stringsAsFactors = FALSE
+)
+
+components <- components(g, mode = "weak")
+nodes$group <- components$membership
+
+# Create edges data frame
+edges <- igraph::as_data_frame(g_directed, what = "edges")
+colnames(edges) <- c("from", "to")
+
+#nodes with no outgoing edges
+nodes_noin <- V(g_directed)[degree(g_directed, mode = "in") == 0]
+nodes_noin <- names(nodes_noin)
+
+visNetwork(nodes, edges, width = "100%") %>%
+  visEdges(arrows = "to")
+```
+
+## Equation output:
+```{r equation, eval=FALSE}
+
+topo_order <- topo_sort(g_directed, mode = "out")
+topo_order <- names(topo_order)
+
+# Initialize a named list to store equations
+equations <- setNames(vector("list", length(topo_order)), topo_order)
+
+for (node in sorted_nodes) {
+  parents <- names(neighbors(g_directed, node, mode = "in"))
+  
+  if (length(parents) == 0) {
+    # If no parents, it's a root node
+    equations[[node]] <- node
+  } else {
+    # Sum of parents
+    equations[[node]] <- paste0(node, " = ", paste(parents, collapse = " + "))
+  }
+}
+
+# Print all equations
+equations_vec <- unlist(equations)
+cat(paste(equations_vec, collapse = "\n"))
 ```
 
 # Print Tables
 ```{r print-tables}
-comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
+
 comparison_table$similarity = results_selected$crit
 comparison_table$id1 = results_selected$mol1_index
 comparison_table$id2 = results_selected$mol2_index
-comparison_table$group = results_selected$group12
+comparison_table$group = results_selected$group
 
 comparison_table <- comparison_table %>% arrange(group)
 
@@ -268,7 +321,7 @@ comparison_table %>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 
 comparison_table %>%
-  select("id1", "id2", "similarity", "common", "to_remove","to_remove_str","to_add", "to_add_str") %>%
+  select("id1", "id2", "similarity", "common1", "common2", "to_remove","to_remove_str","to_add", "to_add_str") %>%
   kbl(escape = FALSE, format = "html", align = "l") %>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 ```
@@ -306,11 +359,9 @@ map(1:min(20, nrow(list10)), \(x) plotting_i(x, list10)) %>% wrap_plots(ncol = 4
 ```{r test, eval=FALSE}
 # Extract the vectors
 
-
-idx<-which(str_detect(comparison_table$common, fixed("Err:")))
-idx=1018          
-smiles1 <- smiles$smiles[comparison_table$id1[idx]]
-smiles2 <- smiles$smiles[comparison_table$id2[idx]]
+idx = 131
+smiles1 <- smiles$smiles[results_selected$mol1_index[idx]]
+smiles2 <- smiles$smiles[results_selected$mol2_index[idx]]
 
 comparison_table_x <- purrr::map2_df(smiles1, smiles2, compare_smiles_pair)
 comparison_table_x$id1 = results_selected$mol1_index[idx]
@@ -322,25 +373,6 @@ comparison_table_x%>%
   kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 
 comparison_table_x
-```
-
-
-```{r}
-
-idadd<-which(comparison_table$to_add == "")
-idremove<-which(comparison_table$to_remove == "")
-
-comparison_table %>%
-   filter(similarity==1) %>%
-  select("id1", "id2", "group", "similarity", "structure") %>%
-  kbl(escape = FALSE, format = "html", align = "l") %>%
-  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
-
-comparison_table %>%
- filter(similarity==1) %>%
-  select("id1", "id2", "similarity", "common", "to_remove","to_remove_str","to_add", "to_add_str") %>%
-  kbl(escape = FALSE, format = "html", align = "l") %>%
-  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 # Session info

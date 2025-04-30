@@ -1,4 +1,67 @@
 ### MCS 
+FixBrokenAromaticity <- function(editable_mol) {
+  # Create editable molecule
+  ed_mol <- Chem$RWMol(editable_mol)
+
+  # Try simple Kekulize
+  success <- TRUE
+  tryCatch({
+    Chem$SanitizeMol(ed_mol)
+    Chem$Kekulize(ed_mol, clearAromaticFlags=FALSE)
+  }, error = function(e) {
+    success <<- FALSE
+  })
+  
+  if (!success) {
+    # If Kekulize fails, fix problematic rings
+    ri <- ed_mol$GetRingInfo()
+    atom_rings <- ri$AtomRings()
+    
+    for (ring in atom_rings) {
+
+      ring_py <- reticulate::r_to_py(ring)
+      
+      submol <- Chem$PathToSubmol(ed_mol, ring_py)
+      
+      ring_success <- TRUE
+      tryCatch({
+        Chem$Kekulize(submol, clearAromaticFlags=FALSE)
+      }, error = function(e) {
+        ring_success <<- FALSE
+      })
+      
+      if (!ring_success) {
+        # Clear aromaticity flags on broken ring
+        for (idx in ring) {
+          atom <- ed_mol$GetAtomWithIdx(as.integer(idx))
+          atom$SetIsAromatic(FALSE)
+        }
+        if (length(ring) >= 2) {  # Only if the ring has 2+ atoms
+          for (i in 1:(length(ring) - 1)) {
+            for (j in (i + 1):length(ring)) {
+              bond <- ed_mol$GetBondBetweenAtoms(as.integer(ring[i]), as.integer(ring[j]))
+              if (!is.null(bond)) {
+                bond$SetIsAromatic(FALSE)
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    # Try Kekulize again after cleanup
+    tryCatch({
+      Chem$Kekulize(ed_mol, clearAromaticFlags=TRUE)
+    }, error = function(e) {})
+  }
+  
+  # Sanitize molecule
+  Chem$SanitizeMol(ed_mol)
+  
+  return(ed_mol)
+}
+
+
 extract_common_fragments <- function(mol, match_atoms) {
   
   editable_mol <- Chem$RWMol(mol)
@@ -12,24 +75,14 @@ extract_common_fragments <- function(mol, match_atoms) {
     editable_mol$RemoveAtom(as.integer(idx))
   }
   
-  # Get final molecule
-  common_mol <- editable_mol
-  
-  num_atoms <- common_mol$GetNumAtoms()
-  for (i in seq(0, num_atoms - 1)) {
-    atom <- common_mol$GetAtomWithIdx(i)
-    if (!atom$IsInRing() && atom$GetIsAromatic()) {
-      atom$SetIsAromatic(FALSE)
-    }
-  }
-  
-  res <- try({Chem$SanitizeMol(common_mol)}, silent = TRUE)
+  res <- try({
+    common_mol <- FixBrokenAromaticity(editable_mol)
+  }, silent = TRUE)
   
   if (inherits(res, "try-error")) {
-    common_smiles <- Chem$MolToSmiles(common_mol)
-    common_smiles = paste0("Err:",common_smiles)
+    common_smiles <- "NA"
   } else {
-    Chem$SanitizeMol(common_mol)
+    common_mol <- FixBrokenAromaticity(editable_mol)
     common_smiles <- Chem$MolToSmiles(common_mol)
   }
   
@@ -50,8 +103,6 @@ extract_attachemnt_string <- function(mol, match_atoms) {
       nbr_idx <- bond$GetOtherAtomIdx(atom_idx)
       if (!(nbr_idx %in% match_atoms)) {
         nbr_atom <- mol$GetAtomWithIdx(nbr_idx)
-        
-        
         
         nbr_symbol <- nbr_atom$GetSymbol()
         bond_type <- as.character(bond$GetBondType())
@@ -105,7 +156,8 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
     return(data.frame(
       smile1 = smiles1,
       smile2 = smiles2,
-      common = NA,
+      common1 = NA,
+      common2 = NA,
       to_remove = NA,
       to_remove_str = NA,
       to_add = NA,
@@ -117,7 +169,7 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
   mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = mcs_params)
   smarts <- mcs_result$smartsString
   common_mol <- Chem$MolFromSmarts(smarts)
-  
+
   # Get atom matches for highlighting
   match1 <- mol1$GetSubstructMatch(common_mol)
   match2 <- mol2$GetSubstructMatch(common_mol)
@@ -132,14 +184,6 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
   common_smile1 <- extract_common_fragments(mol1, match1)
   common_smile2 <- extract_common_fragments(mol2, match2)
 
-  if (!str_detect(common_smile1, fixed("Err:"))) {
-    common_smile = common_smile1
-  } else if (!str_detect(common_smile2, fixed("Err:"))) {
-    common_smile = common_smile2
-  } else {
-    common_smile = common_smile1
-  }
-  
   # Generate 2D coordinates
   AllChem$Compute2DCoords(mol1)
   AllChem$Compute2DCoords(mol2)
@@ -158,16 +202,17 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
   img_base64 <- base64enc::dataURI(file = img_file, mime = "image/png")
   
   
-  gc()
-  py_run_string("import gc; gc.collect()")
-   img_magick <- image_read(img_file)
-   print(img_magick)  # Displays in RStudio viewer or default graphics device
-  
+   # gc()
+   # py_run_string("import gc; gc.collect()")
+   # img_magick <- image_read(img_file)
+   # print(img_magick)  # Displays in RStudio viewer or default graphics device
+    # 
   # Return data frame row
   data.frame(
     smile1 = smiles1,
     smile2 = smiles2,
-    common = common_smile,
+    common1 = common_smile1,
+    common2 = common_smile2,
     to_remove = to_remove,
     to_remove_str= to_remove_str,
     to_add = to_add,
@@ -176,6 +221,26 @@ compare_smiles_pair <- function(smiles1, smiles2, .mcs_params=mcs_params) {
     stringsAsFactors = FALSE)
 }
 
+# Function to get number of atoms from SMILES
+get_atom_count <- function(smiles) {
+  mol <- Chem$MolFromSmiles(smiles)
+  return(mol$GetNumAtoms())
+}
+
+are_smiles_identical <- function(smiles1, smiles2) {
+  
+  mol1 <- Chem$MolFromSmiles(smiles1)
+  mol2 <- Chem$MolFromSmiles(smiles2)
+  
+  if (is.null(mol1) || is.null(mol2)) {
+    return(NA)
+  }
+
+  can1 <- Chem$MolToSmiles(mol1, canonical = TRUE)
+  can2 <- Chem$MolToSmiles(mol2, canonical = TRUE)
+  return(identical(can1, can2))
+
+}
 
 make_similarity_matrix_fun <- function(lower_tri_df) {
   n <- max(lower_tri_df$row, lower_tri_df$col)
