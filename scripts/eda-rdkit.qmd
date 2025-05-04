@@ -668,7 +668,7 @@ map(1:min(20, nrow(list10)), \(x) plotting_i(x, list10)) %>% wrap_plots(ncol = 4
 ```{r test, eval=FALSE}
 # Extract the vectors
 
-idx = 2
+idx = 4
 smiles1 <- smiles$smiles[results_selected$mol1_index[idx]]
 smiles2 <- smiles$smiles[results_selected$mol2_index[idx]]
 
@@ -685,7 +685,7 @@ comparison_table_x
 ```
 
 ```{r}
-extract_diff_fragments <- function(smiles1,smiles2, .mcs_params = mc_params, .fg_hierarchy = fg_hierarchy) {
+extract_diff_fragments_details <- function(smiles1,smiles2, .mcs_params = mc_params, .fg_hierarchy = fg_hierarchy) {
 
   mol1 <- Chem$MolFromSmiles(smiles1)
   mol2 <- Chem$MolFromSmiles(smiles2)
@@ -770,13 +770,15 @@ fg_hierarchy <- fg_hierarchy[[1]]
 fg_hierarchy <- extend_fg_hierarchy(fg_hierarchy, custom_groups)
 fg_hierarchy <- fg_hierarchy[-1]
 
-idx = 2
+idx = 4
 smiles1 <- smiles$smiles[results_selected$mol1_index[idx]]
 smiles2 <- smiles$smiles[results_selected$mol2_index[idx]]
 
-foo <- extract_diff_fragments(smiles1, smiles2, mcs_params, fg_hierarchy)
+foo1 <- extract_diff_fragments_details(smiles1, smiles2, mcs_params, fg_hierarchy)
+foo2 <- extract_diff_fragments_details(smiles2, smiles1, mcs_params, fg_hierarchy)
 
-foo
+foo1
+foo2
 ```
 
 # Session info
