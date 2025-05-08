@@ -18,16 +18,15 @@ knitr:
     dev: "ragg_png"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
-```
 
 # Introductions
 
 ...
 
 # Setup
-```{r message=FALSE}
+```{r setup message=FALSE}
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+
 library(bbr)
 library(bbr.bayes)
 library(dplyr)
@@ -49,6 +48,7 @@ library(tidybayes)
 library(reshape2)
 library(pracma)
 library(mrgmisc)
+library(GGally)
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 set.seed(10271998) ## not required but assures repeatable results
@@ -213,10 +213,10 @@ The statistical model has the following structure (hierarchical model):
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu,logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MVN}(\theta_R \cdot fr_i + \theta_{dR} \cdot (1-fr_i)  + \beta \cdot log P_i , \Omega) \\
+& R_{i} \sim \text{MVN}(\theta_R  + \beta \cdot log P_i , \Omega) \\
 \end{aligned}
 $$
-Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_P$ is a vector of typical values of $R_i$, $beta_R$ is a vector of slopes between $R_i$ and $logP_i$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $fr$ is a fraction of dissocation $\Omega$ was decomposed to:
+Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_P$ is a vector of typical values of $R_i$, $beta_R$ is a vector of slopes between $R_i$ and $logP_i$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $\Omega$ was decomposed to:
 
 $$
 \Omega = diag(\omega) \cdot \rho \cdot diag(\omega) 
@@ -233,8 +233,6 @@ $$
 & \theta_{logkw} \sim normal(2, 4), \\
 & \theta_{S1} \sim normal(4, 2), \\
 & \theta_{S2} \sim lognormal(0.693, 0.125), \\
-& \theta_{dlogkw} \sim normal(-1, 0.25), \\
-& \theta_{dS1} \sim normal(0, 0.5), \\
 & \nu = 7,\\
 & \omega_{logkw},\omega_{S1} \sim normal_+(0, 1), \\
 & \beta_{logkw} \sim  normal(0.7, 0.125), \\
@@ -253,9 +251,8 @@ Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linke
 
 ### Initialize variables and parameters
 
-```{r stansetup}
+```{r stan-setup}
 # create Stan data set:
-
 nObs <- length(data$ID)
 nAnalytes <- length(unique(data$ID))
 start <- (1:nObs)[!duplicated(data$ID)]
@@ -292,6 +289,7 @@ We compiled the model using cmdstanr:
 ```{r mod-settings}
 model_name <- "mod1"
 model_name_ext <- paste0(model_name,".stan")
+
 #' folder shortcuts:
 mod_figures_dir <- here::here("deliv", "figures", model_name)
 mod_tabels_dir  <- here::here("deliv", "tables", model_name)
@@ -302,14 +300,23 @@ if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir)
 if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir)
 if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
 if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+
+modelqg_name <- paste0(model_name,"gq")
+modelqg_name_ext <- paste0(modelqg_name,".stan")
+modgq_model_dir   <- here::here("model", "stan", modelqg_name)
+modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
+
+if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
+if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
 ```
 
-```{r stancompile, eval = FALSE}
+```{r stan-compile, eval = FALSE}
 mod1 <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
 ```
+
 We used optimization for initial testing:
 
-```{r stanoptimize, eval = FALSE}
+```{r stan-optimize, eval = FALSE}
 fit_opt <- mod1$optimize(
   data = datastruct,
   output_dir = mod_output_dir,
@@ -320,24 +327,36 @@ fit_opt <- mod1$optimize(
 
 fit_opt$print(max_rows=100)
 ```
-```{r optplots, eval=FALSE}
+
+```{r plots-optimize}
+
+fit_opt <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")
+                                ))
+
 data$logkopt<-fit_opt$mle("logkx")
 
-datax<-data %>%
-  filter(ID %in% c(20:30)) %>%
+set.seed(123)
+p1<-data %>%
+  filter(ID %in% sample(unique(data$ID),12)) %>%
+  left_join(analytes_names) %>%
   ggplot(aes(x=fi, y=logk)) + 
   geom_point() + 
   geom_line(aes(x=fi, y=logkopt)) + 
-  facet_wrap(~ID) +
+  xlim(0,1)+
+  facet_wrap(~Analyte) +
   labs(x = "\u03C6", y = expression(logk)) + 
   theme_gray(base_size = 14) + 
-  theme(legend.position="none")
-datax
+  theme(legend.position="none", 
+        axis.text =element_text(size = 8),
+        strip.text =element_text(size = 8))
+
+p1
 ```
 
 For local computations one can use cmdstanr:
 
-```{r stansample, eval = FALSE}
+```{r stan-sample, eval = FALSE}
  fit <- mod1$sample(
    data = datastruct,
    output_dir = mod_output_dir,
@@ -358,7 +377,7 @@ We performed out computations at the Academic Computer Center in Gdańsk, [Tryto
 
 1.  we dumped the necessary data to .json format
 
-```{r dumpfiles, eval = FALSE}
+```{r dump-files, eval = FALSE}
 write_stan_json(datastruct, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
 write_stan_json(init(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE)
 write_stan_json(init(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE)
@@ -379,7 +398,7 @@ write_stan_json(init(), paste0(mod_model_dir,"/init-8.json"), always_decimal = F
 
 3.  After calculations, we loaded the output files using cmdstanr. 
 
-```{r stanload}
+```{r stan-load}
 fit <- cmdstanr::as_cmdstan_fit(c(
                                   paste0(mod_output_dir,"/",  model_name, "-1.csv"),
                                   paste0(mod_output_dir,"/",  model_name, "-2.csv"),
@@ -394,7 +413,7 @@ fit <- cmdstanr::as_cmdstan_fit(c(
 
 4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
 
-```{r standiagnose, eval = FALSE}
+```{r stan-diagnose, eval = FALSE}
  #fit$cmdstan_diagnose()
  setwd(mod_output_dir)
  str = paste0(cmdstan_path(), '/bin/diagnose  mod1-*.csv')
@@ -412,23 +431,12 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
 
-
 ```{r summary}
 fit$print(max_rows = 180)
 ```
 
 
 # Genereted quantitites
-
-```{r paths}
-modelqg_name <- "mod1gq"
-modelqg_name_ext <- paste0(modelqg_name,".stan")
-modgq_model_dir   <- here::here("model", "stan", modelqg_name)
-modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
-
-if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
-if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
-```
 
 ```{r generete-quntities, eval=FALSE}
 mod1gq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
@@ -442,7 +450,7 @@ fitgq  <- mod1gq$generate_quantities(fit,
 
 # Results
 ## Load
-```{r etaload}
+```{r eta-load}
 x <- cmdstanr::read_cmdstan_csv(c(
                                   paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
                                   paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
@@ -508,9 +516,7 @@ p2 = data%>%
   theme_gray(base_size = 14) + 
   theme(legend.position="none")
 
-
 p1+p2
-
 ```
 
 
@@ -538,7 +544,6 @@ print(p)
 ```
 
 ```{r pop-predictions}
-
 analytes_idx = c(1:9, 501,510, 626)
 
 p <-draws_gen_df %>%
@@ -566,7 +571,7 @@ Individual parameter are the analyte-specific parameters estimated by the model.
 
 ### Individual parameters
 
-```{r iparam-column-neutral}
+```{r iparam}
 param <- draws_gen_df %>%
   select(starts_with("sparam_ind")) %>%
   summarise(across(.fns = mean)) %>%
@@ -575,8 +580,8 @@ param <- draws_gen_df %>%
 param1 <- param$value[1:nAnalytes]
 param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
 
-data_to_plot_param <- cbind(param1,param2,datastruct$logPobs)
-colnames(data_to_plot_param) <- c(expression('logkwN'[i]),expression('S1mN'[i]),expression('logP'[i]))
+data_to_plot_param <- cbind(param1,param2, param1-param2, datastruct$logPobs)
+colnames(data_to_plot_param) <- c(expression('logkwN'[i]),expression('S1mN'[i]),expression('logka'[i]), expression('logP'[i]))
 
 p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
         labeller = "label_parsed",upper = list(continuous = "points"))
@@ -585,7 +590,6 @@ print(p)
 ```
 
 ### Etas
-
 ```{r ieta}
 param <- draws_gen_df %>%
   select(starts_with("seta_ind")) %>%
@@ -595,13 +599,59 @@ param <- draws_gen_df %>%
 param1 <- param$value[1:nAnalytes]
 param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
 
-data_to_plot_param <- cbind(param1,param2,datastruct$logPobs)
-colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('logP'[i]))
+data_to_plot_param <- cbind(param1,param2,param1-param2,datastruct$logPobs)
+colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('etalogka'[i]),expression('logP'[i]))
 
 p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
         labeller = "label_parsed",upper = list(continuous = "points"))
 
 print(p)
+```
+### Effect of functional groups
+```{r effect-fg-screening}
+
+valid_indices <- which(totalnrgroups > 10)
+
+plots <- map(valid_indices, function(i) {
+  # Extract functional group as a factor
+  nrgroups <- as.factor(functional_groups[, i])
+  
+  # Create data frame for plotting
+  data_to_plot_fungr <- data.frame(
+    param1 = param1,
+    param2 = param2,
+    param3= param1-param2,
+    nrgroups = nrgroups
+  )
+  
+  # Reshape and create plot in one pipeline
+  data_to_plot_fungr %>%
+    pivot_longer(cols = c(param1, param2, param3), 
+                 names_to = "name", 
+                 values_to = "count") %>%
+    mutate(etaname = recode(name, 
+                           param1 = "etalogkw", 
+                           param2 = "etaS",
+                           param3 = "etalogka")) %>%
+    ggplot(aes(y = count, x = nrgroups)) +
+    geom_boxplot() +
+    facet_wrap(~etaname) +
+    labs(title = functional_groups_names[i], 
+         x = "Nr of functional groups", 
+         y = "eta")+
+  theme(title=element_text(size = 8),
+        axis.text =element_text(size = 8),
+        strip.text =element_text(size = 8))
+})
+
+
+plot_groups <- split(plots, ceiling(seq_along(plots) / 4))
+
+# Print each group of up to four plots
+walk(plot_groups, function(group) {
+  combined_plot <- wrap_plots(group, ncol = 2, nrow = 2)
+  print(combined_plot)
+})
 ```
 
 # Session info

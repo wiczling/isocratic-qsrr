@@ -99,7 +99,7 @@ generated quantities {
   for(i in 1:nAnalytes){
     sparam_pop[i] = multi_normal_rng(miu[i,1:2],Omega);
     sparam_ind[i] = param[i];
-    seta_ind[i] = (sparam_ind[i] - miu[i,1:2])./omega[1:2];
+    seta_ind[i] = sparam_ind[i] - miu[i,1:2];
   }
   
   for (i in 1 : nAnalytes) {
