@@ -129,6 +129,7 @@ dissociated_groups <- c(
 )
 ```
 
+
 ## Prepare data
 ```{r prepare-data, message=FALSE, warning=FALSE}
 data<-data %>%
@@ -301,14 +302,6 @@ init_aprox %>%
   ggplot(aes(x=logkw,y=S1,color=factor(fngr)))+
   geom_point()+
   labs(color="charges")
-```
-
-
-```{r}
-nObs <- length(data$ID)
-nAnalytes <- length(unique(data$ID))
-start <- (1:nObs)[!duplicated(data$ID)]
-end <- c(start[-1] - 1, nObs)
 ```
 
 # Session info
