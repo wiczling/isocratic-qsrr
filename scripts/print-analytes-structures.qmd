@@ -1,0 +1,120 @@
+---
+title: "Plot Analytes"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+```
+
+# Introductions
+
+Print 2D structeres of analytes
+
+# Setup
+```{r message=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(GGally)
+library(reshape2)
+library(pracma)
+library(here)
+library(magick)
+library(reticulate)
+
+set.seed(10271998) ## not required but assures repeatable results
+
+source("helper-functions.R")
+
+#py_install(c("matplotlib", "pillow"))
+```
+
+```{r settings}
+data_deliv_dir = here::here("data","deliv")
+data_derived_dir = here::here("data","derived")
+if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
+if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
+
+figures_structure_dir <- here::here("deliv","figures", "structures")
+tables_structure_dir <- here::here("deliv","tables", "structures")
+if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
+if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
+```
+
+```{r load-data, message=FALSE, warning=FALSE}
+# load data
+data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
+analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
+smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
+functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
+functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
+data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
+smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
+smiles$smiles[501] = "c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"
+smiles$smiles[401]= "CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"
+smiles$smiles[686] = "CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"
+smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
+
+analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
+```
+
+# Python
+
+```{r load-conda-environment}
+# use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
+#.Renviron
+```
+
+```{r load-conda-environment}
+# Import RDKit modules
+rdkit <- import("rdkit")
+Chem <- import("rdkit.Chem")
+Draw <- import("rdkit.Chem.Draw")
+AllChem <- import("rdkit.Chem.AllChem")
+
+# test 
+mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
+rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
+```
+
+## Save 2D structures to png
+```{r save-molecules-2Dstructures}
+save_png_fun <- function(i) {
+  ismiles <- smiles_vec[i]
+  mol <- Chem$MolFromSmiles(ismiles)
+  AllChem$Compute2DCoords(mol)
+  
+  img <- Draw$MolToImage(mol, size = tuple(300L, 300L))
+  filename <- here::here(figures_structure_dir, 
+                         paste0(make_filename_safe(analytes_names[i, 2]), "_", i, ".png"))
+  img$save(filename)
+  invisible(NULL)
+}
+
+lapply(seq_along(smiles$smiles), save_png_fun)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```

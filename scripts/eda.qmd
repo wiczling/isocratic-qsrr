@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Hierarchical models"
+title: "Exploratory data analysis"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -76,17 +76,57 @@ We used a publicly available [dataset](www.retentionprediction.org/hplc/database
 
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
-# load data
 data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
-functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
-functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
+# functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
+# functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
-lower_tri_df <-read.csv(here(data_deliv_dir,"similarity_ltri_rcdk.csv"))
-similarity_matrix <- make_similarity_matrix_fun(lower_tri_df)
+
+data_ACD$logP =data %>% distinct(ID, .keep_all = TRUE) %>% pull(logP_ACD)
+data_ACD$MW =data %>% distinct(ID, .keep_all = TRUE) %>% pull(MW_ACD)
+data_ACD$logP[526] = mean(data_ACD$logP, na.rm = TRUE)
+
+# results = read.csv(file = here(data_deliv_dir,"results_table_max_frag_size.csv"), header = TRUE)
+# comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
+# comparison_table_add = read.csv(file = here(data_deliv_dir,"comparison_table_add.csv"), header = TRUE)
+# comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)
+
+fg_df = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE)
+fg_df_common1 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common1.csv"), header = TRUE)
+fg_df_common2 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common2.csv"), header = TRUE)
+
+descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
+
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
+smiles$smiles[501] = "c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"
+smiles$smiles[401]= "CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"
+smiles$smiles[686] = "CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"
+smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
+
+analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
+
+# functional_groups_lf = functional_groups %>%
+#   mutate(ID = 1:n(), .before = "cation")%>%
+#   pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
+#   filter(Ngroups>0)
+
+dissociated_groups <- c(
+  # Anions
+  "Sulfonic_acid", "Sulfinic_acid", "Sulfenic_acid", "Sulfuric_acid", "Sulfuric_monoester",
+  "Phosphonic_acid", "Phosphoric_acid", "Phosphoric_monoester", "Phosphinic_acid",
+  "Phosphonous_acid", "Phosphinous_acid", "Carbothioic_acid", "Carbodithioic_acid",
+  # Cations
+  "Primary_aliph_amine", "Secondary_aliph_amine", "Tertiary_aliph_amine", 
+  "Quaternary_aliph_ammonium", "Primary_arom_amine", "Secondary_arom_amine", 
+  "Tertiary_arom_amine", "Quaternary_arom_ammonium", "Secondary_mixed_amine", 
+  "Tertiary_mixed_amine", "Quaternary_mixed_ammonium", "Oxonium", 
+  "Immonium", "Sulfonium", "Phosphonium", "Hetero_N_basic_H", "Hetero_N_basic_no_H", "Guanidine", "Hydrazine", "Hydroxylamine", 
+  "Diazonium", "N-Oxide"
+)
 ```
 
 ## Prepare data
@@ -99,95 +139,41 @@ data<-data %>%
              MW_ACD < 400 & MW_ACD >= 300 ~ "300 \u2264 MM < 400",
              .default = "400 \u2264 MM"))
 
-# combine nr of caroboxylic acid and carboxyalic acid salt functional groups
-# heterocyclic compounds with more than 6 heterocycles are treated as if they have six
-functional_groups[,76]=functional_groups[,76]+functional_groups[,77]       
-functional_groups[which(functional_groups[,202]>5.5),202] = 6; 
-
-# exclude some functional groups
-idx_excluded <- c(1, 2, 3, 6, 27, 28, 37, 47, 48, 51, 55, 61, 62, 67, 73, 74, 75, 77, 80, 91, 99, 109, 116, 117, 121, 125, 129, 142, 153, 154, 160, 161, 168, 173, 178, 181, 182, 186, 187, 191, 196, 201, 202)
-
-functional_groups_names <- functional_groups_names[-idx_excluded,]
-functional_groups <- functional_groups[,-idx_excluded]
-
-rm(idx_included)
-
+functional_groups = fg_df%>%select(where(~ is.character(.) || !all(. == 0, na.rm = TRUE))) %>%
+  select(-id1,-id2,-SMILES, -Anion, -Kation,-Ammonium )
+functional_groups_names<- colnames(functional_groups)
 totalnrgroups <- summarise_each(functional_groups, funs(sum))
 
-# remove functional groups not present in the dataset:
-functional_groups <- functional_groups[,which(totalnrgroups!=0)]
-functional_groups_names<- functional_groups_names[which(totalnrgroups!=0),]
-totalnrgroups <- summarise_each(functional_groups, funs(sum))
-
-pKaslit = data_ACD[,3:5]           # pKa values as predicted by ACD
-pKasliterror = data_ACD[,17:19]    # pKa error as predicted by ACD
-chargesA = abs(data_ACD[,9:12])    # number of ionized groups (anions)
-chargesB = abs(data_ACD[,13:16])   # number of ionized groups (cations)
-charges = chargesA+chargesB                       # absolute charge
-groupsA = (chargesA[,2:4]-chargesA[,1:3])         # acidic group
-groupsB = -(chargesB[,2:4]-chargesB[,1:3])        # basic group
-R = rowSums(data_ACD[,3:5]<14) # number of dissociation steps
-groups = groupsB-groupsA
-logPobs =data %>% distinct(ID, .keep_all = TRUE) %>% pull(logP_ACD)
-MW =data %>% distinct(ID, .keep_all = TRUE) %>% pull(MW_ACD)
-logPobs[526] = mean(logPobs, na.rm = TRUE)
-
+dissociation = list(
+pKaslit = data_ACD[,3:5],           # pKa values as predicted by ACD
+pKasliterror = data_ACD[,17:19],    # pKa error as predicted by ACD
+chargesA = abs(data_ACD[,9:12]),    # number of ionized groups (anions)
+chargesB = abs(data_ACD[,13:16]))   # number of ionized groups (cations)
+dissociation$charges = dissociation$chargesA+dissociation$chargesB                  # absolute charge
+dissociation$groupsA = (dissociation$chargesA[,2:4]-dissociation$chargesA[,1:3])         # acidic group
+dissociation$groupsB = -(dissociation$chargesB[,2:4]-dissociation$chargesB[,1:3])        # basic group
+dissociation$R = rowSums(data_ACD[,3:5]<14) # number of dissociation steps
+dissociation$groups = dissociation$groupsB-dissociation$groupsA
+dissociation$logPobs =data_ACD$logP
+dissociation$MW =data_ACD$MW
 # identify acidic groups
-idxGroupsA <-which(groupsA!=0,arr.ind = T)
-nGroupsA <- nrow(idxGroupsA)
-pKaslitA<-pKaslit[idxGroupsA]
-
+dissociation$idxGroupsA <-which(dissociation$groupsA!=0,arr.ind = T)
+dissociation$nGroupsA <- nrow(dissociation$idxGroupsA)
+dissociation$pKaslitA<-dissociation$pKaslit[dissociation$idxGroupsA]
 # identify basic groups
-idxGroupsB <-which(groupsB!=0,arr.ind = T)
-nGroupsB <- nrow(idxGroupsB)
-pKaslitB<-pKaslit[idxGroupsB]
-
+dissociation$idxGroupsB <-which(dissociation$groupsB!=0,arr.ind = T)
+dissociation$nGroupsB <- nrow(dissociation$idxGroupsB)
+dissociation$pKaslitB<-dissociation$pKaslit[dissociation$idxGroupsB]
 # groups dissociated in the whole pH range
-chargesA0 <- chargesA[,1]
-chargesB0 <- chargesB[,max(R)]
-
-idxA0 = c(which(chargesA0==1), which(chargesA0==2))
-idxB0 = c(which(chargesB0==1), which(chargesB0==2))
-
-nA0 <- length(idxA0)
-nB0 <- length(idxB0)
-
-nObs <- length(data$ID)
-nAnalytes <- length(unique(data$ID))
-
-start <- (1:nObs)[!duplicated(data$ID)]
-end <- c(start[-1] - 1, nObs)
+dissociation$chargesA0 <- dissociation$chargesA[,1]
+dissociation$chargesB0 <- dissociation$chargesB[,max(dissociation$R)]
+dissociation$idxA0 = c(which(dissociation$chargesA0==1), which(dissociation$chargesA0==2))
+dissociation$idxB0 = c(which(dissociation$chargesB0==1), which(dissociation$chargesB0==2))
+dissociation$nA0 <- length(dissociation$idxA0)
+dissociation$nB0 <- length(dissociation$idxB0)
 ```
 
 # Some plots
-
-During the exploratory data analysis phase, we create a series of plots to better understand our data.
-
-```{r similarity-matrixplot}
-
-ggcorrplot((similarity_matrix[001:100,001:100]-0.5)*2)
- ggcorrplot((similarity_matrix[101:200,101:200]-0.5)*2)
- ggcorrplot((similarity_matrix[201:300,201:300]-0.5)*2)
- ggcorrplot((similarity_matrix[301:400,301:400]-0.5)*2)
- ggcorrplot((similarity_matrix[401:500,401:500]-0.5)*2)
- ggcorrplot((similarity_matrix[501:600,501:600]-0.5)*2)
- ggcorrplot((similarity_matrix[601:700,601:700]-0.5)*2)
- ggcorrplot((similarity_matrix[701:800,701:800]-0.5)*2)
- ggcorrplot((similarity_matrix[801:900,801:900]-0.5)*2)
- ggcorrplot((similarity_matrix[901:1026,901:1026]-0.5)*2)
-
-# x=which(similarity_matrix>0.95 & similarity_matrix!=1, arr.ind = TRUE)
-# pair_names = cbind(analytes_names$Analyte[unname(x[,1])],analytes_names$Analyte[unname(x[,2])])
-# selected_compounds = unique(c(x))
-# ggcorrplot((similarity_matrix[selected_compounds,selected_compounds]-0.5)*2)
-```
-
-```{r clusterring}
-x<-hclust(as.dist(1-similarity_matrix), method = "complete", members = NULL)
-plot(x)
-cut_avg <- cutree(x, k = 20)
-```
-
 ## Raw data
 ```{r raw-data, message=FALSE, warning=FALSE}
 ggplot(data, aes(x=fi, y=logk, group=ID)) + 
@@ -195,18 +181,6 @@ ggplot(data, aes(x=fi, y=logk, group=ID)) +
   facet_wrap(~mm_group, ncol=2) +
   labs(x = "\u03C6", y = expression(log~k[obs])) + 
   theme_gray(base_size = 14) + theme(legend.position="none") 
-
-
-temp_tri<-lower_tri_df%>%arrange(desc(similarity))%>%filter(row!=col, similarity>0.8)
-
-i=349;
-data %>% 
-  filter(ID %in% c(temp_tri$row[i],temp_tri$col[i])) %>%
-  ggplot(aes(x=fi, y=logk, group=ID)) + 
-  geom_line(aes(color=logP_ACD)) + 
-  labs(title = paste(analytes_names$Analyte[temp_tri$row[i]], "\n", analytes_names$Analyte[temp_tri$col[i]], temp_tri$similarity[i]), x = "\u03C6", y = expression(log~k[obs])) + 
-  theme_gray(base_size = 10) + theme(legend.position="none")
-
 ```
 ## pH changes
 
@@ -228,13 +202,13 @@ The values of molecular mass MM were added to the dataset. They were calculated 
 
 df <- data %>% distinct(ID, .keep_all = TRUE) 
 
-p1<-ggplot(data=df)+
-  geom_histogram(aes(x=MW_ACD))+
+p1<-ggplot(data=data_ACD)+
+  geom_histogram(aes(x=MW))+
   xlab("molecular mass")+
   ylab("count")
 
-p2<-ggplot(data=df)+
-  geom_histogram(aes(x=logP_ACD))+
+p2<-ggplot(data=data_ACD)+
+  geom_histogram(aes(x=logP))+
   xlab("logP")+
   ylab("count")
 
@@ -245,38 +219,47 @@ p1+p2
 ## Functional groups
 
 The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
-
-```{r functional-group-summary, message=FALSE, warning=FALSE}
+```{r fg, eval=TRUE}
+### 
+# Function to classify functional groups
+classify_dissociation <- function(key) {
+  ifelse(key %in% dissociated_groups, "Dissociated", "Not Dissociated")
+}
 
 sumdata=data.frame(value=apply(functional_groups,2,sum))
-
-sumdata$key=functional_groups_names[,2]
+sumdata$key=functional_groups_names
 sumdata <- sumdata[order(sumdata$value),]
-sumdata$split <- rep(c(1,2),each=49)
-
-layout(c(1,2), widths=c(1,3))
-
-p1 <- ggplot(data=sumdata[which(sumdata$split==1),], aes(x=reorder(key, +value), y=value, fill=key)) +
+sumdata$split <- c(1,1,rep(c(1,2,3),each=47))
+sumdata$Dissociation_Status <- sapply(sumdata$key, classify_dissociation)
+p1 <- ggplot(data=sumdata[which(sumdata$split==1),], aes(x=reorder(key, value), y=value, fill=key)) +
   geom_bar(fill="gray", stat="identity") + 
   theme(legend.position = "none",
         axis.title.x=element_blank(),
         axis.title.y=element_blank()) + 
-  coord_flip()+
-  scale_y_continuous(breaks=c(0,5,10))
+  coord_flip()
 
-p2 <- ggplot(data=sumdata[which(sumdata$split==2),], aes(x=reorder(key, +value), y=value, fill=key)) +
+p2 <- ggplot(data=sumdata[which(sumdata$split==2),], aes(x=reorder(key, value), y=value, fill=key)) +
   geom_bar(fill="gray", stat="identity") + 
   theme(legend.position = "none",
         axis.title.x=element_blank(),
         axis.title.y=element_blank()) + 
-  coord_flip() + scale_y_continuous(trans='log10',breaks=c(1,10,100,1000))
+  coord_flip() + scale_y_continuous(trans='log10')
 
-# Combine the plots with a custom layout
-p1 + p2 + plot_layout(design = "1222")
+p3 <- ggplot(data=sumdata[which(sumdata$split==3),], aes(x=reorder(key, value), y=value, fill=key)) +
+  geom_bar(fill="gray", stat="identity") + 
+  theme(legend.position = "none",
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank()) + 
+  coord_flip() + scale_y_continuous(trans='log10')
+
+p1
+p2
+p3
 ```
 
 ## Initial estimates
 ```{r initial-estimates}
+nAnalytes <- length(unique(data$ID))
 initial_param <- matrix(NA,nAnalytes,3)
 
 for(i in 1:nAnalytes){
@@ -289,16 +272,22 @@ for(i in 1:nAnalytes){
 }
 
 initial_param[,3] <- rep(2,nAnalytes)
-
 init_aprox <-  data.frame(logkw = initial_param[,2])
 init_aprox$S2 <- rep(2,nAnalytes)
 init_aprox$S1 <- -initial_param[,1]/(1+2)
-init_aprox$chargesB0 <-chargesB[,2]
-init_aprox$chargesA0 <-chargesA0
+init_aprox$chargesB0 <-dissociation$chargesB0
+init_aprox$chargesA0 <-dissociation$chargesA0
 
-init_aprox$MW <-MW
-init_aprox$logPobs <- logPobs
-init_aprox$cutavg <- cut_avg
+selected_columns <- which(colnames(functional_groups) %in% dissociated_groups)
+functional_groups_dissociated <- functional_groups[, selected_columns, drop = FALSE]
+values <- apply(functional_groups_dissociated, 1, sum)
+
+colnames(functional_groups)[selected_columns]
+
+init_aprox$fngr <- values>0
+
+init_aprox$MW <-data_ACD$MW
+init_aprox$logPobs <- data_ACD$logP
 ```
 
 ### Plots
@@ -309,9 +298,17 @@ init_aprox %>%
   labs(color="charges")
 
 init_aprox %>%
-  ggplot(aes(x=logPobs,y=logkw,color=factor(chargesB0+chargesA0)))+
+  ggplot(aes(x=logkw,y=S1,color=factor(fngr)))+
   geom_point()+
-  labs(color="charges")+facet_wrap(.~factor(cutavg))
+  labs(color="charges")
+```
+
+
+```{r}
+nObs <- length(data$ID)
+nAnalytes <- length(unique(data$ID))
+start <- (1:nObs)[!duplicated(data$ID)]
+end <- c(start[-1] - 1, nObs)
 ```
 
 # Session info

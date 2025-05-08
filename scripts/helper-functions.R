@@ -1,4 +1,168 @@
 ### MCS 
+extract_diff_fragments_combined <- function(idx1, idx2, smiles, .mcs_params = mcs_params, .fg_hierarchy = fg_hierarchy) {
+  
+  # Parse SMILES strings
+  mol1 <- Chem$MolFromSmiles(smiles[idx1])
+  mol2 <- Chem$MolFromSmiles(smiles[idx2])
+  
+  # Find Maximum Common Substructure (MCS)
+  mcs_result <- rdFMCS$FindMCS(list(mol1, mol2), parameters = .mcs_params)
+  smarts <- mcs_result$smartsString
+  common_mol <- Chem$MolFromSmarts(smarts)
+  
+  # Get matching atoms in mol1
+  match1 <- mol1$GetSubstructMatch(common_mol)
+  
+  # Set molecule and match atoms
+  mol <- mol1
+  match_atoms <- match1
+  
+  # Get all atoms and differing atoms
+  all_atoms <- seq_len(mol$GetNumAtoms()) - 1L
+  diff_atoms <- setdiff(all_atoms, match_atoms)
+  
+  # If no differing atoms, return empty data frame
+  if (length(diff_atoms) == 0) {
+    return(data.frame(
+      atom_idx = integer(0),
+      atom_symbol = character(0),
+      matched_fg = character(0),
+      frag_smiles = character(0),
+      frag_id = integer(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+  
+  # Initialize lists for results
+  atom_list <- c()
+  symbol_list <- c()
+  fg_list <- c()
+  smiles_list <- c()
+  frag_id_list <- c()
+  
+  # --- Functional Group Matching ---
+  atom_matches <- list()
+  for (fg in .fg_hierarchy) {
+    fg_name <- fg$name
+    fg_smarts <- fg$smarts
+    fg_mol <- Chem$MolFromSmarts(fg_smarts)
+    
+    if (is.null(fg_mol)) next
+    
+    # Get all matches of the functional group in the molecule
+    matches <- mol$GetSubstructMatches(fg_mol)
+    
+    if (length(matches) == 0) next
+    
+    for (match in matches) {
+      match <- as.integer(match)
+      for (atom_idx in match) {
+        if (atom_idx %in% diff_atoms) {
+          key <- as.character(atom_idx)
+          if (is.null(atom_matches[[key]])) {
+            atom_matches[[key]] <- list(fg_name)
+          } else {
+            atom_matches[[key]] <- unique(c(atom_matches[[key]], fg_name))
+          }
+        }
+      }
+    }
+  }
+  
+  # --- Fragment Extraction ---
+  # Create a copy of the molecule
+  rw_mol <- Chem$RWMol(mol)
+  
+  # Store original atom indices as properties
+  for (i in all_atoms) {
+    atom <- rw_mol$GetAtomWithIdx(i)
+    atom$SetProp("orig_idx", as.character(i))
+  }
+  
+  # Remove match_atoms (in reverse order to preserve indices)
+  for (idx in sort(unlist(match_atoms), decreasing = TRUE)) {
+    rw_mol$RemoveAtom(idx)
+  }
+  
+  # Get fragments
+  res <- try({
+    mol_frags <- rdmolops$GetMolFrags(rw_mol, asMols = TRUE)
+  }, silent = TRUE)
+  
+  if (inherits(res, "try-error")) {
+    mol_frags <- rdmolops$GetMolFrags(rw_mol, asMols = TRUE, sanitizeFrags = FALSE)
+  } else {
+    mol_frags <- rdmolops$GetMolFrags(rw_mol, asMols = TRUE)
+  }
+  
+  # Process each fragment with a unique fragment ID
+  frag_idx <- 0L
+  for (frag in mol_frags) {
+    frag_idx <- frag_idx + 1L
+    frag_smile <- as.character(Chem$MolToSmiles(frag))
+    frag_atoms <- c()
+    
+    # Get original atom indices from the fragment
+    for (i in seq_len(frag$GetNumAtoms()) - 1L) {
+      atom <- frag$GetAtomWithIdx(i)
+      if (atom$HasProp("orig_idx")) {
+        orig_idx <- as.integer(atom$GetProp("orig_idx"))
+        if (orig_idx %in% diff_atoms) {
+          frag_atoms <- c(frag_atoms, orig_idx)
+        }
+      }
+    }
+    
+    # Add each atom's details to the lists
+    if (length(frag_atoms) > 0) {
+      for (atom_idx in frag_atoms) {
+        atom_list <- c(atom_list, atom_idx)
+        symbol_list <- c(symbol_list, mol$GetAtomWithIdx(atom_idx)$GetSymbol())
+        
+        # Get functional groups for this atom
+        fg_names <- atom_matches[[as.character(atom_idx)]]
+        fg_str <- if (is.null(fg_names)) NA_character_ else paste(fg_names, collapse = ", ")
+        fg_list <- c(fg_list, fg_str)
+        
+        smiles_list <- c(smiles_list, frag_smile)
+        frag_id_list <- c(frag_id_list, frag_idx)
+      }
+    }
+  }
+  
+  # Create data frame
+  result <- data.frame(
+    atom_idx = atom_list,
+    atom_symbol = symbol_list,
+    matched_fg = fg_list,
+    frag_smiles = smiles_list,
+    frag_id = frag_id_list,
+    stringsAsFactors = FALSE
+  )
+  
+  # Sort by atom index for consistency
+  if (nrow(result) > 0) {
+    result <- result[order(result$atom_idx), ]
+  }
+  
+  result$idx1 = idx1
+  result$idx2 = idx2
+  
+  return(result)
+}
+
+extend_fg_hierarchy <- function(fg_hierarchy, new_groups) {
+  for (group in new_groups) {
+    if (!("name" %in% names(group)) || !("smarts" %in% names(group))) {
+      warning("Invalid custom functional group structure.")
+      next
+    }
+    fg_hierarchy <- append(fg_hierarchy, list(group))
+  }
+  return(fg_hierarchy)
+}
+
+
 FixBrokenAromaticity <- function(editable_mol) {
   # Create editable molecule
   ed_mol <- Chem$RWMol(editable_mol)
@@ -60,7 +224,6 @@ FixBrokenAromaticity <- function(editable_mol) {
   
   return(ed_mol)
 }
-
 
 extract_common_fragments <- function(mol, match_atoms) {
   
