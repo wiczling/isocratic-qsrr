@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-05-08">
+<meta name="dcterms.date" content="2025-05-09">
 
 <title>Exploratory data analysis</title>
 <style>
@@ -131,7 +131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 8, 2025</p>
+      <p class="date">May 9, 2025</p>
     </div>
   </div>
   
@@ -497,15 +497,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="eda_files/figure-html/initial-estimates-plot-2.png" class="img-fluid" style="width:95.0%"></p>
 </div>
 </div>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>nObs <span class="ot">&lt;-</span> <span class="fu">length</span>(data<span class="sc">$</span>ID)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>nAnalytes <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID))</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>start <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">:</span>nObs)[<span class="sc">!</span><span class="fu">duplicated</span>(data<span class="sc">$</span>ID)]</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>end <span class="ot">&lt;-</span> <span class="fu">c</span>(start[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, nObs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
 </section>
 </section>
 </section>
@@ -514,7 +505,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.3.1 (2023-06-16 ucrt)
@@ -859,323 +850,316 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Exploratory data analysis"</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: "Paweł Wiczling*"</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">    affiliations:</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "`r format(Sys.Date())`"</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true  </span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-width: 7</span></span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-height: 7</span></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="an">knitr:</span></span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">  opts_chunk: </span></span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">    dev: "ragg_png"</span></span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup, include=FALSE}</span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">FALSE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introductions</span></span>
-<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>...</span>
-<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a><span class="fu"># Setup</span></span>
-<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
-<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
-<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
-<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
-<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
-<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
-<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
-<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pracma)</span>
-<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
-<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
-<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magick)</span>
-<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcorrplot)</span>
-<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a><span class="co">#remotes::install_github("metrumresearchgroup/mrgmisc")</span></span>
-<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a><span class="fu">set_cmdstan_path</span>(<span class="st">"C:/Users/GUMed/.cmdstan/cmdstan-2.36.0"</span>)</span>
-<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10271998</span>) <span class="do">## not required but assures repeatable results</span></span>
-<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"helper-functions.R"</span>)</span>
-<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a><span class="in">```{r settings}</span></span>
-<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>data_deliv_dir <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"deliv"</span>)</span>
-<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>data_derived_dir <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"derived"</span>)</span>
-<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(data_deliv_dir)) <span class="fu">dir.create</span>(data_deliv_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(data_derived_dir)) <span class="fu">dir.create</span>(data_derived_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a>figures_eda_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"figures"</span>, <span class="st">"eda"</span>)</span>
-<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a>tables_eda_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"tables"</span>, <span class="st">"eda"</span>)</span>
-<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(figures_eda_dir)) <span class="fu">dir.create</span>(figures_eda_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(tables_eda_dir)) <span class="fu">dir.create</span>(tables_eda_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>model_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>,<span class="st">"stan"</span>)  </span>
-<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a>figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"figures"</span>, <span class="st">"stan"</span>)</span>
-<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a>tables_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"tables"</span>, <span class="st">"stan"</span>)</span>
-<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(figures_dir)) <span class="fu">dir.create</span>(figures_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(model_dir)) <span class="fu">dir.create</span>(model_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(tables_dir)) <span class="fu">dir.create</span>(tables_dir, <span class="at">recursive =</span> T)</span>
-<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a><span class="fu"># EDA</span></span>
-<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a>We used a publicly available <span class="co">[</span><span class="ot">dataset</span><span class="co">](www.retentionprediction.org/hplc/database/)</span> that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.</span>
-<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load data</span></span>
-<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r load-data, message=FALSE, warning=FALSE}</span></span>
-<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir, <span class="st">"database_logk_1026.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a>analytes_names  <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"database_logk_1026_analyte_names.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a>smiles <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"smiles1026.smi"</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>, <span class="at">header =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))</span></span>
-<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))</span></span>
-<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a>data_ACD <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">'ACD_pKas.csv'</span>))</span>
-<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a>data_pH <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"pH.csv"</span>),<span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>logP <span class="ot">=</span>data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(logP_ACD)</span>
-<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>MW <span class="ot">=</span>data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(MW_ACD)</span>
-<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>logP[<span class="dv">526</span>] <span class="ot">=</span> <span class="fu">mean</span>(data_ACD<span class="sc">$</span>logP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a><span class="co"># results = read.csv(file = here(data_deliv_dir,"results_table_max_frag_size.csv"), header = TRUE)</span></span>
-<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)</span></span>
-<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table_add = read.csv(file = here(data_deliv_dir,"comparison_table_add.csv"), header = TRUE)</span></span>
-<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)</span></span>
-<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a>fg_df <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-97"><a href="#cb19-97" aria-hidden="true" tabindex="-1"></a>fg_df_common1 <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups_common1.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-98"><a href="#cb19-98" aria-hidden="true" tabindex="-1"></a>fg_df_common2 <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups_common2.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a>descriptor_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"descriptor_df.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a>smiles<span class="ot">&lt;-</span>smiles <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">ID=</span>V2,<span class="at">smiles=</span>V1) <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID,smiles)</span>
-<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">905</span>] <span class="ot">=</span> <span class="st">"CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl"</span> <span class="co"># remove tartrate moiety </span></span>
-<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">425</span>] <span class="ot">=</span> <span class="st">"CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O"</span> <span class="co"># remove Na+ and dissociation</span></span>
-<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">501</span>] <span class="ot">=</span> <span class="st">"c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"</span></span>
-<span id="cb19-106"><a href="#cb19-106" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">401</span>]<span class="ot">=</span> <span class="st">"CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"</span></span>
-<span id="cb19-107"><a href="#cb19-107" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">686</span>] <span class="ot">=</span> <span class="st">"CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"</span></span>
-<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">901</span>] <span class="ot">=</span> <span class="st">"CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"</span></span>
-<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a>analytes_names<span class="sc">$</span>Analyte <span class="ot">&lt;-</span> <span class="fu">iconv</span>(analytes_names<span class="sc">$</span>Analyte, <span class="at">from =</span> <span class="st">""</span>, <span class="at">to =</span> <span class="st">"UTF-8"</span>, <span class="at">sub =</span> <span class="st">"byte"</span>)</span>
-<span id="cb19-111"><a href="#cb19-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-112"><a href="#cb19-112" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups_lf = functional_groups %&gt;%</span></span>
-<span id="cb19-113"><a href="#cb19-113" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(ID = 1:n(), .before = "cation")%&gt;%</span></span>
-<span id="cb19-114"><a href="#cb19-114" aria-hidden="true" tabindex="-1"></a><span class="co">#   pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %&gt;%</span></span>
-<span id="cb19-115"><a href="#cb19-115" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(Ngroups&gt;0)</span></span>
-<span id="cb19-116"><a href="#cb19-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-117"><a href="#cb19-117" aria-hidden="true" tabindex="-1"></a>dissociated_groups <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb19-118"><a href="#cb19-118" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Anions</span></span>
-<span id="cb19-119"><a href="#cb19-119" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Sulfonic_acid"</span>, <span class="st">"Sulfinic_acid"</span>, <span class="st">"Sulfenic_acid"</span>, <span class="st">"Sulfuric_acid"</span>, <span class="st">"Sulfuric_monoester"</span>,</span>
-<span id="cb19-120"><a href="#cb19-120" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Phosphonic_acid"</span>, <span class="st">"Phosphoric_acid"</span>, <span class="st">"Phosphoric_monoester"</span>, <span class="st">"Phosphinic_acid"</span>,</span>
-<span id="cb19-121"><a href="#cb19-121" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Phosphonous_acid"</span>, <span class="st">"Phosphinous_acid"</span>, <span class="st">"Carbothioic_acid"</span>, <span class="st">"Carbodithioic_acid"</span>,</span>
-<span id="cb19-122"><a href="#cb19-122" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cations</span></span>
-<span id="cb19-123"><a href="#cb19-123" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Primary_aliph_amine"</span>, <span class="st">"Secondary_aliph_amine"</span>, <span class="st">"Tertiary_aliph_amine"</span>, </span>
-<span id="cb19-124"><a href="#cb19-124" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Quaternary_aliph_ammonium"</span>, <span class="st">"Primary_arom_amine"</span>, <span class="st">"Secondary_arom_amine"</span>, </span>
-<span id="cb19-125"><a href="#cb19-125" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tertiary_arom_amine"</span>, <span class="st">"Quaternary_arom_ammonium"</span>, <span class="st">"Secondary_mixed_amine"</span>, </span>
-<span id="cb19-126"><a href="#cb19-126" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tertiary_mixed_amine"</span>, <span class="st">"Quaternary_mixed_ammonium"</span>, <span class="st">"Oxonium"</span>, </span>
-<span id="cb19-127"><a href="#cb19-127" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Immonium"</span>, <span class="st">"Sulfonium"</span>, <span class="st">"Phosphonium"</span>, <span class="st">"Hetero_N_basic_H"</span>, <span class="st">"Hetero_N_basic_no_H"</span>, <span class="st">"Guanidine"</span>, <span class="st">"Hydrazine"</span>, <span class="st">"Hydroxylamine"</span>, </span>
-<span id="cb19-128"><a href="#cb19-128" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Diazonium"</span>, <span class="st">"N-Oxide"</span></span>
-<span id="cb19-129"><a href="#cb19-129" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-130"><a href="#cb19-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-131"><a href="#cb19-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-132"><a href="#cb19-132" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prepare data</span></span>
-<span id="cb19-133"><a href="#cb19-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r prepare-data, message=FALSE, warning=FALSE}</span></span>
-<span id="cb19-134"><a href="#cb19-134" aria-hidden="true" tabindex="-1"></a>data<span class="ot">&lt;-</span>data <span class="sc">%&gt;%</span></span>
-<span id="cb19-135"><a href="#cb19-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb19-136"><a href="#cb19-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mm_group =</span><span class="fu">case_when</span>(</span>
-<span id="cb19-137"><a href="#cb19-137" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">~</span> <span class="st">"MM &lt; 200"</span>,</span>
-<span id="cb19-138"><a href="#cb19-138" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">300</span> <span class="sc">&amp;</span> MW_ACD <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">~</span> <span class="st">"200 \u2264 MM &lt; 300"</span>,</span>
-<span id="cb19-139"><a href="#cb19-139" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">400</span> <span class="sc">&amp;</span> MW_ACD <span class="sc">&gt;=</span> <span class="dv">300</span> <span class="sc">~</span> <span class="st">"300 \u2264 MM &lt; 400"</span>,</span>
-<span id="cb19-140"><a href="#cb19-140" aria-hidden="true" tabindex="-1"></a>             <span class="at">.default =</span> <span class="st">"400 \u2264 MM"</span>))</span>
-<span id="cb19-141"><a href="#cb19-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-142"><a href="#cb19-142" aria-hidden="true" tabindex="-1"></a>functional_groups <span class="ot">=</span> fg_df<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="fu">where</span>(<span class="sc">~</span> <span class="fu">is.character</span>(.) <span class="sc">||</span> <span class="sc">!</span><span class="fu">all</span>(. <span class="sc">==</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb19-143"><a href="#cb19-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id1,<span class="sc">-</span>id2,<span class="sc">-</span>SMILES, <span class="sc">-</span>Anion, <span class="sc">-</span>Kation,<span class="sc">-</span>Ammonium )</span>
-<span id="cb19-144"><a href="#cb19-144" aria-hidden="true" tabindex="-1"></a>functional_groups_names<span class="ot">&lt;-</span> <span class="fu">colnames</span>(functional_groups)</span>
-<span id="cb19-145"><a href="#cb19-145" aria-hidden="true" tabindex="-1"></a>totalnrgroups <span class="ot">&lt;-</span> <span class="fu">summarise_each</span>(functional_groups, <span class="fu">funs</span>(sum))</span>
-<span id="cb19-146"><a href="#cb19-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a>dissociation <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a><span class="at">pKaslit =</span> data_ACD[,<span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>],           <span class="co"># pKa values as predicted by ACD</span></span>
-<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a><span class="at">pKasliterror =</span> data_ACD[,<span class="dv">17</span><span class="sc">:</span><span class="dv">19</span>],    <span class="co"># pKa error as predicted by ACD</span></span>
-<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a><span class="at">chargesA =</span> <span class="fu">abs</span>(data_ACD[,<span class="dv">9</span><span class="sc">:</span><span class="dv">12</span>]),    <span class="co"># number of ionized groups (anions)</span></span>
-<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a><span class="at">chargesB =</span> <span class="fu">abs</span>(data_ACD[,<span class="dv">13</span><span class="sc">:</span><span class="dv">16</span>]))   <span class="co"># number of ionized groups (cations)</span></span>
-<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>charges <span class="ot">=</span> dissociation<span class="sc">$</span>chargesA<span class="sc">+</span>dissociation<span class="sc">$</span>chargesB                  <span class="co"># absolute charge</span></span>
-<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groupsA <span class="ot">=</span> (dissociation<span class="sc">$</span>chargesA[,<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]<span class="sc">-</span>dissociation<span class="sc">$</span>chargesA[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])         <span class="co"># acidic group</span></span>
-<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groupsB <span class="ot">=</span> <span class="sc">-</span>(dissociation<span class="sc">$</span>chargesB[,<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]<span class="sc">-</span>dissociation<span class="sc">$</span>chargesB[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])        <span class="co"># basic group</span></span>
-<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>R <span class="ot">=</span> <span class="fu">rowSums</span>(data_ACD[,<span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>]<span class="sc">&lt;</span><span class="dv">14</span>) <span class="co"># number of dissociation steps</span></span>
-<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groups <span class="ot">=</span> dissociation<span class="sc">$</span>groupsB<span class="sc">-</span>dissociation<span class="sc">$</span>groupsA</span>
-<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>logPobs <span class="ot">=</span>data_ACD<span class="sc">$</span>logP</span>
-<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>MW <span class="ot">=</span>data_ACD<span class="sc">$</span>MW</span>
-<span id="cb19-159"><a href="#cb19-159" aria-hidden="true" tabindex="-1"></a><span class="co"># identify acidic groups</span></span>
-<span id="cb19-160"><a href="#cb19-160" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxGroupsA <span class="ot">&lt;-</span><span class="fu">which</span>(dissociation<span class="sc">$</span>groupsA<span class="sc">!=</span><span class="dv">0</span>,<span class="at">arr.ind =</span> T)</span>
-<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nGroupsA <span class="ot">&lt;-</span> <span class="fu">nrow</span>(dissociation<span class="sc">$</span>idxGroupsA)</span>
-<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>pKaslitA<span class="ot">&lt;-</span>dissociation<span class="sc">$</span>pKaslit[dissociation<span class="sc">$</span>idxGroupsA]</span>
-<span id="cb19-163"><a href="#cb19-163" aria-hidden="true" tabindex="-1"></a><span class="co"># identify basic groups</span></span>
-<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxGroupsB <span class="ot">&lt;-</span><span class="fu">which</span>(dissociation<span class="sc">$</span>groupsB<span class="sc">!=</span><span class="dv">0</span>,<span class="at">arr.ind =</span> T)</span>
-<span id="cb19-165"><a href="#cb19-165" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nGroupsB <span class="ot">&lt;-</span> <span class="fu">nrow</span>(dissociation<span class="sc">$</span>idxGroupsB)</span>
-<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>pKaslitB<span class="ot">&lt;-</span>dissociation<span class="sc">$</span>pKaslit[dissociation<span class="sc">$</span>idxGroupsB]</span>
-<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a><span class="co"># groups dissociated in the whole pH range</span></span>
-<span id="cb19-168"><a href="#cb19-168" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>chargesA0 <span class="ot">&lt;-</span> dissociation<span class="sc">$</span>chargesA[,<span class="dv">1</span>]</span>
-<span id="cb19-169"><a href="#cb19-169" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>chargesB0 <span class="ot">&lt;-</span> dissociation<span class="sc">$</span>chargesB[,<span class="fu">max</span>(dissociation<span class="sc">$</span>R)]</span>
-<span id="cb19-170"><a href="#cb19-170" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(dissociation<span class="sc">$</span>chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(dissociation<span class="sc">$</span>chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
-<span id="cb19-171"><a href="#cb19-171" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(dissociation<span class="sc">$</span>chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(dissociation<span class="sc">$</span>chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
-<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nA0 <span class="ot">&lt;-</span> <span class="fu">length</span>(dissociation<span class="sc">$</span>idxA0)</span>
-<span id="cb19-173"><a href="#cb19-173" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nB0 <span class="ot">&lt;-</span> <span class="fu">length</span>(dissociation<span class="sc">$</span>idxB0)</span>
-<span id="cb19-174"><a href="#cb19-174" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a><span class="fu"># Some plots</span></span>
-<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a><span class="fu">## Raw data</span></span>
-<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a><span class="in">```{r raw-data, message=FALSE, warning=FALSE}</span></span>
-<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk, <span class="at">group=</span>ID)) <span class="sc">+</span> </span>
-<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color=</span>logP_ACD)) <span class="sc">+</span> </span>
-<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>mm_group, <span class="at">ncol=</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(log<span class="sc">~</span>k[obs])) <span class="sc">+</span> </span>
-<span id="cb19-183"><a href="#cb19-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>) </span>
-<span id="cb19-184"><a href="#cb19-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a><span class="fu">## pH changes</span></span>
-<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a>The pH value of the mobile phase was verified experimentally for the purpose of this work. It equaled 2.66 with a standard deviation of 0.19 for the range of acetonitrile contents from 5 to 95%.</span>
-<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pH-plot, message=FALSE, warning=FALSE}</span></span>
-<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>data_pH, <span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>pH)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="st">"pH"</span>) <span class="sc">+</span> </span>
-<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH), <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH)<span class="sc">-</span><span class="fu">sd</span>(data_pH<span class="sc">$</span>pH), <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH)<span class="sc">+</span><span class="fu">sd</span>(data_pH<span class="sc">$</span>pH), <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span> </span>
-<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="fl">2.0</span>,<span class="fl">3.5</span>))</span>
-<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## logP and Moleculr mass distribution</span></span>
-<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a>The values of molecular mass MM were added to the dataset. They were calculated using <span class="co">[</span><span class="ot">ACD/Labs program</span><span class="co">](www.acdlabs.com)</span> based on the provided structures of analytes. The MM ranged from 73.09 to 656.8.</span>
-<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{r hist-MW-logP,message=FALSE, warning=FALSE}</span></span>
-<span id="cb19-202"><a href="#cb19-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-203"><a href="#cb19-203" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) </span>
-<span id="cb19-204"><a href="#cb19-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-205"><a href="#cb19-205" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span><span class="fu">ggplot</span>(<span class="at">data=</span>data_ACD)<span class="sc">+</span></span>
-<span id="cb19-206"><a href="#cb19-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>MW))<span class="sc">+</span></span>
-<span id="cb19-207"><a href="#cb19-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"molecular mass"</span>)<span class="sc">+</span></span>
-<span id="cb19-208"><a href="#cb19-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"count"</span>)</span>
-<span id="cb19-209"><a href="#cb19-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">&lt;-</span><span class="fu">ggplot</span>(<span class="at">data=</span>data_ACD)<span class="sc">+</span></span>
-<span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>logP))<span class="sc">+</span></span>
-<span id="cb19-212"><a href="#cb19-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"logP"</span>)<span class="sc">+</span></span>
-<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"count"</span>)</span>
-<span id="cb19-214"><a href="#cb19-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-215"><a href="#cb19-215" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2</span>
-<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-217"><a href="#cb19-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-218"><a href="#cb19-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a><span class="fu">## Functional groups</span></span>
-<span id="cb19-220"><a href="#cb19-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-221"><a href="#cb19-221" aria-hidden="true" tabindex="-1"></a>The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies</span>
-<span id="cb19-222"><a href="#cb19-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fg, eval=TRUE}</span></span>
-<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a><span class="do">### </span></span>
-<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to classify functional groups</span></span>
-<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a>classify_dissociation <span class="ot">&lt;-</span> <span class="cf">function</span>(key) {</span>
-<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(key <span class="sc">%in%</span> dissociated_groups, <span class="st">"Dissociated"</span>, <span class="st">"Not Dissociated"</span>)</span>
-<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-229"><a href="#cb19-229" aria-hidden="true" tabindex="-1"></a>sumdata<span class="ot">=</span><span class="fu">data.frame</span>(<span class="at">value=</span><span class="fu">apply</span>(functional_groups,<span class="dv">2</span>,sum))</span>
-<span id="cb19-230"><a href="#cb19-230" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>key<span class="ot">=</span>functional_groups_names</span>
-<span id="cb19-231"><a href="#cb19-231" aria-hidden="true" tabindex="-1"></a>sumdata <span class="ot">&lt;-</span> sumdata[<span class="fu">order</span>(sumdata<span class="sc">$</span>value),]</span>
-<span id="cb19-232"><a href="#cb19-232" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>split <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),<span class="at">each=</span><span class="dv">47</span>))</span>
-<span id="cb19-233"><a href="#cb19-233" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>Dissociation_Status <span class="ot">&lt;-</span> <span class="fu">sapply</span>(sumdata<span class="sc">$</span>key, classify_dissociation)</span>
-<span id="cb19-234"><a href="#cb19-234" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">1</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
-<span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
-<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
-<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
-<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">2</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
-<span id="cb19-242"><a href="#cb19-242" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb19-243"><a href="#cb19-243" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb19-244"><a href="#cb19-244" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
-<span id="cb19-245"><a href="#cb19-245" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
-<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">'log10'</span>)</span>
-<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-248"><a href="#cb19-248" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">3</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
-<span id="cb19-249"><a href="#cb19-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
-<span id="cb19-250"><a href="#cb19-250" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
-<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
-<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">'log10'</span>)</span>
-<span id="cb19-254"><a href="#cb19-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-255"><a href="#cb19-255" aria-hidden="true" tabindex="-1"></a>p1</span>
-<span id="cb19-256"><a href="#cb19-256" aria-hidden="true" tabindex="-1"></a>p2</span>
-<span id="cb19-257"><a href="#cb19-257" aria-hidden="true" tabindex="-1"></a>p3</span>
-<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-259"><a href="#cb19-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-260"><a href="#cb19-260" aria-hidden="true" tabindex="-1"></a><span class="fu">## Initial estimates</span></span>
-<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a><span class="in">```{r initial-estimates}</span></span>
-<span id="cb19-262"><a href="#cb19-262" aria-hidden="true" tabindex="-1"></a>nAnalytes <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID))</span>
-<span id="cb19-263"><a href="#cb19-263" aria-hidden="true" tabindex="-1"></a>initial_param <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,nAnalytes,<span class="dv">3</span>)</span>
-<span id="cb19-264"><a href="#cb19-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-265"><a href="#cb19-265" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nAnalytes){</span>
-<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i])<span class="sc">==</span><span class="dv">1</span>){</span>
-<span id="cb19-267"><a href="#cb19-267" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">polyfit</span>(<span class="sc">-</span><span class="dv">16</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]), data<span class="sc">$</span>logk[data<span class="sc">$</span>ID<span class="sc">==</span>i],<span class="dv">0</span>)</span>
-<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">16</span></span>
-<span id="cb19-269"><a href="#cb19-269" aria-hidden="true" tabindex="-1"></a>  }<span class="cf">else</span>{</span>
-<span id="cb19-270"><a href="#cb19-270" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">polyfit</span>(data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]), data<span class="sc">$</span>logk[data<span class="sc">$</span>ID<span class="sc">==</span>i],<span class="dv">1</span>)</span>
-<span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb19-273"><a href="#cb19-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-274"><a href="#cb19-274" aria-hidden="true" tabindex="-1"></a>initial_param[,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2</span>,nAnalytes)</span>
-<span id="cb19-275"><a href="#cb19-275" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="ot">&lt;-</span>  <span class="fu">data.frame</span>(<span class="at">logkw =</span> initial_param[,<span class="dv">2</span>])</span>
-<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>S2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2</span>,nAnalytes)</span>
-<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="sc">-</span>initial_param[,<span class="dv">1</span>]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span>)</span>
-<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>chargesB0 <span class="ot">&lt;-</span>dissociation<span class="sc">$</span>chargesB0</span>
-<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>chargesA0 <span class="ot">&lt;-</span>dissociation<span class="sc">$</span>chargesA0</span>
-<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a>selected_columns <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(functional_groups) <span class="sc">%in%</span> dissociated_groups)</span>
-<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a>functional_groups_dissociated <span class="ot">&lt;-</span> functional_groups[, selected_columns, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">apply</span>(functional_groups_dissociated, <span class="dv">1</span>, sum)</span>
-<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(functional_groups)[selected_columns]</span>
-<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-287"><a href="#cb19-287" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>fngr <span class="ot">&lt;-</span> values<span class="sc">&gt;</span><span class="dv">0</span></span>
-<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-289"><a href="#cb19-289" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>MW <span class="ot">&lt;-</span>data_ACD<span class="sc">$</span>MW</span>
-<span id="cb19-290"><a href="#cb19-290" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>logPobs <span class="ot">&lt;-</span> data_ACD<span class="sc">$</span>logP</span>
-<span id="cb19-291"><a href="#cb19-291" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a><span class="fu">### Plots</span></span>
-<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a><span class="in">```{r initial-estimates-plot}</span></span>
-<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="sc">%&gt;%</span></span>
-<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkw,<span class="at">y=</span>S1,<span class="at">color=</span><span class="fu">factor</span>(chargesB0<span class="sc">+</span>chargesA0)))<span class="sc">+</span></span>
-<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color=</span><span class="st">"charges"</span>)</span>
-<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="sc">%&gt;%</span></span>
-<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkw,<span class="at">y=</span>S1,<span class="at">color=</span><span class="fu">factor</span>(fngr)))<span class="sc">+</span></span>
-<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color=</span><span class="st">"charges"</span>)</span>
-<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-305"><a href="#cb19-305" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-306"><a href="#cb19-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a>nObs <span class="ot">&lt;-</span> <span class="fu">length</span>(data<span class="sc">$</span>ID)</span>
-<span id="cb19-311"><a href="#cb19-311" aria-hidden="true" tabindex="-1"></a>nAnalytes <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID))</span>
-<span id="cb19-312"><a href="#cb19-312" aria-hidden="true" tabindex="-1"></a>start <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">:</span>nObs)[<span class="sc">!</span><span class="fu">duplicated</span>(data<span class="sc">$</span>ID)]</span>
-<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a>end <span class="ot">&lt;-</span> <span class="fu">c</span>(start[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span>, nObs)</span>
-<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
-<span id="cb19-319"><a href="#cb19-319" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-320"><a href="#cb19-320" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb19-321"><a href="#cb19-321" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Exploratory data analysis"</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: "Paweł Wiczling*"</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">    affiliations:</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "`r format(Sys.Date())`"</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true  </span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-width: 7</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-height: 7</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="an">knitr:</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co">  opts_chunk: </span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co">    dev: "ragg_png"</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup, include=FALSE}</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">FALSE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introductions</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="fu"># Setup</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="in">```{r message=FALSE}</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(posterior)</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pracma)</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magick)</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcorrplot)</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a><span class="co">#remotes::install_github("metrumresearchgroup/mrgmisc")</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a><span class="fu">set_cmdstan_path</span>(<span class="st">"C:/Users/GUMed/.cmdstan/cmdstan-2.36.0"</span>)</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">10271998</span>) <span class="do">## not required but assures repeatable results</span></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"helper-functions.R"</span>)</span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a><span class="in">```{r settings}</span></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>data_deliv_dir <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"deliv"</span>)</span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>data_derived_dir <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"derived"</span>)</span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(data_deliv_dir)) <span class="fu">dir.create</span>(data_deliv_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(data_derived_dir)) <span class="fu">dir.create</span>(data_derived_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>figures_eda_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"figures"</span>, <span class="st">"eda"</span>)</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>tables_eda_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"tables"</span>, <span class="st">"eda"</span>)</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(figures_eda_dir)) <span class="fu">dir.create</span>(figures_eda_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(tables_eda_dir)) <span class="fu">dir.create</span>(tables_eda_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>model_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>,<span class="st">"stan"</span>)  </span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"figures"</span>, <span class="st">"stan"</span>)</span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>tables_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>,<span class="st">"tables"</span>, <span class="st">"stan"</span>)</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(figures_dir)) <span class="fu">dir.create</span>(figures_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(model_dir)) <span class="fu">dir.create</span>(model_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(tables_dir)) <span class="fu">dir.create</span>(tables_dir, <span class="at">recursive =</span> T)</span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a><span class="fu"># EDA</span></span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>We used a publicly available <span class="co">[</span><span class="ot">dataset</span><span class="co">](www.retentionprediction.org/hplc/database/)</span> that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.</span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load data</span></span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{r load-data, message=FALSE, warning=FALSE}</span></span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir, <span class="st">"database_logk_1026.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>analytes_names  <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"database_logk_1026_analyte_names.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>smiles <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"smiles1026.smi"</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\t</span><span class="st">"</span>, <span class="at">header =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))</span></span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))</span></span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>data_ACD <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">'ACD_pKas.csv'</span>))</span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>data_pH <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(data_deliv_dir,<span class="st">"pH.csv"</span>),<span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>logP <span class="ot">=</span>data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(logP_ACD)</span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>MW <span class="ot">=</span>data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(MW_ACD)</span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>data_ACD<span class="sc">$</span>logP[<span class="dv">526</span>] <span class="ot">=</span> <span class="fu">mean</span>(data_ACD<span class="sc">$</span>logP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a><span class="co"># results = read.csv(file = here(data_deliv_dir,"results_table_max_frag_size.csv"), header = TRUE)</span></span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)</span></span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table_add = read.csv(file = here(data_deliv_dir,"comparison_table_add.csv"), header = TRUE)</span></span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a><span class="co"># comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)</span></span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>fg_df <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a>fg_df_common1 <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups_common1.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>fg_df_common2 <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"smarts_functional_groups_common2.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>descriptor_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"descriptor_df.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>smiles<span class="ot">&lt;-</span>smiles <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">ID=</span>V2,<span class="at">smiles=</span>V1) <span class="sc">%&gt;%</span> <span class="fu">select</span>(ID,smiles)</span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">905</span>] <span class="ot">=</span> <span class="st">"CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl"</span> <span class="co"># remove tartrate moiety </span></span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">425</span>] <span class="ot">=</span> <span class="st">"CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O"</span> <span class="co"># remove Na+ and dissociation</span></span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">501</span>] <span class="ot">=</span> <span class="st">"c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"</span></span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">401</span>]<span class="ot">=</span> <span class="st">"CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"</span></span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">686</span>] <span class="ot">=</span> <span class="st">"CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"</span></span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>smiles<span class="sc">$</span>smiles[<span class="dv">901</span>] <span class="ot">=</span> <span class="st">"CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"</span></span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>analytes_names<span class="sc">$</span>Analyte <span class="ot">&lt;-</span> <span class="fu">iconv</span>(analytes_names<span class="sc">$</span>Analyte, <span class="at">from =</span> <span class="st">""</span>, <span class="at">to =</span> <span class="st">"UTF-8"</span>, <span class="at">sub =</span> <span class="st">"byte"</span>)</span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a><span class="co"># functional_groups_lf = functional_groups %&gt;%</span></span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(ID = 1:n(), .before = "cation")%&gt;%</span></span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a><span class="co">#   pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %&gt;%</span></span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(Ngroups&gt;0)</span></span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a>dissociated_groups <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Anions</span></span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Sulfonic_acid"</span>, <span class="st">"Sulfinic_acid"</span>, <span class="st">"Sulfenic_acid"</span>, <span class="st">"Sulfuric_acid"</span>, <span class="st">"Sulfuric_monoester"</span>,</span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Phosphonic_acid"</span>, <span class="st">"Phosphoric_acid"</span>, <span class="st">"Phosphoric_monoester"</span>, <span class="st">"Phosphinic_acid"</span>,</span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Phosphonous_acid"</span>, <span class="st">"Phosphinous_acid"</span>, <span class="st">"Carbothioic_acid"</span>, <span class="st">"Carbodithioic_acid"</span>,</span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cations</span></span>
+<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Primary_aliph_amine"</span>, <span class="st">"Secondary_aliph_amine"</span>, <span class="st">"Tertiary_aliph_amine"</span>, </span>
+<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Quaternary_aliph_ammonium"</span>, <span class="st">"Primary_arom_amine"</span>, <span class="st">"Secondary_arom_amine"</span>, </span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tertiary_arom_amine"</span>, <span class="st">"Quaternary_arom_ammonium"</span>, <span class="st">"Secondary_mixed_amine"</span>, </span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tertiary_mixed_amine"</span>, <span class="st">"Quaternary_mixed_ammonium"</span>, <span class="st">"Oxonium"</span>, </span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Immonium"</span>, <span class="st">"Sulfonium"</span>, <span class="st">"Phosphonium"</span>, <span class="st">"Hetero_N_basic_H"</span>, <span class="st">"Hetero_N_basic_no_H"</span>, <span class="st">"Guanidine"</span>, <span class="st">"Hydrazine"</span>, <span class="st">"Hydroxylamine"</span>, </span>
+<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Diazonium"</span>, <span class="st">"N-Oxide"</span></span>
+<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prepare data</span></span>
+<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r prepare-data, message=FALSE, warning=FALSE}</span></span>
+<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a>data<span class="ot">&lt;-</span>data <span class="sc">%&gt;%</span></span>
+<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mm_group =</span><span class="fu">case_when</span>(</span>
+<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">~</span> <span class="st">"MM &lt; 200"</span>,</span>
+<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">300</span> <span class="sc">&amp;</span> MW_ACD <span class="sc">&gt;=</span> <span class="dv">200</span> <span class="sc">~</span> <span class="st">"200 \u2264 MM &lt; 300"</span>,</span>
+<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>             MW_ACD <span class="sc">&lt;</span> <span class="dv">400</span> <span class="sc">&amp;</span> MW_ACD <span class="sc">&gt;=</span> <span class="dv">300</span> <span class="sc">~</span> <span class="st">"300 \u2264 MM &lt; 400"</span>,</span>
+<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a>             <span class="at">.default =</span> <span class="st">"400 \u2264 MM"</span>))</span>
+<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a>functional_groups <span class="ot">=</span> fg_df<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="fu">where</span>(<span class="sc">~</span> <span class="fu">is.character</span>(.) <span class="sc">||</span> <span class="sc">!</span><span class="fu">all</span>(. <span class="sc">==</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id1,<span class="sc">-</span>id2,<span class="sc">-</span>SMILES, <span class="sc">-</span>Anion, <span class="sc">-</span>Kation,<span class="sc">-</span>Ammonium )</span>
+<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>functional_groups_names<span class="ot">&lt;-</span> <span class="fu">colnames</span>(functional_groups)</span>
+<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a>totalnrgroups <span class="ot">&lt;-</span> <span class="fu">summarise_each</span>(functional_groups, <span class="fu">funs</span>(sum))</span>
+<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a>dissociation <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a><span class="at">pKaslit =</span> data_ACD[,<span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>],           <span class="co"># pKa values as predicted by ACD</span></span>
+<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a><span class="at">pKasliterror =</span> data_ACD[,<span class="dv">17</span><span class="sc">:</span><span class="dv">19</span>],    <span class="co"># pKa error as predicted by ACD</span></span>
+<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a><span class="at">chargesA =</span> <span class="fu">abs</span>(data_ACD[,<span class="dv">9</span><span class="sc">:</span><span class="dv">12</span>]),    <span class="co"># number of ionized groups (anions)</span></span>
+<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a><span class="at">chargesB =</span> <span class="fu">abs</span>(data_ACD[,<span class="dv">13</span><span class="sc">:</span><span class="dv">16</span>]))   <span class="co"># number of ionized groups (cations)</span></span>
+<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>charges <span class="ot">=</span> dissociation<span class="sc">$</span>chargesA<span class="sc">+</span>dissociation<span class="sc">$</span>chargesB                  <span class="co"># absolute charge</span></span>
+<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groupsA <span class="ot">=</span> (dissociation<span class="sc">$</span>chargesA[,<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]<span class="sc">-</span>dissociation<span class="sc">$</span>chargesA[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])         <span class="co"># acidic group</span></span>
+<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groupsB <span class="ot">=</span> <span class="sc">-</span>(dissociation<span class="sc">$</span>chargesB[,<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]<span class="sc">-</span>dissociation<span class="sc">$</span>chargesB[,<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>])        <span class="co"># basic group</span></span>
+<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>R <span class="ot">=</span> <span class="fu">rowSums</span>(data_ACD[,<span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>]<span class="sc">&lt;</span><span class="dv">14</span>) <span class="co"># number of dissociation steps</span></span>
+<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>groups <span class="ot">=</span> dissociation<span class="sc">$</span>groupsB<span class="sc">-</span>dissociation<span class="sc">$</span>groupsA</span>
+<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>logPobs <span class="ot">=</span>data_ACD<span class="sc">$</span>logP</span>
+<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>MW <span class="ot">=</span>data_ACD<span class="sc">$</span>MW</span>
+<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a><span class="co"># identify acidic groups</span></span>
+<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxGroupsA <span class="ot">&lt;-</span><span class="fu">which</span>(dissociation<span class="sc">$</span>groupsA<span class="sc">!=</span><span class="dv">0</span>,<span class="at">arr.ind =</span> T)</span>
+<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nGroupsA <span class="ot">&lt;-</span> <span class="fu">nrow</span>(dissociation<span class="sc">$</span>idxGroupsA)</span>
+<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>pKaslitA<span class="ot">&lt;-</span>dissociation<span class="sc">$</span>pKaslit[dissociation<span class="sc">$</span>idxGroupsA]</span>
+<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a><span class="co"># identify basic groups</span></span>
+<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxGroupsB <span class="ot">&lt;-</span><span class="fu">which</span>(dissociation<span class="sc">$</span>groupsB<span class="sc">!=</span><span class="dv">0</span>,<span class="at">arr.ind =</span> T)</span>
+<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nGroupsB <span class="ot">&lt;-</span> <span class="fu">nrow</span>(dissociation<span class="sc">$</span>idxGroupsB)</span>
+<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>pKaslitB<span class="ot">&lt;-</span>dissociation<span class="sc">$</span>pKaslit[dissociation<span class="sc">$</span>idxGroupsB]</span>
+<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a><span class="co"># groups dissociated in the whole pH range</span></span>
+<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>chargesA0 <span class="ot">&lt;-</span> dissociation<span class="sc">$</span>chargesA[,<span class="dv">1</span>]</span>
+<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>chargesB0 <span class="ot">&lt;-</span> dissociation<span class="sc">$</span>chargesB[,<span class="fu">max</span>(dissociation<span class="sc">$</span>R)]</span>
+<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxA0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(dissociation<span class="sc">$</span>chargesA0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(dissociation<span class="sc">$</span>chargesA0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>idxB0 <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">which</span>(dissociation<span class="sc">$</span>chargesB0<span class="sc">==</span><span class="dv">1</span>), <span class="fu">which</span>(dissociation<span class="sc">$</span>chargesB0<span class="sc">==</span><span class="dv">2</span>))</span>
+<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nA0 <span class="ot">&lt;-</span> <span class="fu">length</span>(dissociation<span class="sc">$</span>idxA0)</span>
+<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a>dissociation<span class="sc">$</span>nB0 <span class="ot">&lt;-</span> <span class="fu">length</span>(dissociation<span class="sc">$</span>idxB0)</span>
+<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a><span class="fu"># Some plots</span></span>
+<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a><span class="fu">## Raw data</span></span>
+<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r raw-data, message=FALSE, warning=FALSE}</span></span>
+<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk, <span class="at">group=</span>ID)) <span class="sc">+</span> </span>
+<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color=</span>logP_ACD)) <span class="sc">+</span> </span>
+<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>mm_group, <span class="at">ncol=</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(log<span class="sc">~</span>k[obs])) <span class="sc">+</span> </span>
+<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>) </span>
+<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a><span class="fu">## pH changes</span></span>
+<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>The pH value of the mobile phase was verified experimentally for the purpose of this work. It equaled 2.66 with a standard deviation of 0.19 for the range of acetonitrile contents from 5 to 95%.</span>
+<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pH-plot, message=FALSE, warning=FALSE}</span></span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>data_pH, <span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>pH)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="st">"pH"</span>) <span class="sc">+</span> </span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH), <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH)<span class="sc">-</span><span class="fu">sd</span>(data_pH<span class="sc">$</span>pH), <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span><span class="fu">mean</span>(data_pH<span class="sc">$</span>pH)<span class="sc">+</span><span class="fu">sd</span>(data_pH<span class="sc">$</span>pH), <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span> </span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="fl">2.0</span>,<span class="fl">3.5</span>))</span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## logP and Moleculr mass distribution</span></span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a>The values of molecular mass MM were added to the dataset. They were calculated using <span class="co">[</span><span class="ot">ACD/Labs program</span><span class="co">](www.acdlabs.com)</span> based on the provided structures of analytes. The MM ranged from 73.09 to 656.8.</span>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r hist-MW-logP,message=FALSE, warning=FALSE}</span></span>
+<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) </span>
+<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-206"><a href="#cb18-206" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span><span class="fu">ggplot</span>(<span class="at">data=</span>data_ACD)<span class="sc">+</span></span>
+<span id="cb18-207"><a href="#cb18-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>MW))<span class="sc">+</span></span>
+<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"molecular mass"</span>)<span class="sc">+</span></span>
+<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"count"</span>)</span>
+<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">&lt;-</span><span class="fu">ggplot</span>(<span class="at">data=</span>data_ACD)<span class="sc">+</span></span>
+<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>logP))<span class="sc">+</span></span>
+<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"logP"</span>)<span class="sc">+</span></span>
+<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"count"</span>)</span>
+<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2</span>
+<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-218"><a href="#cb18-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-219"><a href="#cb18-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-220"><a href="#cb18-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## Functional groups</span></span>
+<span id="cb18-221"><a href="#cb18-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-222"><a href="#cb18-222" aria-hidden="true" tabindex="-1"></a>The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies</span>
+<span id="cb18-223"><a href="#cb18-223" aria-hidden="true" tabindex="-1"></a><span class="in">```{r fg, eval=TRUE}</span></span>
+<span id="cb18-224"><a href="#cb18-224" aria-hidden="true" tabindex="-1"></a><span class="do">### </span></span>
+<span id="cb18-225"><a href="#cb18-225" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to classify functional groups</span></span>
+<span id="cb18-226"><a href="#cb18-226" aria-hidden="true" tabindex="-1"></a>classify_dissociation <span class="ot">&lt;-</span> <span class="cf">function</span>(key) {</span>
+<span id="cb18-227"><a href="#cb18-227" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(key <span class="sc">%in%</span> dissociated_groups, <span class="st">"Dissociated"</span>, <span class="st">"Not Dissociated"</span>)</span>
+<span id="cb18-228"><a href="#cb18-228" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-229"><a href="#cb18-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-230"><a href="#cb18-230" aria-hidden="true" tabindex="-1"></a>sumdata<span class="ot">=</span><span class="fu">data.frame</span>(<span class="at">value=</span><span class="fu">apply</span>(functional_groups,<span class="dv">2</span>,sum))</span>
+<span id="cb18-231"><a href="#cb18-231" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>key<span class="ot">=</span>functional_groups_names</span>
+<span id="cb18-232"><a href="#cb18-232" aria-hidden="true" tabindex="-1"></a>sumdata <span class="ot">&lt;-</span> sumdata[<span class="fu">order</span>(sumdata<span class="sc">$</span>value),]</span>
+<span id="cb18-233"><a href="#cb18-233" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>split <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),<span class="at">each=</span><span class="dv">47</span>))</span>
+<span id="cb18-234"><a href="#cb18-234" aria-hidden="true" tabindex="-1"></a>sumdata<span class="sc">$</span>Dissociation_Status <span class="ot">&lt;-</span> <span class="fu">sapply</span>(sumdata<span class="sc">$</span>key, classify_dissociation)</span>
+<span id="cb18-235"><a href="#cb18-235" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">1</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
+<span id="cb18-236"><a href="#cb18-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb18-237"><a href="#cb18-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb18-238"><a href="#cb18-238" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb18-239"><a href="#cb18-239" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
+<span id="cb18-240"><a href="#cb18-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
+<span id="cb18-241"><a href="#cb18-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-242"><a href="#cb18-242" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">2</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
+<span id="cb18-243"><a href="#cb18-243" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb18-244"><a href="#cb18-244" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb18-245"><a href="#cb18-245" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb18-246"><a href="#cb18-246" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
+<span id="cb18-247"><a href="#cb18-247" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">'log10'</span>)</span>
+<span id="cb18-248"><a href="#cb18-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-249"><a href="#cb18-249" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data=</span>sumdata[<span class="fu">which</span>(sumdata<span class="sc">$</span>split<span class="sc">==</span><span class="dv">3</span>),], <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(key, value), <span class="at">y=</span>value, <span class="at">fill=</span>key)) <span class="sc">+</span></span>
+<span id="cb18-250"><a href="#cb18-250" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill=</span><span class="st">"gray"</span>, <span class="at">stat=</span><span class="st">"identity"</span>) <span class="sc">+</span> </span>
+<span id="cb18-251"><a href="#cb18-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb18-252"><a href="#cb18-252" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb18-253"><a href="#cb18-253" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y=</span><span class="fu">element_blank</span>()) <span class="sc">+</span> </span>
+<span id="cb18-254"><a href="#cb18-254" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">trans=</span><span class="st">'log10'</span>)</span>
+<span id="cb18-255"><a href="#cb18-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-256"><a href="#cb18-256" aria-hidden="true" tabindex="-1"></a>p1</span>
+<span id="cb18-257"><a href="#cb18-257" aria-hidden="true" tabindex="-1"></a>p2</span>
+<span id="cb18-258"><a href="#cb18-258" aria-hidden="true" tabindex="-1"></a>p3</span>
+<span id="cb18-259"><a href="#cb18-259" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-260"><a href="#cb18-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-261"><a href="#cb18-261" aria-hidden="true" tabindex="-1"></a><span class="fu">## Initial estimates</span></span>
+<span id="cb18-262"><a href="#cb18-262" aria-hidden="true" tabindex="-1"></a><span class="in">```{r initial-estimates}</span></span>
+<span id="cb18-263"><a href="#cb18-263" aria-hidden="true" tabindex="-1"></a>nAnalytes <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID))</span>
+<span id="cb18-264"><a href="#cb18-264" aria-hidden="true" tabindex="-1"></a>initial_param <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>,nAnalytes,<span class="dv">3</span>)</span>
+<span id="cb18-265"><a href="#cb18-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-266"><a href="#cb18-266" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nAnalytes){</span>
+<span id="cb18-267"><a href="#cb18-267" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i])<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb18-268"><a href="#cb18-268" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">polyfit</span>(<span class="sc">-</span><span class="dv">16</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]), data<span class="sc">$</span>logk[data<span class="sc">$</span>ID<span class="sc">==</span>i],<span class="dv">0</span>)</span>
+<span id="cb18-269"><a href="#cb18-269" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">16</span></span>
+<span id="cb18-270"><a href="#cb18-270" aria-hidden="true" tabindex="-1"></a>  }<span class="cf">else</span>{</span>
+<span id="cb18-271"><a href="#cb18-271" aria-hidden="true" tabindex="-1"></a>    initial_param[i,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">polyfit</span>(data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span><span class="sc">*</span>data<span class="sc">$</span>fi[data<span class="sc">$</span>ID<span class="sc">==</span>i]), data<span class="sc">$</span>logk[data<span class="sc">$</span>ID<span class="sc">==</span>i],<span class="dv">1</span>)</span>
+<span id="cb18-272"><a href="#cb18-272" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-273"><a href="#cb18-273" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-274"><a href="#cb18-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-275"><a href="#cb18-275" aria-hidden="true" tabindex="-1"></a>initial_param[,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2</span>,nAnalytes)</span>
+<span id="cb18-276"><a href="#cb18-276" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="ot">&lt;-</span>  <span class="fu">data.frame</span>(<span class="at">logkw =</span> initial_param[,<span class="dv">2</span>])</span>
+<span id="cb18-277"><a href="#cb18-277" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>S2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2</span>,nAnalytes)</span>
+<span id="cb18-278"><a href="#cb18-278" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>S1 <span class="ot">&lt;-</span> <span class="sc">-</span>initial_param[,<span class="dv">1</span>]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">2</span>)</span>
+<span id="cb18-279"><a href="#cb18-279" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>chargesB0 <span class="ot">&lt;-</span>dissociation<span class="sc">$</span>chargesB0</span>
+<span id="cb18-280"><a href="#cb18-280" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>chargesA0 <span class="ot">&lt;-</span>dissociation<span class="sc">$</span>chargesA0</span>
+<span id="cb18-281"><a href="#cb18-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-282"><a href="#cb18-282" aria-hidden="true" tabindex="-1"></a>selected_columns <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(functional_groups) <span class="sc">%in%</span> dissociated_groups)</span>
+<span id="cb18-283"><a href="#cb18-283" aria-hidden="true" tabindex="-1"></a>functional_groups_dissociated <span class="ot">&lt;-</span> functional_groups[, selected_columns, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb18-284"><a href="#cb18-284" aria-hidden="true" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">apply</span>(functional_groups_dissociated, <span class="dv">1</span>, sum)</span>
+<span id="cb18-285"><a href="#cb18-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-286"><a href="#cb18-286" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(functional_groups)[selected_columns]</span>
+<span id="cb18-287"><a href="#cb18-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-288"><a href="#cb18-288" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>fngr <span class="ot">&lt;-</span> values<span class="sc">&gt;</span><span class="dv">0</span></span>
+<span id="cb18-289"><a href="#cb18-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-290"><a href="#cb18-290" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>MW <span class="ot">&lt;-</span>data_ACD<span class="sc">$</span>MW</span>
+<span id="cb18-291"><a href="#cb18-291" aria-hidden="true" tabindex="-1"></a>init_aprox<span class="sc">$</span>logPobs <span class="ot">&lt;-</span> data_ACD<span class="sc">$</span>logP</span>
+<span id="cb18-292"><a href="#cb18-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-293"><a href="#cb18-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-294"><a href="#cb18-294" aria-hidden="true" tabindex="-1"></a><span class="fu">### Plots</span></span>
+<span id="cb18-295"><a href="#cb18-295" aria-hidden="true" tabindex="-1"></a><span class="in">```{r initial-estimates-plot}</span></span>
+<span id="cb18-296"><a href="#cb18-296" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="sc">%&gt;%</span></span>
+<span id="cb18-297"><a href="#cb18-297" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkw,<span class="at">y=</span>S1,<span class="at">color=</span><span class="fu">factor</span>(chargesB0<span class="sc">+</span>chargesA0)))<span class="sc">+</span></span>
+<span id="cb18-298"><a href="#cb18-298" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb18-299"><a href="#cb18-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color=</span><span class="st">"charges"</span>)</span>
+<span id="cb18-300"><a href="#cb18-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-301"><a href="#cb18-301" aria-hidden="true" tabindex="-1"></a>init_aprox <span class="sc">%&gt;%</span></span>
+<span id="cb18-302"><a href="#cb18-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkw,<span class="at">y=</span>S1,<span class="at">color=</span><span class="fu">factor</span>(fngr)))<span class="sc">+</span></span>
+<span id="cb18-303"><a href="#cb18-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb18-304"><a href="#cb18-304" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">color=</span><span class="st">"charges"</span>)</span>
+<span id="cb18-305"><a href="#cb18-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-306"><a href="#cb18-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-307"><a href="#cb18-307" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb18-310"><a href="#cb18-310" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb18-311"><a href="#cb18-311" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb18-312"><a href="#cb18-312" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

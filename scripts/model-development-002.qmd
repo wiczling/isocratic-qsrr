@@ -21,7 +21,7 @@ knitr:
 
 # Introductions
 
-...
+Simple model with functional group effects.
 
 # Setup
 ```{r setup, message=FALSE}
@@ -100,8 +100,8 @@ data_ACD$logP[526] = mean(data_ACD$logP, na.rm = TRUE)
 # comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)
 
 fg_df = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE)
-fg_df_common1 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common1.csv"), header = TRUE)
-fg_df_common2 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common2.csv"), header = TRUE)
+#fg_df_diff = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_difference.csv"), header = TRUE)
+equations_fg_ordered= read.csv(file = here(data_deliv_dir,"equations_fg_ordered.csv"), header = TRUE)
 
 descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
 
@@ -177,6 +177,10 @@ dissociation$idxA0 = c(which(dissociation$chargesA0==1), which(dissociation$char
 dissociation$idxB0 = c(which(dissociation$chargesB0==1), which(dissociation$chargesB0==2))
 dissociation$nA0 <- length(dissociation$idxA0)
 dissociation$nB0 <- length(dissociation$idxB0)
+
+
+
+
 ```
 
 ## Initial estimates
@@ -213,10 +217,11 @@ The statistical model has the following structure (hierarchical model):
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu,logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MVN}(\theta_R  + \beta \cdot log P_i , \Omega) \\
+& R_{i} \sim \text{MVN}(\theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i , \Omega) \\
+& \pi_{R,k} \sim N(0,\kappa_R)
 \end{aligned}
 $$
-Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_P$ is a vector of typical values of $R_i$, $beta_R$ is a vector of slopes between $R_i$ and $logP_i$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $\Omega$ was decomposed to:
+Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_R$ is a vector of typical values of $R_i$, $\beta_R$ is a vector of slopes between $R_i$ and $logP_i$, and $\pi_R$ is a vector of slopes between $R_i$ and functional group vector $Xi$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $\Omega$ was decomposed to:
 
 $$
 \Omega = diag(\omega) \cdot \rho \cdot diag(\omega) 
@@ -237,6 +242,7 @@ $$
 & \omega_{logkw},\omega_{S1} \sim normal_+(0, 1), \\
 & \beta_{logkw} \sim  normal(0.7, 0.125), \\
 & \beta_{S1} \sim  normal(0.5, 0.125), \\
+& \kappa_{logkw},\kappa_{S1} \sim  normal(0, 0.1), \\
 & \sigma \sim normal_+(0,0.05), \\
 & p(\rho) \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
 & c_u = [0.75]
@@ -471,7 +477,7 @@ Trace plots are time series plots of Markov chains. Here we show standard trace 
 
 ```{r trace-plots, include=TRUE}
 bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","beta","S2Hat"))) 
-bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma"))) 
+bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi"))) 
 bayesplot::mcmc_trace(fit$draws(c("param[626,1]","param[626,2]"))) 
 ```
 
@@ -479,7 +485,70 @@ bayesplot::mcmc_trace(fit$draws(c("param[626,1]","param[626,2]")))
 
 ```{r mcmc-intervals}
 mcmc_intervals(fit$draws(c("logkwHat","S1Hat","beta","S2Hat")))
-mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma")))
+mcmc_intervals(fit$draws(c("omega","rho[1,2]","sigma", "sdpi")))
+```
+## Functional groups effect 
+```{r functinoal-group-effects}
+#| fig-width: 6
+#| fig-height: 12
+
+idx1 <- which(totalnrgroups > 10)
+idx2 <- which(totalnrgroups <= 10)
+
+draws_df_subset <- fit$draws(format = "df", variable = c("pilogkw","piS1"))
+
+param1<-draws_df_subset %>%
+  tidybayes::spread_draws(pilogkw[No])%>%
+  ggdist::median_qi(pilogkw) %>%
+  mutate(param = "pilogkw") %>%
+  rename(dv=pilogkw)%>%
+  mutate(functional_groups_name = functional_groups_names) %>%
+  filter(functional_groups_name %in% functional_groups_names[idx1])
+
+param2<-draws_df_subset %>%
+  tidybayes::spread_draws(piS1[No])%>%
+  ggdist::median_qi(piS1) %>%
+  mutate(param = "piS1")%>%
+  rename(dv=piS1)%>%
+  mutate(functional_groups_name = functional_groups_names)%>%
+  filter(functional_groups_name %in% functional_groups_names[idx1])
+
+param<-rbind(param1,param2) 
+p_common <- param %>%
+  mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  tidybayes::geom_pointinterval() +
+  labs(x="Effect", y="Functional group id")+
+  facet_wrap(.~param)+
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
+
+param1<-draws_df_subset %>%
+  tidybayes::spread_draws(pilogkw[No])%>%
+  ggdist::median_qi(pilogkw) %>%
+  mutate(param = "pilogkw") %>%
+  rename(dv=pilogkw)%>%
+  mutate(functional_groups_name = functional_groups_names) %>%
+  filter(functional_groups_name %in% functional_groups_names[idx2])
+
+param2<-draws_df_subset %>%
+  tidybayes::spread_draws(piS1[No])%>%
+  ggdist::median_qi(piS1) %>%
+  mutate(param = "piS1")%>%
+  rename(dv=piS1)%>%
+  mutate(functional_groups_name = functional_groups_names)%>%
+  filter(functional_groups_name %in% functional_groups_names[idx2])
+
+param<-rbind(param1,param2) 
+p_uncommon <- param %>%
+  mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  tidybayes::geom_pointinterval() +
+  labs(x="Effect", y="Functional group id")+
+  facet_wrap(.~param) +
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
+
+p_uncommon
+p_common
 ```
 
 ## Fits
@@ -594,6 +663,41 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
 print(p)
 ```
 
+### Etas (conditional on parent)
+```{r}
+param <- draws_gen_df %>%
+  select(starts_with("seta_ind")) %>%
+  summarise(across(.fns = mean)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "value")
+
+param1 <- param$value[1:nAnalytes]
+param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
+
+param1_node = param1[equations_fg_ordered$node[equations_fg_ordered$parent>0]]
+param2_node = param2[equations_fg_ordered$node[equations_fg_ordered$parent>0]] 
+  
+param1_parent = param1[equations_fg_ordered$parent[equations_fg_ordered$parent>0]]
+param2_parent = param2[equations_fg_ordered$parent[equations_fg_ordered$parent>0]]
+
+param1 <- param1_node-param1_parent
+param2 <- param2_node-param2_parent
+
+crit <- equations_fg_ordered$crit[equations_fg_ordered$parent>0]
+fg <- equations_fg_ordered[equations_fg_ordered$parent>0,]
+
+logPobs = datastruct$logPobs[equations_fg_ordered$node[equations_fg_ordered$parent>0]]
+data_to_plot_param <- cbind(param1,param2,param1-param2,logPobs, crit)
+
+data_to_plot_param <- as.data.frame(data_to_plot_param) 
+
+colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('etalogka'[i]),expression('logP'[i]),expression('crit'[i]))
+
+p<-ggpairs(data_to_plot_param, columnLabels = colnames(data_to_plot_param) ,
+        labeller = "label_parsed",upper = list(continuous = "points"))
+
+print(p)
+```
+
 ### Etas
 ```{r ieta}
 param <- draws_gen_df %>%
@@ -612,7 +716,8 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
 
 print(p)
 ```
-### Effect of functional groups
+
+### Effect of functional groups (screening)
 ```{r effect-fg-screening}
 
 valid_indices <- which(totalnrgroups > 10)
@@ -629,7 +734,6 @@ plots <- map(valid_indices, function(i) {
     nrgroups = nrgroups
   )
   
-  # Reshape and create plot in one pipeline
   data_to_plot_fungr %>%
     pivot_longer(cols = c(param1, param2, param3), 
                  names_to = "name", 
@@ -659,32 +763,7 @@ walk(plot_groups, function(group) {
 })
 ```
 
-```{r functinoal-group-effects}
-#| fig-width: 6
-#| fig-height: 12
-draws_df_subset <- fit$draws(format = "df", variable = c("pilogkw","piS1"))
-
-param1<-draws_df_subset %>%
-  tidybayes::spread_draws(pilogkw[No])%>%
-  ggdist::median_qi(pilogkw) %>%
-  mutate(param = "pilogkw") %>%
-  rename(dv=pilogkw)%>%
-  mutate(functional_groups_name = functional_groups_names)
-
-param2<-draws_df_subset %>%
-  tidybayes::spread_draws(piS1[No])%>%
-  ggdist::median_qi(piS1) %>%
-  mutate(param = "piS1")%>%
-  rename(dv=piS1)%>%
-  mutate(functional_groups_name = functional_groups_names)
-
-param<-rbind(param1,param2) 
-param %>%
-  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
-  tidybayes::geom_pointinterval() +
-  labs(x="Effect", y="Functional group id")+
-  facet_wrap(.~param)
-```
+`
 # Session info
 
 ```{r}

@@ -1,5 +1,5 @@
 ---
-title: "Plot Analytes"
+title: "Structures"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 
 # Introductions
 
-Print 2D structeres of analytes
+Print 2D structures of analytes
 
 # Setup
 ```{r message=FALSE}
@@ -39,7 +39,7 @@ library(pracma)
 library(here)
 library(magick)
 library(reticulate)
-
+library(kableExtra)
 set.seed(10271998) ## not required but assures repeatable results
 
 source("helper-functions.R")
@@ -57,6 +57,11 @@ figures_structure_dir <- here::here("deliv","figures", "structures")
 tables_structure_dir <- here::here("deliv","tables", "structures")
 if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
 if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
+
+
+figures_structure_html_dir <- here::here("scripts","print-analytes-structures_files", "structures")
+if(!file.exists(figures_structure_html_dir)) dir.create(figures_structure_html_dir, recursive = T)
+
 ```
 
 ```{r load-data, message=FALSE, warning=FALSE}
@@ -80,7 +85,7 @@ analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8",
 
 # Python
 
-```{r load-conda-environment}
+```{r load-conda-environment-old, eval = FALSE}
 # use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
 #.Renviron
 ```
@@ -92,26 +97,53 @@ Chem <- import("rdkit.Chem")
 Draw <- import("rdkit.Chem.Draw")
 AllChem <- import("rdkit.Chem.AllChem")
 
-# test 
-mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
-rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
+# # test 
+# mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
+# rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
 ```
 
 ## Save 2D structures to png
-```{r save-molecules-2Dstructures}
+```{r save-molecules-2Dstructures, results='asis'}
 save_png_fun <- function(i) {
-  ismiles <- smiles_vec[i]
+  ismiles <- smiles$smiles[i]
   mol <- Chem$MolFromSmiles(ismiles)
   AllChem$Compute2DCoords(mol)
   
   img <- Draw$MolToImage(mol, size = tuple(300L, 300L))
+  analyte_name <- analytes_names[i, 2]
   filename <- here::here(figures_structure_dir, 
-                         paste0(make_filename_safe(analytes_names[i, 2]), "_", i, ".png"))
+                         paste0(make_filename_safe(analyte_name), "_", i, ".png"))
   img$save(filename)
-  invisible(NULL)
+  
+  filename <- here::here(figures_structure_html_dir, 
+                         paste0(make_filename_safe(analyte_name), "_", i, ".png"))
+  img$save(filename)
+  
+  # Return a data frame with analyte name and HTML image tag
+  data.frame(
+    Analyte_Name = analyte_name,
+    Figure = sprintf('<img src="%s" width="100" height="100"/>',  
+                         paste0("print-analytes-structures_files/structures/", make_filename_safe(analyte_name), "_", i, ".png")),
+    stringsAsFactors = FALSE
+  )
 }
 
-lapply(seq_along(smiles$smiles), save_png_fun)
+# Apply the function and collect results into a data frame
+results <- lapply(seq_along(smiles$smiles), save_png_fun)
+results_df <- bind_rows(results)
+
+# Create and print a kable table with images
+kableExtra::kbl(results_df, 
+                caption = "Analyte Names and Corresponding Structure Images",
+                col.names = c("Analyte Name", "Structure"),
+                escape = FALSE) %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                            full_width = FALSE) %>%
+  print()
+
+# Optionally save the table as HTML for inclusion in reports
+# kableExtra::save_kable(kable_table, file = here::here(figures_structure_dir, "analyte_table.html"))
+
 ```
 
 # Session info
