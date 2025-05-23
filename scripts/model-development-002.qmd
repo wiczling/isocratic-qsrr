@@ -94,16 +94,12 @@ data_ACD$logP =data %>% distinct(ID, .keep_all = TRUE) %>% pull(logP_ACD)
 data_ACD$MW =data %>% distinct(ID, .keep_all = TRUE) %>% pull(MW_ACD)
 data_ACD$logP[526] = mean(data_ACD$logP, na.rm = TRUE)
 
-# results = read.csv(file = here(data_deliv_dir,"results_table_max_frag_size.csv"), header = TRUE)
-# comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
-# comparison_table_add = read.csv(file = here(data_deliv_dir,"comparison_table_add.csv"), header = TRUE)
-# comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)
-
 fg_df = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE)
-#fg_df_diff = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_difference.csv"), header = TRUE)
-equations_fg_ordered= read.csv(file = here(data_deliv_dir,"equations_fg_ordered.csv"), header = TRUE)
-
 descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
+similarity_df <- read.csv(file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), header = TRUE)
+equations_fg_ordered= read.csv(file = here(data_deliv_dir,"equations_fg_ordered.csv"), header = TRUE)
+equations_fg_ordered<-equations_fg_ordered%>% select(node, parent, crit)
+
 
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
 smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
@@ -114,11 +110,6 @@ smiles$smiles[686] = "CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"
 smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
 
 analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
-
-# functional_groups_lf = functional_groups %>%
-#   mutate(ID = 1:n(), .before = "cation")%>%
-#   pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
-#   filter(Ngroups>0)
 
 dissociated_groups <- c(
   # Anions
@@ -177,10 +168,6 @@ dissociation$idxA0 = c(which(dissociation$chargesA0==1), which(dissociation$char
 dissociation$idxB0 = c(which(dissociation$chargesB0==1), which(dissociation$chargesB0==2))
 dissociation$nA0 <- length(dissociation$idxA0)
 dissociation$nB0 <- length(dissociation$idxB0)
-
-
-
-
 ```
 
 ## Initial estimates
@@ -639,6 +626,34 @@ p <-draws_gen_df %>%
 print(p)
 ```
 
+```{r pop-predictions-vpc}
+p <-draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logk = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))%>%
+  mutate(draw=.draw)%>%
+  group_by(draw, fi)%>%
+  summarise(mlogk = mean(logk),
+            llogk = quantile(logk, prob=0.05),
+            ulogk = quantile(logk, prob=0.95))%>%
+  group_by(fi)%>%
+  summarise(mmlogk = mean(mlogk),
+            mllogk = quantile(llogk, prob=0.05),
+            mulogk = quantile(ulogk, prob=0.95))%>%
+  ggplot() +
+  geom_line(aes(x = fi, y = mmlogk))+
+  geom_line(aes(x = fi, y = mllogk))+
+  geom_line(aes(x = fi, y = mulogk))+
+  geom_point(data=data,aes(x=fi, y=logk)) + 
+  labs(x="\u03C6", y="logk (population)") +
+  theme(legend.position = "none") 
+
+print(p)
+```
+
 ## Individual Parameters and etaplots
 
 Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.
@@ -715,6 +730,55 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
         labeller = "label_parsed",upper = list(continuous = "points"))
 
 print(p)
+```
+```{r similarity-etadiff}
+
+param <- draws_gen_df %>%
+  select(starts_with("seta_ind")) %>%
+  summarise(across(.fns = mean)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "value")
+
+param1 <- param$value[1:nAnalytes]
+param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
+
+similarity_df$etalogkw1 = param1[similarity_df$row]
+similarity_df$etalogkw2 = param1[similarity_df$col]
+
+similarity_df<-similarity_df %>%
+  filter(row!=col) %>%
+  mutate(r=etalogkw1-etalogkw2)
+
+p1 =  similarity_df %>%
+  ggplot(aes(x=similarity, y = r)) +
+  geom_point(size=0.5, alpha=0.3)
+
+binned_data <- similarity_df %>%
+  mutate(bin = cut(similarity, breaks = seq(0, 1, by = 0.1), include.lowest = TRUE)) %>%
+  group_by(bin) %>%
+  summarise(sd_r = sd(r, na.rm = TRUE)) %>%
+  mutate(mid_bin = seq(0, 1-0.1, by = 0.1) + 0.1/2)
+
+p2 <- binned_data %>%
+  ggplot(aes(x = mid_bin, y = sd_r)) +
+  geom_point(alpha = 0.5, size = 2) +
+  labs(x = "Midpoint of Similarity Bin", 
+       y = "SD of r")
+
+p1/p2
+
+p3<-similarity_df %>%
+  filter(similarity>0.0 & similarity<0.1) %>%
+  ggplot(aes(x=r))+
+  geom_histogram()+
+  xlim(-10,10)
+
+p4<-similarity_df %>%
+  filter(similarity>0.9 & similarity<1) %>%
+  ggplot(aes(x=r))+
+  geom_histogram()+
+  xlim(-10,10)
+
+p3/p4
 ```
 
 ### Effect of functional groups (screening)

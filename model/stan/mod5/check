@@ -1,0 +1,10 @@
+#!/bin/bash
+#SBATCH --job-name=check_opencl
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:1
+#SBATCH --time=00:10:00
+
+module load cuda
+clinfo
+./check_opencl

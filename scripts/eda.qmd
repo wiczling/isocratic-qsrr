@@ -44,6 +44,8 @@ library(brms)
 library(here)
 library(magick)
 library(ggcorrplot)
+
+select<-dplyr::select
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 set.seed(10271998) ## not required but assures repeatable results

@@ -52,3 +52,7 @@ matlab/
 
 # exe files
 *.exe
+
+output/
+
+!.renvignore.txt

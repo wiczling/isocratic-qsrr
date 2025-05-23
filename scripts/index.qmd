@@ -1,0 +1,61 @@
+---
+title: "QSRR Bayesian-based Multilevel Modeling of Izocratic Data"
+author:   
+  - Pawel Wiczling
+date: today
+date-format: long
+format:
+  html:
+    toc: true
+    code-fold: true
+execute:
+  warning: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+# EDA
+
+## Exploratory plots: 
+[EDA](eda.html "EDA")
+
+## Analytes:
+[Structures](print-analytes-structures.html "Structures")
+
+## Functional Groups
+[Functional groups](functional-groups-rdkit.html "Functional groups")
+
+# Results
+
+## Initial model: logR ~ logP, multivariate normal distribution
+
+[Model 001](model-development-001.html "Model 001")
+
+## Initial model: logR ~ logP + fungr, multivariate normal distribution
+
+[Model 002](model-development-002.html "Model 002")
+
+## Initial model: logR ~ logP + fungr, multivariate student t-distribution
+
+[Model 003](model-development-003.html "Model 003")
+
+## GP: logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix
+
+[Model 004](model-development-004.html "Model 004")
+
+## GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated full covariance matrix
+
+[Model 005](model-development-005.html "Model 005")
+
+## GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated (uncorrelated + correlated) covariance matrix
+
+[Model 006](model-development-006.html "Model 006")
+
+## GP: logR ~ logP + fungr, multivariate  matrix student-t distribution, estimated (uncorrelated + correlated) covariance matrix
+
+[Model 007](model-development-007.html "Model 007")
+
+## GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix
+
+[Model 008](model-development-008.html "Model 008")

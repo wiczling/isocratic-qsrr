@@ -1,0 +1,26 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH -p test
+#SBATCH --time=00:15:00
+#SBATCH --mem=2gb
+#SBATCH --array=1%1 
+
+# load
+module load trytonp/cmdstan/2.34.1
+
+export STAN_THREADS=true
+
+# model name
+export CMDSTAN_MODEL_NAME="mod8"
+
+# paths
+export MODEL_SRC_DIR="/users/project1/pt01268/izoaprox/"
+cd ${CMDSTAN_DIR}
+
+# build/compile
+[ -f ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} ] && echo "Model " ${CMDSTAN_MODEL_NAME} " exists." || make STANCFLAGS=--O1 ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME}
+
+wait

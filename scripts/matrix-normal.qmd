@@ -1,0 +1,152 @@
+---
+title: "QSRR revisited. Hierarchical models"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+---
+
+# Setup
+
+The packages we will use are listed below.
+
+```{r setup, message=FALSE}
+library(cmdstanr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(rstan)
+library(tidyr)
+library(dplyr)
+library(posterior)
+library(bayesplot)
+library(GGally)
+library(reshape2)
+library(pracma)
+library(here)
+library(MASS)
+library(Matrix)
+set.seed(123) 
+
+source("helper-functions.R")
+
+knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+```
+
+```{r settings}
+data_deliv_dir = here::here("data","deliv")
+data_derived_dir = here::here("data","derived")
+if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
+if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
+
+figures_eda_dir <- here::here("deliv","figures", "eda")
+tables_eda_dir <- here::here("deliv","tables", "eda")
+if(!file.exists(figures_eda_dir)) dir.create(figures_eda_dir, recursive = T)
+if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
+
+model_dir <- here::here("model","stan")  
+figures_dir <- here::here("deliv","figures", "stan")
+tables_dir <- here::here("deliv","tables", "stan")
+if(!file.exists(figures_dir)) dir.create(figures_dir, recursive = T)
+if(!file.exists(model_dir)) dir.create(model_dir, recursive = T)
+if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
+```
+
+# Matri normal distribution
+
+```{r simulate-from-normal-matrix-noncentered}
+#' non centered
+# Set parameters
+set.seed(1)
+n <- 100
+num_sim <- 1000
+
+# Create correlation matrices
+rho1 <- matrix(0.9, nrow = n, ncol = n)
+diag(rho1) <- 1
+L_rho1 <- t(chol(rho1))
+
+rho2 <- matrix(c(1, 0.75, 0.75, 1), nrow = 2)
+L_rho2 <- t(chol(rho2))
+
+# Function to generate simulated data
+pred_two_analytes <- function(n) {
+  eta <- matrix(rnorm(2 * n, 0, 1), nrow = n)
+  f <- L_rho1 %*% eta %*% t(diag(c(2, 2)) %*% L_rho2)
+  return(c(f[1, 1], f[1, 2], f[2, 1]))
+}
+
+# Simulate data
+sim_data <- replicate(num_sim, pred_two_analytes(n)) %>%
+  t() %>%
+  as.data.frame() %>%
+  setNames(c("logkw1", "S1", "logkw2"))
+
+# Calculate statistics
+stats <- sim_data %>%
+  summarise(
+    sd_logkw1 = sd(logkw1),
+    sd_S1 = sd(S1),
+    sd_logkw2 = sd(logkw2),
+    rho_logkw1_S1 = cor(logkw1, S1),
+    rho_logkw1_logkw2 = cor(logkw1, logkw2)
+  )
+
+# Print results
+cat(sprintf("Simulated sd_logkw1 = %.2f: true = 2.0\n", stats$sd_logkw1),
+    sprintf("Simulated sd_S1 = %.2f: true = 2.0\n", stats$sd_S1),
+    sprintf("Simulated sd_logkw2 = %.2f: true = 2.0\n", stats$sd_logkw2),
+    sprintf("Simulated rho_logkw1_S1 = %.2f: true = 0.75\n", stats$rho_logkw1_S1),
+    sprintf("Simulated rho_logkw1_logkw2 = %.2f: true = 0.90\n", stats$rho_logkw1_logkw2))
+
+# Create scatter plots
+plot1 <- ggplot(sim_data, aes(x = logkw1, y = S1)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "logkw1 vs S1", x = "logkw1", y = "S1")
+
+plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "logkw1 vs logkw2", x = "logkw1", y = "logkw2")
+
+# Display plots
+print(plot1+plot2)
+```
+Plot the covariance:
+```{r correlation plot}
+
+# Create data for the curve
+rho1=0.3;
+rho2=0.1;
+x <- seq(0, 1, length.out = 100)
+y1 <- exp(-1/2/rho1^2*x^2)
+y2 <- exp(-1/2/rho2*x)
+data <- data.frame(x = x, y1 = y1, y2 = y2)
+
+# Plot using ggplot2
+ggplot(data, aes(x = x)) +
+  geom_line(aes(y = y1), linetype = "dashed") +
+  geom_line(aes(y = y2), linetype = "dotted") +
+  theme_minimal() +
+  ylim(0,1)+
+  labs(x = "distance", 
+       y = "correlation")
+```
+
+
+```{r info}
+sessionInfo()
+```
