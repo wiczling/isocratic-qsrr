@@ -59,3 +59,11 @@ editor:
 ## GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix
 
 [Model 008](model-development-008.html "Model 008")
+
+## GP: OPENCL attempt (doesn't help)
+
+[Model 009](model-development-009.qmd "Model 009")
+
+## GSM model
+
+[Model 010](model-development-010.html "Model 010")

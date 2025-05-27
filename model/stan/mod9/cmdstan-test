@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH --partition=gpu-a100-80gb
+#SBATCH --gres=gpu:a100_80gb:1
+#SBATCH --time=00:30:00
+#SBATCH --nodes=1
+
+# Debug GPU and OpenCL
+echo "Checking GPU availability:"
+nvidia-smi || echo "No GPU detected"
+echo "Checking OpenCL devices:"
+clinfo
+
+# Setup OpenCL linker path
+mkdir -p ~/lib_opencl_fix
+ln -sf /usr/lib64/libOpenCL.so.1 ~/lib_opencl_fix/libOpenCL.so  # Adjust path if needed
+export OPENCL_LIB_PATH=~/lib_opencl_fix
+export LDFLAGS="-L${OPENCL_LIB_PATH}"
+export LD_LIBRARY_PATH="${OPENCL_LIB_PATH}:$LD_LIBRARY_PATH"
+echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+unset OCL_ICD_VENDORS
+
+# Model and CmdStan setup
+export CMDSTAN_MODEL_NAME="mod9"
+export MODEL_SRC_DIR="/users/project1/pt01268/izo"
+export CMDSTAN_DIR=~/cmdstan/2.34.1
+cd $CMDSTAN_DIR
+
+# Ensure CmdStan is built with OpenCL
+make clean
+make OPENCL=1 STAN_OPENCL=true > build.log 2>&1
+
+# Compile the model
+[ -f ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} ] && echo "Model ${CMDSTAN_MODEL_NAME} exists." || make STANCFLAGS=--O1 STAN_OPENCL=TRUE ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME}
+
+# Run model with OpenCL (single chain for testing)
+echo "Running model with OpenCL..."
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=${MODEL_SRC_DIR}/standata.json init=${MODEL_SRC_DIR}/init-1.json opencl platform=0 device=0 output file=${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME}-1.csv > run.log 2>&1
+
+wait

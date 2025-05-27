@@ -1,0 +1,35 @@
+#!/bin/bash
+#SBATCH --partition=gpu-a100-80gb
+#SBATCH --gres=gpu:a100_80gb:1
+#SBATCH --time=60:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1  
+#SBATCH --mem=8G 
+
+# load
+#module load trytonp/mpi/openmpi3/3.1.4-gcc-system
+
+# Setup OpenCL linker path
+mkdir -p ~/lib_opencl_fix
+ln -sf /usr/lib64/libOpenCL.so.1 ~/lib_opencl_fix/libOpenCL.so
+
+export OPENCL_LIB_PATH=~/lib_opencl_fix
+export LDFLAGS="-L${OPENCL_LIB_PATH}"
+export LD_LIBRARY_PATH="${OPENCL_LIB_PATH}:$LD_LIBRARY_PATH"
+
+#export STAN_THREADS=true
+export CMDSTAN_MODEL_NAME="mod9"
+export MODEL_SRC_DIR="/users/project1/pt01268/izo"
+
+
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-1.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-1.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-2.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-2.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-3.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-3.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-4.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-4.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-5.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-5.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-6.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-6.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-7.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-7.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-8.json opencl platform=0 device=0 output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-8.csv &
+
+wait
