@@ -64,7 +64,7 @@ data {
   matrix[nAnalytes, nK] fgrp;
   vector[nObs] logkobs;
   int<lower=0, upper=1> run_estimation;
-  int<lower=1, upper=1> nD;
+  int<lower=1> nD;
   vector[nD] point_mu_lower;
   vector[nD] point_sd_lower;
 }

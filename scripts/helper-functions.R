@@ -469,3 +469,29 @@ to_pylist <- function(vec) {
     as.list(vec)
   }
 }
+
+
+# Function to convert marginal correlations to partial correlations
+marginal_to_partial_correlations <- function(marginal_corr, rho = 0.1) {
+  
+  marginal_corr <- pmax(marginal_corr, t(marginal_corr))
+  glasso_fit <- glasso(marginal_corr, rho = rho)
+  precision_matrix <- glasso_fit$wi
+  
+  P <- nrow(precision_matrix)
+  partial_corr <- matrix(0, P, P)
+  for (i in 1:P) {
+    for (j in 1:P) {
+      if (i == j) {
+        partial_corr[i, j] <- 1.0
+      } else {
+        partial_corr[i, j] <- -precision_matrix[i, j] / sqrt(precision_matrix[i, i] * precision_matrix[j, j])
+      }
+    }
+  }
+  partial_corr <- (partial_corr + t(partial_corr)) / 2  # Ensure symmetry
+  
+  return(list(marginal_corr = marginal_corr, 
+              precision_matrix = precision_matrix, 
+              partial_corr = partial_corr))
+}

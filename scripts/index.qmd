@@ -17,53 +17,77 @@ editor:
 
 # EDA
 
-## Exploratory plots: 
+## Exploratory plots:
+
 [EDA](eda.html "EDA")
 
 ## Analytes:
+
 [Structures](print-analytes-structures.html "Structures")
 
 ## Functional Groups
+
 [Functional groups](functional-groups-rdkit.html "Functional groups")
 
 # Results
 
-## Initial model: logR ~ logP, multivariate normal distribution
+## Initial models
 
-[Model 001](model-development-001.html "Model 001")
+-   logR \~ logP, multivariate normal distribution: [Model
+    001](model-development-001.html "Model 001")
 
-## Initial model: logR ~ logP + fungr, multivariate normal distribution
+-   logR \~ logP + fungr, multivariate normal distribution: [Model
+    002](model-development-002.html "Model 002")
 
-[Model 002](model-development-002.html "Model 002")
+-   logR \~ logP + fungr, multivariate student t-distribution: [Model
+    003](model-development-003.html "Model 003")
 
-## Initial model: logR ~ logP + fungr, multivariate student t-distribution
+## Gausssian process
 
-[Model 003](model-development-003.html "Model 003")
+```         
+matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
+matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
+```
 
-## GP: logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix
+-   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
+    full covariance matrix: [Model
+    004](model-development-004.html "Model 004")
 
-[Model 004](model-development-004.html "Model 004")
+-   logR \~ logP + fungr, multivariate matrix normal distribution,
+    estimated full covariance matrix: [Model
+    005](model-development-005.html "Model 005")
 
-## GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated full covariance matrix
+-   logR \~ logP + fungr, multivariate matrix normal distribution,
+    estimated (uncorrelated + correlated) covariance matrix: [Model
+    006](model-development-006.html "Model 006")
 
-[Model 005](model-development-005.html "Model 005")
+-   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    estimated (uncorrelated + correlated) covariance matrix: [Model
+    007](model-development-007.html "Model 007")
 
-## GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated (uncorrelated + correlated) covariance matrix
+-   GP: logR \~ logP + fungr, multivariate matrix student-t
+    distribution, estimated (uncorrelated + correlated) block covariance
+    matrix: [Model 008](model-development-008.html "Model 008")
 
-[Model 006](model-development-006.html "Model 006")
+-   OPENCL attempt (doesn't help) [Model
+    009](model-development-009.qmd "Model 009")
 
-## GP: logR ~ logP + fungr, multivariate  matrix student-t distribution, estimated (uncorrelated + correlated) covariance matrix
+## Structural Equation Modeling (SEM)
 
-[Model 007](model-development-007.html "Model 007")
+``` 
+target += lkj_corr_cholesky_prec_point_lower_tri_lpdf(L_K_prec \|
+point_mu_lower, point_sd_lower);
+target += kronecker_normal_lpdf(to_vector(param_corr) \|
+to_vector(miu_corr), L_K_prec, L_Omega_W);
+target += multi_normal_cholesky_lpdf(param_uncorr \| miu_uncorr,
+L_Omega_W);
+``` 
 
-## GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix
+-   full precision matrix with priors based on similarity matrix: [Model
+    010](model-development-010.html "Model 010")
 
-[Model 008](model-development-008.html "Model 008")
+-   Precision matrix splitted into 10 blocks: [Model
+    011](model-development-011.html "Model 011")
 
-## GP: OPENCL attempt (doesn't help)
-
-[Model 009](model-development-009.qmd "Model 009")
-
-## GSM model
-
-[Model 010](model-development-010.html "Model 010")
+-   precision matrix splitted into 10 blocks reduce_sum: [Model
+    012](model-development-012.html "Model 012"). It doesn't help.

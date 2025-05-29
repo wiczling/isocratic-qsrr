@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Model 010. GPU"
+title: "QSRR revisited. Model 011. GSEM"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -279,13 +279,10 @@ marginal_to_partial_correlations <- function(marginal_corr, rho = 0.1) {
 results <- marginal_to_partial_correlations(marginal_corr = similarity_matrix_corrected,rho = 0.1)
 
 input_indexes <- similarity_to_ltr_fun(results$partial_corr) %>% filter(similarity>0.1, row!=col)
-row_idx = input_indexes$row
-col_idx = input_indexes$col
-
-uid = unique(c(row_idx, col_idx))
+uid = unique(c(input_indexes$row, input_indexes$col))
 nodes <- data.frame(id = uid,label = paste(uid))
-edges <- data.frame(from = row_idx,
-                    to = col_idx)
+edges <- data.frame(from = input_indexes$row,
+                    to = input_indexes$col)
 g <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
 components <- components(g, mode = "weak")
 nodes$group <- components$membership
@@ -378,7 +375,6 @@ init <- function() {
     L_Omega_W = t(chol(matrix(c(1, 0.75, 0.75, 1), nrow = 2))),
     param_corr = cbind(init_aprox$logkw[idx_corelatted], init_aprox$S1[idx_corelatted]),
     param_uncorr = cbind(init_aprox$logkw[idx_uncorelatted],    init_aprox$S1[idx_uncorelatted]),
-    L_K_prec = L_K_prec,  # Original L_K_prec (list or single object)
     nu = 20,
     pilogkw = rep(0, nK),
     piS1 = rep(0, nK),
@@ -399,7 +395,7 @@ init <- function() {
 ```{r stan-code, eval=FALSE}
 # Define the number of repetitions
 n <- nGroups  # Change this to your desired number
-base_string <- "int<lower=1> nD_%group%; int<lower=1> nAnalyte_subset_%group%; vector[nD_%group%] point_mu_lower_%group%; vector[nD_%group%] point_sd_lower_%group%; array[nAnalyte_subset_%group%] int idx_corr_%group%;"
+base_string <- "sparam_pop[idx_corr[idx_corr_%group%],1:2]=param_corr_pop_%group%;"
 result <- sapply(1:n, function(i) {gsub("%group%", i, base_string)})
 result <- gsub(";", ";\n", result)
 cat(result, sep = "\n")
@@ -452,7 +448,6 @@ fit_opt <- mod11$optimize(
 
 fit_opt$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi","nu"), max_rows=13)
 ```
-
 
 ```{r plots-optimize}
 fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
@@ -555,7 +550,7 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
 
 ```{r summary}
-fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","rhogp","sdpi","nu"), max_rows=13)
+fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi","nu"), max_rows=13)
 ```
 
 
@@ -602,6 +597,7 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 mcmc_intervals(fit$draws(c("logkwHat","S1Hat","beta","S2Hat")))
 mcmc_intervals(fit$draws(c("omega","sigma","sdpi")))
 ```
+
 ## Functional groups effect 
 ```{r functinoal-group-effects}
 #| fig-width: 6
@@ -667,7 +663,6 @@ p_common
 ```
 
 ## Fits
-
 ```{r ind-pop-gof-plots}
 results_ind <-draws_gen_df %>%
   slice_sample(n=200) %>%
@@ -872,9 +867,6 @@ walk(plot_groups, function(group) {
 ```
 
 #  Simulations (CV-based)
-
-
-
 ```{r datastruct-cv}
 set.seed(123)
 foo = nodes
@@ -957,7 +949,7 @@ fitcv <- cmdstanr::as_cmdstan_fit(c(
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters.
 
 ```{r summary-cv}
-fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","rhogp","sdpi","nu"), max_rows=13)
+fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi","nu"), max_rows=13)
 ```
 
 
@@ -1018,7 +1010,6 @@ p2<-fun_plot_ind_pop(idx_analytes_in[1:20])
 
 print(p1)
 print(p2)
-
 ```
 
 # Session info

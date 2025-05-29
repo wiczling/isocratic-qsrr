@@ -208,34 +208,34 @@ matrix[nAnalyte_subset_10, 2] miu_corr_10;
   miu[,2] = S1Hat + beta[2] * logP_centered + fgrp * piS1;
   
   param[idx_corr[idx_corr_1],1:2]=param_corr_1;
- miu_corr_1 = miu[idx_corr[idx_corr_1], 1:2];
+  miu_corr_1 = miu[idx_corr[idx_corr_1], 1:2];
 
   param[idx_corr[idx_corr_2],1:2]=param_corr_2;
- miu_corr_2 = miu[idx_corr[idx_corr_2], 1:2];
+  miu_corr_2 = miu[idx_corr[idx_corr_2], 1:2];
 
   param[idx_corr[idx_corr_3],1:2]=param_corr_3;
- miu_corr_3 = miu[idx_corr[idx_corr_3], 1:2];
+  miu_corr_3 = miu[idx_corr[idx_corr_3], 1:2];
 
   param[idx_corr[idx_corr_4],1:2]=param_corr_4;
- miu_corr_4 = miu[idx_corr[idx_corr_4], 1:2];
+  miu_corr_4 = miu[idx_corr[idx_corr_4], 1:2];
 
   param[idx_corr[idx_corr_5],1:2]=param_corr_5;
- miu_corr_5 = miu[idx_corr[idx_corr_5], 1:2];
+  miu_corr_5 = miu[idx_corr[idx_corr_5], 1:2];
 
   param[idx_corr[idx_corr_6],1:2]=param_corr_6;
- miu_corr_6 = miu[idx_corr[idx_corr_6], 1:2];
+  miu_corr_6 = miu[idx_corr[idx_corr_6], 1:2];
 
   param[idx_corr[idx_corr_7],1:2]=param_corr_7;
- miu_corr_7 = miu[idx_corr[idx_corr_7], 1:2];
+  miu_corr_7 = miu[idx_corr[idx_corr_7], 1:2];
 
   param[idx_corr[idx_corr_8],1:2]=param_corr_8;
- miu_corr_8 = miu[idx_corr[idx_corr_8], 1:2];
+  miu_corr_8 = miu[idx_corr[idx_corr_8], 1:2];
 
   param[idx_corr[idx_corr_9],1:2]=param_corr_9;
- miu_corr_9 = miu[idx_corr[idx_corr_9], 1:2];
+  miu_corr_9 = miu[idx_corr[idx_corr_9], 1:2];
 
   param[idx_corr[idx_corr_10],1:2]=param_corr_10;
- miu_corr_10 = miu[idx_corr[idx_corr_10], 1:2];
+  miu_corr_10 = miu[idx_corr[idx_corr_10], 1:2];
   
   for (i in 1:nAnalytes_uncorr) {
   param[idx_uncorr[i], 1:2] = param_uncorr[i]';
@@ -278,6 +278,8 @@ model {
 
   target += lkj_corr_cholesky_prec_point_lower_tri_lpdf(L_K_prec_10 | point_mu_lower_10, point_sd_lower_10);
  target += kronecker_normal_lpdf(to_vector(param_corr_10) | to_vector(miu_corr_10), L_K_prec_10, L_Omega_W);
+
+ target += multi_normal_cholesky_lpdf(param_uncorr | miu_uncorr, L_Omega_W);
 
   if (run_estimation == 1) {
     target += student_t_lpdf(logkobs | 7, logkx, sigma);

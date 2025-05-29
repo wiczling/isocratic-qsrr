@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Pawel Wiczling">
-<meta name="dcterms.date" content="2025-05-23">
+<meta name="dcterms.date" content="2025-05-29">
 
 <title>QSRR Bayesian-based Multilevel Modeling of Izocratic Data</title>
 <style>
@@ -55,14 +55,9 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
   <ul class="collapse">
-  <li><a href="#initial-model-logr-logp-multivariate-normal-distribution" id="toc-initial-model-logr-logp-multivariate-normal-distribution" class="nav-link" data-scroll-target="#initial-model-logr-logp-multivariate-normal-distribution">Initial model: logR ~ logP, multivariate normal distribution</a></li>
-  <li><a href="#initial-model-logr-logp-fungr-multivariate-normal-distribution" id="toc-initial-model-logr-logp-fungr-multivariate-normal-distribution" class="nav-link" data-scroll-target="#initial-model-logr-logp-fungr-multivariate-normal-distribution">Initial model: logR ~ logP + fungr, multivariate normal distribution</a></li>
-  <li><a href="#initial-model-logr-logp-fungr-multivariate-student-t-distribution" id="toc-initial-model-logr-logp-fungr-multivariate-student-t-distribution" class="nav-link" data-scroll-target="#initial-model-logr-logp-fungr-multivariate-student-t-distribution">Initial model: logR ~ logP + fungr, multivariate student t-distribution</a></li>
-  <li><a href="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-fixed-full-covariance-matrix" id="toc-gp-logr-logp-fungr-multivariate-matrix-normal-distribution-fixed-full-covariance-matrix" class="nav-link" data-scroll-target="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-fixed-full-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix</a></li>
-  <li><a href="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-full-covariance-matrix" id="toc-gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-full-covariance-matrix" class="nav-link" data-scroll-target="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-full-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated full covariance matrix</a></li>
-  <li><a href="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-uncorrelated-correlated-covariance-matrix" id="toc-gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-uncorrelated-correlated-covariance-matrix" class="nav-link" data-scroll-target="#gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-uncorrelated-correlated-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated (uncorrelated + correlated) covariance matrix</a></li>
-  <li><a href="#gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-covariance-matrix" id="toc-gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-covariance-matrix" class="nav-link" data-scroll-target="#gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) covariance matrix</a></li>
-  <li><a href="#gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-block-covariance-matrix" id="toc-gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-block-covariance-matrix" class="nav-link" data-scroll-target="#gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-block-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix</a></li>
+  <li><a href="#initial-models" id="toc-initial-models" class="nav-link" data-scroll-target="#initial-models">Initial models</a></li>
+  <li><a href="#gausssian-process" id="toc-gausssian-process" class="nav-link" data-scroll-target="#gausssian-process">Gausssian process</a></li>
+  <li><a href="#structural-equation-modeling-sem" id="toc-structural-equation-modeling-sem" class="nav-link" data-scroll-target="#structural-equation-modeling-sem">Structural Equation Modeling (SEM)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -88,7 +83,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 23, 2025</p>
+      <p class="date">May 29, 2025</p>
     </div>
   </div>
   
@@ -115,37 +110,40 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<section id="initial-model-logr-logp-multivariate-normal-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="initial-model-logr-logp-multivariate-normal-distribution">Initial model: logR ~ logP, multivariate normal distribution</h2>
-<p><a href="model-development-001.html" title="Model 001">Model 001</a></p>
+<section id="initial-models" class="level2">
+<h2 class="anchored" data-anchor-id="initial-models">Initial models</h2>
+<ul>
+<li><p>logR ~ logP, multivariate normal distribution: <a href="model-development-001.html" title="Model 001">Model 001</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate normal distribution: <a href="model-development-002.html" title="Model 002">Model 002</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate student t-distribution: <a href="model-development-003.html" title="Model 003">Model 003</a></p></li>
+</ul>
 </section>
-<section id="initial-model-logr-logp-fungr-multivariate-normal-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="initial-model-logr-logp-fungr-multivariate-normal-distribution">Initial model: logR ~ logP + fungr, multivariate normal distribution</h2>
-<p><a href="model-development-002.html" title="Model 002">Model 002</a></p>
+<section id="gausssian-process" class="level2">
+<h2 class="anchored" data-anchor-id="gausssian-process">Gausssian process</h2>
+<pre><code>matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
+matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);</code></pre>
+<ul>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix: <a href="model-development-004.html" title="Model 004">Model 004</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, estimated full covariance matrix: <a href="model-development-005.html" title="Model 005">Model 005</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, estimated (uncorrelated + correlated) covariance matrix: <a href="model-development-006.html" title="Model 006">Model 006</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) covariance matrix: <a href="model-development-007.html" title="Model 007">Model 007</a></p></li>
+<li><p>GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix: <a href="model-development-008.html" title="Model 008">Model 008</a></p></li>
+<li><p>OPENCL attempt (doesn’t help) <a href="model-development-009.qmd" title="Model 009">Model 009</a></p></li>
+</ul>
 </section>
-<section id="initial-model-logr-logp-fungr-multivariate-student-t-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="initial-model-logr-logp-fungr-multivariate-student-t-distribution">Initial model: logR ~ logP + fungr, multivariate student t-distribution</h2>
-<p><a href="model-development-003.html" title="Model 003">Model 003</a></p>
-</section>
-<section id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-fixed-full-covariance-matrix" class="level2">
-<h2 class="anchored" data-anchor-id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-fixed-full-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix</h2>
-<p><a href="model-development-004.html" title="Model 004">Model 004</a></p>
-</section>
-<section id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-full-covariance-matrix" class="level2">
-<h2 class="anchored" data-anchor-id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-full-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated full covariance matrix</h2>
-<p><a href="model-development-005.html" title="Model 005">Model 005</a></p>
-</section>
-<section id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-uncorrelated-correlated-covariance-matrix" class="level2">
-<h2 class="anchored" data-anchor-id="gp-logr-logp-fungr-multivariate-matrix-normal-distribution-estimated-uncorrelated-correlated-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix normal distribution, estimated (uncorrelated + correlated) covariance matrix</h2>
-<p><a href="model-development-006.html" title="Model 006">Model 006</a></p>
-</section>
-<section id="gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-covariance-matrix" class="level2">
-<h2 class="anchored" data-anchor-id="gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) covariance matrix</h2>
-<p><a href="model-development-007.html" title="Model 007">Model 007</a></p>
-</section>
-<section id="gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-block-covariance-matrix" class="level2">
-<h2 class="anchored" data-anchor-id="gp-logr-logp-fungr-multivariate-matrix-student-t-distribution-estimated-uncorrelated-correlated-block-covariance-matrix">GP: logR ~ logP + fungr, multivariate matrix student-t distribution, estimated (uncorrelated + correlated) block covariance matrix</h2>
-<p><a href="model-development-008.html" title="Model 008">Model 008</a></p>
+<section id="structural-equation-modeling-sem" class="level2">
+<h2 class="anchored" data-anchor-id="structural-equation-modeling-sem">Structural Equation Modeling (SEM)</h2>
+<pre><code>target += lkj_corr_cholesky_prec_point_lower_tri_lpdf(L_K_prec \|
+point_mu_lower, point_sd_lower);
+target += kronecker_normal_lpdf(to_vector(param_corr) \|
+to_vector(miu_corr), L_K_prec, L_Omega_W);
+target += multi_normal_cholesky_lpdf(param_uncorr \| miu_uncorr,
+L_Omega_W);</code></pre>
+<ul>
+<li><p>full precision matrix with priors based on similarity matrix: <a href="model-development-010.html" title="Model 010">Model 010</a></p></li>
+<li><p>Precision matrix splitted into 10 blocks: <a href="model-development-011.html" title="Model 011">Model 011</a></p></li>
+<li><p>precision matrix splitted into 10 blocks reduce_sum: <a href="model-development-012.html" title="Model 012">Model 012</a>. It doesn’t help.</p></li>
+</ul>
 </section>
 </section>
 
