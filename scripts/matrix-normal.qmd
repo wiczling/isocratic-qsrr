@@ -134,6 +134,8 @@ plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
 # Display plots
 print(plot1+plot2)
 ```
+
+
 Plot the covariance:
 ```{r correlation plot}
 
@@ -155,6 +157,70 @@ ggplot(data, aes(x = x)) +
        y = "correlation")
 ```
 
+# Matri normal distribution - test
+
+```{r simulate-from-normal-matrix-noncentered}
+# Set parameters
+set.seed(1)
+n <- 100
+num_sim <- 1000
+
+rho_row_true = 0.9;
+rho_col_true = 0.1;
+omega1 = 1.4
+omega2 = 1
+
+# Create correlation matrices
+rho1 <- matrix(rho_row_true, nrow = n, ncol = n)
+diag(rho1) <- 1
+L_rho1 <- t(chol(rho1))
+
+rho2 <- matrix(c(1, rho_col_true, rho_col_true, 1), nrow = 2)
+L_rho2 <- t(chol(rho2))
+
+pred_two_analytes <- function(n) {
+  eta <- matrix(rnorm(2 * n, 0, 1), nrow = n)
+  f <- L_rho1 %*% eta %*% t(diag(c(omega1, omega2)) %*% L_rho2)
+  return(c(f[1, 1], f[1, 2], f[2, 1]))
+}
+
+# Simulate data
+sim_data <- replicate(num_sim, pred_two_analytes(n)) %>%
+  t() %>%
+  as.data.frame() %>%
+  setNames(c("logkw1", "S1", "logkw2"))
+
+# Calculate statistics
+stats <- sim_data %>%
+  summarise(
+    sd_logkw1 = sd(logkw1),
+    sd_S1 = sd(S1),
+    sd_logkw2 = sd(logkw2),
+    rho_logkw1_S1 = cor(logkw1, S1),
+    rho_logkw1_logkw2 = cor(logkw1, logkw2)
+  )
+
+# Print results
+cat(sprintf("Simulated sd_logkw1 = %.2f: true = %.2f\n", stats$sd_logkw1,omega1),
+    sprintf("Simulated sd_S1 = %.2f: true = %.2f\n", stats$sd_S1,omega2),
+    sprintf("Simulated sd_logkw2 = %.2f: true = %.2f\n", stats$sd_logkw2,omega1),
+    sprintf("Simulated rho_logkw1_S1 = %.2f: true =%.2f\n", stats$rho_logkw1_S1,rho_col_true),
+    sprintf("Simulated rho_logkw1_logkw2 = %.2f: true = %.2f\n", stats$rho_logkw1_logkw2,rho_row_true))
+
+# Create scatter plots
+plot1 <- ggplot(sim_data, aes(x = logkw1, y = S1)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "logkw1 vs S1", x = "logkw1", y = "S1")
+
+plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "logkw1 vs logkw2", x = "logkw1", y = "logkw2")
+
+# Display plots
+print(plot1+plot2)
+```
 
 
 ```{r info}

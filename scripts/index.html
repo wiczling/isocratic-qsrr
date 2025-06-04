@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Pawel Wiczling">
-<meta name="dcterms.date" content="2025-05-29">
+<meta name="dcterms.date" content="2025-06-04">
 
 <title>QSRR Bayesian-based Multilevel Modeling of Izocratic Data</title>
 <style>
@@ -56,6 +56,11 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
   <ul class="collapse">
   <li><a href="#initial-models" id="toc-initial-models" class="nav-link" data-scroll-target="#initial-models">Initial models</a></li>
+  <li><a href="#scaled-correlations-matrix" id="toc-scaled-correlations-matrix" class="nav-link" data-scroll-target="#scaled-correlations-matrix">Scaled correlations matrix:</a></li>
+  <li><a href="#sem" id="toc-sem" class="nav-link" data-scroll-target="#sem">SEM</a></li>
+  </ul></li>
+  <li><a href="#appendix---to-correct" id="toc-appendix---to-correct" class="nav-link" data-scroll-target="#appendix---to-correct">Appendix - to correct</a>
+  <ul class="collapse">
   <li><a href="#gausssian-process" id="toc-gausssian-process" class="nav-link" data-scroll-target="#gausssian-process">Gausssian process</a></li>
   <li><a href="#structural-equation-modeling-sem" id="toc-structural-equation-modeling-sem" class="nav-link" data-scroll-target="#structural-equation-modeling-sem">Structural Equation Modeling (SEM)</a></li>
   </ul></li>
@@ -83,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 29, 2025</p>
+      <p class="date">June 4, 2025</p>
     </div>
   </div>
   
@@ -118,8 +123,50 @@ ul.task-list li input[type="checkbox"] {
 <li><p>logR ~ logP + fungr, multivariate student t-distribution: <a href="model-development-003.html" title="Model 003">Model 003</a></p></li>
 </ul>
 </section>
-<section id="gausssian-process" class="level2">
-<h2 class="anchored" data-anchor-id="gausssian-process">Gausssian process</h2>
+<section id="scaled-correlations-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="scaled-correlations-matrix">Scaled correlations matrix:</h2>
+<ul>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, fixed identity matrix: <a href="model-development-015.html" title="Model 015">Model 015</a></p>
+<p>The identity row covariance matrix should yield identical results with Model 002. It works!!!</p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, fixed correlation matrix: <a href="model-development-016.html" title="Model 016">Model 016</a></p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, scaled correlation matrix using alpha: <a href="model-development-017.html" title="Model 017">Model 017</a><br>
+</p></li>
+<li><p>logR ~ logP + fungr, multivariate matrix normal distribution, scaled correlation matrix using alpha (correlated and uncorelated): <a href="model-development-018.html" title="Model 018">Model 018</a></p></li>
+</ul>
+</section>
+<section id="sem" class="level2">
+<h2 class="anchored" data-anchor-id="sem">SEM</h2>
+<p>.</p>
+<ul>
+<li>Precision matrix (after glasso) splitted into 10 blocks: <a href="model-development-019.html" title="Model 019">Model 019</a>.</li>
+</ul>
+</section>
+</section>
+<section id="appendix---to-correct" class="level1">
+<h1>Appendix - to correct</h1>
+<p>The constant has to be added, otherwise different results are obtained. This model has to be reevaluated using the correct matrix_normal_lpdf:</p>
+<pre><code>  real matrix_normal_lpdf(vector x, vector mu, matrix L_K, matrix L_Omega) {
+    int n = rows(L_K); 
+    int m = rows(L_Omega);  
+
+    vector[n * m] z = x - mu;
+    matrix[n, m] Z = to_matrix(z, n, m);
+
+    matrix[n, m] W = mdivide_left_tri_low(L_K, Z);     // Solve L_K * W = Z
+    matrix[m, n] V = mdivide_left_tri_low(L_Omega, W'); // Solve L_Omega * V = W'
+    real quad_form_x = dot_self(to_vector(V));
+
+
+    real log_det_K = 2 * sum(log(diagonal(L_K)));
+    real log_det_Omega = 2 * sum(log(diagonal(L_Omega)));
+    real log_det = m * log_det_K + n * log_det_Omega;
+    real constant = -0.5 * n * m * log(2.0 * pi());
+
+    // Final log-likelihood
+    return constant - 0.5 * (quad_form_x + log_det);
+  }</code></pre>
+<section id="gausssian-process" class="level3">
+<h3 class="anchored" data-anchor-id="gausssian-process">Gausssian process</h3>
 <pre><code>matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
 matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);</code></pre>
 <ul>
@@ -131,11 +178,12 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);</code></pre>
 <li><p>OPENCL attempt (doesn’t help) <a href="model-development-009.qmd" title="Model 009">Model 009</a></p></li>
 </ul>
 </section>
-<section id="structural-equation-modeling-sem" class="level2">
-<h2 class="anchored" data-anchor-id="structural-equation-modeling-sem">Structural Equation Modeling (SEM)</h2>
+<section id="structural-equation-modeling-sem" class="level3">
+<h3 class="anchored" data-anchor-id="structural-equation-modeling-sem">Structural Equation Modeling (SEM)</h3>
+<p>The constant has to be added, otherwise different results are obtained. This model has to be reevaluated using the correct matrix_normal_lpdf:</p>
 <pre><code>target += lkj_corr_cholesky_prec_point_lower_tri_lpdf(L_K_prec \|
 point_mu_lower, point_sd_lower);
-target += kronecker_normal_lpdf(to_vector(param_corr) \|
+target += matrix_normal_lpdf(to_vector(param_corr) \|
 to_vector(miu_corr), L_K_prec, L_Omega_W);
 target += multi_normal_cholesky_lpdf(param_uncorr \| miu_uncorr,
 L_Omega_W);</code></pre>
@@ -143,6 +191,7 @@ L_Omega_W);</code></pre>
 <li><p>full precision matrix with priors based on similarity matrix: <a href="model-development-010.html" title="Model 010">Model 010</a></p></li>
 <li><p>Precision matrix splitted into 10 blocks: <a href="model-development-011.html" title="Model 011">Model 011</a></p></li>
 <li><p>precision matrix splitted into 10 blocks reduce_sum: <a href="model-development-012.html" title="Model 012">Model 012</a>. It doesn’t help.</p></li>
+<li><p>pecision matrix splitted into 8 blocks using different tresholds using multivariate matrix normal distribution, : <a href="model-development-013.html" title="Model 013">Model 013</a></p></li>
 </ul>
 </section>
 </section>

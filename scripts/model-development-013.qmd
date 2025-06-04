@@ -26,7 +26,7 @@ Structural Equation Model with fairly simplified correlation structure.
 # Setup
 ```{r setup, message=FALSE}
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
-
+library(rlang)
 library(bbr)
 library(bbr.bayes)
 library(dplyr)
@@ -251,7 +251,6 @@ nK = ncol(functional_groups)
 similarity_matrix_corrected <- as.matrix(Matrix::nearPD(similarity_matrix, corr = TRUE)$mat)
 results <- marginal_to_partial_correlations(marginal_corr = similarity_matrix_corrected,rho = 0.1)
 
-
 correlation_treshold = 0.25
 input_indexes <- similarity_to_ltr_fun(results$partial_corr) %>% filter(similarity>correlation_treshold, row!=col)
 uid = unique(c( input_indexes$row, input_indexes$col))
@@ -373,6 +372,18 @@ base_string <- "sparam_pop[idx_corr[idx_corr_%group%],1:2]=param_corr_pop_%group
 result <- sapply(1:n, function(i) {gsub("%group%", i, base_string)})
 result <- gsub(";", ";\n", result)
 cat(result, sep = "\n")
+```
+
+### Plot
+```{r test-accuracy}
+partial_to_marginal <- function(partial_cor) {
+  covariance <- solve(partial_cor)
+  marginal_cor <- cov2cor(covariance)
+  return(marginal_cor)
+}
+marginal_corr <- similarity_to_ltr_fun(partial_to_marginal(results$precision_matrix)) %>% filter(row!=col)
+similarity <- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
+plot(similarity$similarity, marginal_corr$similarity)
 ```
 
 ### Visualise Network
@@ -524,7 +535,7 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
 
 ```{r summary}
-fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi","nu"), max_rows=13)
+fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi"), max_rows=13)
 ```
 
 
@@ -839,6 +850,77 @@ walk(plot_groups, function(group) {
   combined_plot <- wrap_plots(group, ncol = 2, nrow = 2)
   print(combined_plot)
 })
+```
+
+## Correlations
+
+### Plot for group 1
+
+```{r show-correlation-for-selected}
+L_K_prec_1 <- L_K_prec_group[[1]]
+rho_1_df <- similarity_to_ltr_fun(L_K_prec_1 %*% t(L_K_prec_1)) %>% filter(similarity>0, row!=col) %>% rename(correlation = similarity)
+
+rho_1_df_posterior <-  draws_gen_df %>%
+  tidybayes::spread_draws(rho1[row,col]) %>%
+  group_by(row,col)%>%
+  summarise(correlation_posterior = mean(rho1))%>% 
+  filter(correlation_posterior>0.01, row!=col, row>col)
+
+rho_1_df_posterior<-rho_1_df_posterior%>%
+  left_join(rho_1_df)
+
+rho1_vars <- paste0("rho1[", rho_1_df_posterior$row, ",", rho_1_df_posterior$col, "]")
+draws_array <- posterior::as_draws_array(draws_gen_df %>% select(all_of(rho1_vars)))
+p1 <- bayesplot::mcmc_intervals(draws_array)
+
+rho2_vars <- paste0("rho1[", rho_1_df_posterior$row-1, ",", rho_1_df_posterior$col-1, "]")
+rho2_vars <- str_replace(rho2_vars, "rho1\\[27,25\\]", "rho1\\[27,23\\]")
+rho2_vars <- str_replace(rho2_vars, "rho1\\[47,45\\]", "rho1\\[47,44\\]")
+rho2_vars <- str_replace(rho2_vars, "rho1\\[51,35\\]", "rho1\\[51,34\\]")
+rho2_vars <- str_replace_all(rho2_vars, ",0]", ",1]")
+
+draws_array <- posterior::as_draws_array(draws_gen_df %>% select(all_of(rho2_vars)))
+p2 <- bayesplot::mcmc_intervals(draws_array)
+
+p1+p2
+
+selected = data.frame(row = idx_corelatted[rho_1_df_posterior$row], 
+                      col = idx_corelatted[rho_1_df_posterior$col])
+selected
+```
+
+```{r prior-posterior-comparison}
+partial_correlation_summary = function(group, L_K_prec_group=L_K_prec_group, draws_gen_df=draws_gen_df){
+ 
+  L_K_prec <- L_K_prec_group[[group]]
+  df_sim <- similarity_to_ltr_fun(L_K_prec %*% t(L_K_prec)) %>%
+    filter(similarity > 0, row != col) %>%
+    rename(correlation = similarity)
+
+  param_name <- paste0("rho", group)
+  param_sym <- parse_expr(glue::glue("{param_name}[row,col]"))
+
+  results <- draws_gen_df %>%
+    tidybayes::spread_draws(!!param_sym) %>%
+    group_by(row, col)%>%
+    summarise(correlation_posterior = mean(!!sym(param_name)), .groups = "drop") %>%
+    filter(correlation_posterior > 0.01, row != col, row > col) %>%
+    left_join(df_sim, by = c("row", "col"))
+
+  return(results)
+}
+
+results <- map_df(1:8, function(x) {
+  partial_correlation_summary(
+  group = x,
+  L_K_prec_group = L_K_prec_group,
+  draws_gen_df = draws_gen_df
+  )})
+
+results %>%
+  ggplot(aes(x=correlation,y=correlation_posterior))+
+  geom_point()+
+  labs(x = "Partial correlation (assummed)", y ="Partial correlations (a posteriori)")
 ```
 
 #  Simulations (CV-based)
