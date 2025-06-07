@@ -873,7 +873,6 @@ walk(plot_groups, function(group) {
 
 ### Prior posterior correlations
 
-
 ```{r correlation-group1}
 L_K_prec_2 <- L_K_prec_group[[2]]
 rho_2_df <- similarity_to_ltr_fun(L_K_prec_2 %*% t(L_K_prec_2)) %>% filter(similarity>0, row!=col) %>% rename(correlation = similarity)

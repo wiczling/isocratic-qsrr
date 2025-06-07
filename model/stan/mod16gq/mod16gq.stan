@@ -104,6 +104,7 @@ model {
 
 generated quantities {
   matrix[nAnalytes,2] seta_ind;
+  matrix[nAnalytes,2] seta_decorr_ind;
   matrix[nAnalytes,2] sparam_pop;
   matrix[nAnalytes,2] sparam_ind;
   vector[nObs] slogkHat_ind;
@@ -115,21 +116,22 @@ generated quantities {
 
   sS2Hat = S2Hat;
   sparam_ind = param;
- 
-  {
-  matrix[nAnalytes,2] eta_pop;
   matrix[2,2] L_V = cholesky_decompose(Omega);
   
+  {
+  matrix[nAnalytes,2] eta_pop;
    for (i in 1 : nAnalytes) {
     for (j in 1 : 2) {
     eta_pop[i,j]=normal_rng(0,1);
   }}
-   
   sparam_pop= miu + (L_K * eta_pop * L_V');
   }
   
   seta_ind = sparam_ind - miu;
-
+ 
+  matrix[nAnalytes, 2] temp = mdivide_left_tri_low(L_K, seta_ind);
+  seta_decorr_ind = mdivide_right_tri_low(temp, L_V');
+  
   for (i in 1 : nAnalytes) {
     slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
     slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);

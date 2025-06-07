@@ -1,0 +1,30 @@
+real matrix_student_t_lpdf(vector x, vector mu, matrix L_K, matrix L_Omega, real nu) {
+  int n = rows(L_K);
+  int m = rows(L_Omega);
+
+  vector[n * m] z = x - mu;
+  matrix[n, m] Z = to_matrix(z, n, m);
+
+  // Whiten using Cholesky factors
+  matrix[n, m] W = mdivide_left_tri_low(L_K, Z);
+  matrix[m, n] V = mdivide_left_tri_low(L_Omega, W')';
+
+  real quad_form_x = dot_self(to_vector(V));
+
+  real log_det_K = 2 * sum(log(diagonal(L_K)));
+  real log_det_Omega = 2 * sum(log(diagonal(L_Omega)));
+
+  real constant = lgamma((nu + n * m) / 2) - lgamma(nu / 2)
+                  - 0.5 * n * m * log(nu * pi())
+                  - m * log_det_K - n * log_det_Omega;
+
+  real log_prob = constant - 0.5 * (nu + n * m) * log1p(quad_form_x / nu);
+  return log_prob;
+}
+
+// sampling
+real w = chi_square_rng(nu);
+real scale = sqrt(nu / w); // Inverse sqrt-chi-squared
+
+matrix[n, m] eta = normal_rng(0, 1); // i.i.d standard normal
+matrix[n, m] X = mu + scale * (L_K * eta * L_Omega');

@@ -747,41 +747,47 @@ walk(plot_groups, function(group) {
 })
 ```
 
-<!-- ### Posterior correlations -->
-<!-- ```{r posterior-corelations} -->
-<!-- similarity_ltri_rcdk_subset<-similarity_ltri_rcdk_df %>% filter(row!=col) -->
+### Posterior correlations
+```{r posterior-corelations}
+similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
 
+etas <- draws_gen_df %>%
+  select(starts_with("seta_ind"))
+etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))]
+cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column
 
-<!-- etas <- draws_gen_df %>% -->
-<!--   select(starts_with("seta_ind")) -->
-<!-- etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))] -->
-<!-- cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column -->
+etas_decor <- draws_gen_df %>%
+  select(starts_with("seta_decorr_ind"))
+etas_decor_subset <- etas_decor[, grepl("\\[\\d+,1\\]", names(etas_decor))]
+cor_matrix_decorrelated <- cor(etas_decor_subset, use = "complete.obs")  # exclude .draw column
 
-<!-- rownames(cor_matrix) <- 1:1026 -->
-<!-- colnames(cor_matrix) <- 1:1026 -->
+rownames(cor_matrix) <- 1:1026
+colnames(cor_matrix) <- 1:1026
+rownames(cor_matrix_decorrelated) <- 1:1026
+colnames(cor_matrix_decorrelated) <- 1:1026
+ggcorrplot(similarity_matrix_corrected[001:100,001:100])
+ggcorrplot(cor_matrix[001:100,001:100])
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
 
-<!-- ggcorrplot(similarity_matrix[001:100,001:100]) -->
-<!-- ggcorrplot(cor_matrix[001:100,001:100]) -->
+cor_matrix_ltr=similarity_to_ltr_fun(cor_matrix)%>%
+  rename(corr = similarity) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) 
 
-<!-- cor_matrix_ltr=similarity_to_ltr_fun(cor_matrix)%>% -->
-<!--   rename(corr = similarity) %>% -->
-<!--   left_join(similarity_ltri_rcdk_df) %>% -->
-<!--   filter(row!=col) %>% -->
-<!--   left_join(nodes%>%rename(row=id))  -->
+cor_matrix_ltr<- cor_matrix_ltr%>%
+  filter(col %in% row)
 
-<!-- cor_matrix_ltr<- cor_matrix_ltr%>% -->
-<!--   filter(col %in% row) -->
+p1 <- cor_matrix_ltr %>%
+  ggplot(aes(y = corr, x = similarity)) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_minimal() +  # cleaner theme
+  labs(y = "Correlation",
+       x = "Similarity") +
+  theme(legend.position = "none")
 
-<!-- p1 <- cor_matrix_ltr %>% -->
-<!--   ggplot(aes(y = corr, x = similarity)) + -->
-<!--   geom_point(alpha = 0.3, size = 1) + -->
-<!--   theme_minimal() +  # cleaner theme -->
-<!--   labs(y = "Correlation", -->
-<!--        x = "Similarity") + -->
-<!--   theme(legend.position = "none") -->
+print(p1)
+```
 
-<!-- print(p1) -->
-<!-- ``` -->
 
 #  Simulations (CV-based)
 

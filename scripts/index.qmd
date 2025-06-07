@@ -58,6 +58,7 @@ editor:
     scaled correlation matrix using alpha: [Model 017](model-development-017.html "Model 017")  
  -   logR \~ logP + fungr, multivariate matrix normal distribution,
     scaled correlation matrix using alpha (correlated and uncorelated): [Model 018](model-development-018.html "Model 018")     
+    
 
 ## SEM 
 .
@@ -65,6 +66,20 @@ editor:
 -   Precision matrix (after glasso) splitted into 10 blocks: [Model
     019](model-development-019.html "Model 019").
  
+ 
+## GP 
+```         
+matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
+matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
+```
+
+-   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
+    full covariance matrix: [Model
+    020](model-development-020.html "Model 020")
+-   logR \~ logP + fungr, multivariate matrix normal distribution, block
+     covariance matrix with rhop estimated: [Model
+    022](model-development-022.html "Model 022")    
+    
 # Appendix - to correct 
 
 The constant has to be added, otherwise different results are obtained. This model has to be reevaluated using the correct matrix_normal_lpdf:

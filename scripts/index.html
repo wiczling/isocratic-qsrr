@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Pawel Wiczling">
-<meta name="dcterms.date" content="2025-06-04">
+<meta name="dcterms.date" content="2025-06-06">
 
 <title>QSRR Bayesian-based Multilevel Modeling of Izocratic Data</title>
 <style>
@@ -58,6 +58,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#initial-models" id="toc-initial-models" class="nav-link" data-scroll-target="#initial-models">Initial models</a></li>
   <li><a href="#scaled-correlations-matrix" id="toc-scaled-correlations-matrix" class="nav-link" data-scroll-target="#scaled-correlations-matrix">Scaled correlations matrix:</a></li>
   <li><a href="#sem" id="toc-sem" class="nav-link" data-scroll-target="#sem">SEM</a></li>
+  <li><a href="#gp" id="toc-gp" class="nav-link" data-scroll-target="#gp">GP</a></li>
   </ul></li>
   <li><a href="#appendix---to-correct" id="toc-appendix---to-correct" class="nav-link" data-scroll-target="#appendix---to-correct">Appendix - to correct</a>
   <ul class="collapse">
@@ -88,7 +89,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 4, 2025</p>
+      <p class="date">June 6, 2025</p>
     </div>
   </div>
   
@@ -139,6 +140,15 @@ ul.task-list li input[type="checkbox"] {
 <p>.</p>
 <ul>
 <li>Precision matrix (after glasso) splitted into 10 blocks: <a href="model-development-019.html" title="Model 019">Model 019</a>.</li>
+</ul>
+</section>
+<section id="gp" class="level2">
+<h2 class="anchored" data-anchor-id="gp">GP</h2>
+<pre><code>matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
+matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);</code></pre>
+<ul>
+<li>logR ~ logP + fungr, multivariate matrix normal distribution, fixed full covariance matrix: <a href="model-development-020.html" title="Model 020">Model 020</a></li>
+<li>logR ~ logP + fungr, multivariate matrix normal distribution, block covariance matrix with rhop estimated: <a href="model-development-022.html" title="Model 022">Model 022</a></li>
 </ul>
 </section>
 </section>

@@ -140,7 +140,7 @@ Plot the covariance:
 ```{r correlation plot}
 
 # Create data for the curve
-rho1=0.3;
+rho1=0.07;
 rho2=0.1;
 x <- seq(0, 1, length.out = 100)
 y1 <- exp(-1/2/rho1^2*x^2)
