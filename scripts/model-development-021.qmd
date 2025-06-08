@@ -283,6 +283,7 @@ init <- function(){
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho =  matrix(c(1,0.75,0.75,1), nrow=2),
+          L_Omega_W = t(chol(matrix(c(1,0.75,0.75,1), nrow=2))),
           param_corr = cbind(init_aprox$logkw[idx_corelatted],init_aprox$S1[idx_corelatted]),
           param_uncorr = cbind(init_aprox$logkw[idx_uncorelatted],init_aprox$S1[idx_uncorelatted]),
           alpha = 0.5,

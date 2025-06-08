@@ -430,7 +430,7 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
 
 ```{r summary}
-fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi"), max_rows=12)
+fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha", "sdpi"), max_rows=12)
 ```
 
 
@@ -748,196 +748,201 @@ walk(plot_groups, function(group) {
 })
 ```
 
-<!-- ### Posterior correlations -->
-<!-- ```{r posterior-corelations} -->
-<!-- similarity_ltri_rcdk_subset<-similarity_ltri_rcdk_df %>% filter(row!=col) -->
+### Posterior correlations
+```{r posterior-corelations}
+similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
+
+etas <- draws_gen_df %>%
+  select(starts_with("seta_ind"))
+etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))]
+cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column
+
+etas_decor <- draws_gen_df %>%
+  select(starts_with("seta_decorr_ind"))
+etas_decor_subset <- etas_decor[, grepl("\\[\\d+,1\\]", names(etas_decor))]
+cor_matrix_decorrelated <- cor(etas_decor_subset, use = "complete.obs")  # exclude .draw column
+
+rownames(cor_matrix) <- 1:1026
+colnames(cor_matrix) <- 1:1026
+rownames(cor_matrix_decorrelated) <- 1:1026
+colnames(cor_matrix_decorrelated) <- 1:1026
+ggcorrplot(similarity_matrix_corrected[001:100,001:100])
+ggcorrplot(cor_matrix[001:100,001:100])
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
+
+cor_matrix_ltr=similarity_to_ltr_fun(cor_matrix)%>%
+  rename(corr = similarity) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) 
+
+cor_matrix_ltr<- cor_matrix_ltr%>%
+  filter(col %in% row)
+
+p1 <- cor_matrix_ltr %>%
+  ggplot(aes(y = corr, x = similarity)) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_minimal() +  # cleaner theme
+  labs(y = "Correlation",
+       x = "Similarity") +
+  theme(legend.position = "none")
+
+print(p1)
+```
+
+#  Simulations (CV-based)
+
+```{r}
+distance = 1-similarity_matrix
+upper_tri_indices <- which(upper.tri(distance), arr.ind = TRUE)
+upper_tri_values <- distance[upper_tri_indices]
+top_100_indices <- order(upper_tri_values)[seq(1,1000,by=10)]
+closest_pairs <- upper_tri_indices[top_100_indices, , drop = FALSE]
+
+closest_pairs <- as.data.frame(closest_pairs)
+colnames(closest_pairs) <- c("row", "col")
+closest_pairs$distance = upper_tri_values[top_100_indices]
+
+head(closest_pairs)
+```
+
+```{r datastruct-cv}
+idx = unique(closest_pairs$col)
+datastructcv = datastruct;
+initcv=init;
+set.seed(1)
+idx_analytes_out = sort(unique(closest_pairs$col))
+idx_analytes_in = setdiff(unique(datastructcv$analyte),idx_analytes_out)
+idxcv =  which(datastructcv$analyte %in% idx_analytes_in)
+nObscv = length(idxcv);
+datastructcv$idxcv = idxcv;
+datastructcv$nObscv = nObscv;
+```
+
+## Fitting the model
+
+```{r mod-settings-cv}
+model_name <- "mod17cv"
+model_name_ext <- paste0(model_name,".stan")
+
+#' folder shortcuts:
+mod_figures_dir <- here::here("deliv", "figures", model_name)
+mod_tabels_dir  <- here::here("deliv", "tables", model_name)
+mod_model_dir   <- here::here("model", "stan", model_name)
+mod_output_dir   <- here::here("model", "stan", model_name, "output")
+
+if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir)
+if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir)
+if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
+if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+
+modelqg_name <- paste0(model_name,"gq")
+modelqg_name_ext <- paste0(modelqg_name,".stan")
+modgq_model_dir   <- here::here("model", "stan", modelqg_name)
+modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
+
+if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
+if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+```
+
+```{r stan-compile-cv, eval = FALSE}
+mod17cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+```{r dump-files-cv, eval = FALSE}
+write_stan_json(datastructcv, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-3.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-4.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-5.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-6.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-7.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE)
+```
+
+After calculations, we loaded the output files using cmdstanr.
+
+```{r stan-load-cv}
+fitcv <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-8.csv")
+                                ))
+```
+
+## Summary of model parameters (table):
+
+The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters.
+
+```{r summary-cv}
+fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha", "sdpi"), max_rows=12)
+```
 
 
-<!-- etas <- draws_gen_df %>% -->
-<!--   select(starts_with("seta_ind")) -->
-<!-- etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))] -->
-<!-- cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column -->
+## Genereted quantitites
 
-<!-- rownames(cor_matrix) <- 1:1026 -->
-<!-- colnames(cor_matrix) <- 1:1026 -->
+```{r generete-quntities-cv, eval=FALSE}
+mod17cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+fitcvgq  <- mod17cvgq$generate_quantities(fitcv,
+                                          data = datastructcv,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = modelqg_name)
+```
 
-<!-- ggcorrplot(similarity_matrix[001:100,001:100]) -->
-<!-- ggcorrplot(cor_matrix[001:100,001:100]) -->
+## Results
+### Load
+```{r eta-load-cv}
+x <- cmdstanr::read_cmdstan_csv(c(
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
+                                ))
+draws_gen_df <- as_draws_df(x$generated_quantities)
+```
 
-<!-- cor_matrix_ltr=similarity_to_ltr_fun(cor_matrix)%>% -->
-<!--   rename(corr = similarity) %>% -->
-<!--   left_join(similarity_ltri_rcdk_df) %>% -->
-<!--   filter(row!=col) %>% -->
-<!--   left_join(nodes%>%rename(row=id))  -->
+### Fits
 
-<!-- cor_matrix_ltr<- cor_matrix_ltr%>% -->
-<!--   filter(col %in% row) -->
+```{r ind-pop-predictions-cv}
+fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
 
-<!-- p1 <- cor_matrix_ltr %>% -->
-<!--   ggplot(aes(y = corr, x = similarity)) + -->
-<!--   geom_point(alpha = 0.3, size = 1) + -->
-<!--   theme_minimal() +  # cleaner theme -->
-<!--   labs(y = "Correlation", -->
-<!--        x = "Similarity") + -->
-<!--   theme(legend.position = "none") -->
+  p1 <- draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot() +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk (individual and population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+}
 
-<!-- print(p1) -->
-<!-- ``` -->
+p1<-fun_plot_ind_pop(idx_analytes_out[1:20])
+p2<-fun_plot_ind_pop(idx_analytes_in[1:20])
 
-<!-- #  Simulations (CV-based) -->
+print(p1)
+print(p2)
 
-<!-- ```{r} -->
-<!-- distance = 1-similarity_matrix -->
-<!-- upper_tri_indices <- which(upper.tri(distance), arr.ind = TRUE) -->
-<!-- upper_tri_values <- distance[upper_tri_indices] -->
-<!-- top_100_indices <- order(upper_tri_values)[seq(1,1000,by=10)] -->
-<!-- closest_pairs <- upper_tri_indices[top_100_indices, , drop = FALSE] -->
-
-<!-- closest_pairs <- as.data.frame(closest_pairs) -->
-<!-- colnames(closest_pairs) <- c("row", "col") -->
-<!-- closest_pairs$distance = upper_tri_values[top_100_indices] -->
-
-<!-- head(closest_pairs) -->
-<!-- ``` -->
-
-<!-- ```{r datastruct-cv} -->
-<!-- idx = unique(closest_pairs$col) -->
-<!-- datastructcv = datastruct; -->
-<!-- initcv=init; -->
-<!-- set.seed(1) -->
-<!-- idx_analytes_out = sort(unique(closest_pairs$col)) -->
-<!-- idx_analytes_in = setdiff(unique(datastructcv$analyte),idx_analytes_out) -->
-<!-- idxcv =  which(datastructcv$analyte %in% idx_analytes_in) -->
-<!-- nObscv = length(idxcv); -->
-<!-- datastructcv$idxcv = idxcv; -->
-<!-- datastructcv$nObscv = nObscv; -->
-<!-- ``` -->
-
-<!-- ## Fitting the model -->
-
-<!-- ```{r mod-settings-cv} -->
-<!-- model_name <- "mod17cv" -->
-<!-- model_name_ext <- paste0(model_name,".stan") -->
-
-<!-- #' folder shortcuts: -->
-<!-- mod_figures_dir <- here::here("deliv", "figures", model_name) -->
-<!-- mod_tabels_dir  <- here::here("deliv", "tables", model_name) -->
-<!-- mod_model_dir   <- here::here("model", "stan", model_name) -->
-<!-- mod_output_dir   <- here::here("model", "stan", model_name, "output") -->
-
-<!-- if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir) -->
-<!-- if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir) -->
-<!-- if (!file.exists(mod_model_dir)) dir.create(mod_model_dir) -->
-<!-- if (!file.exists(mod_output_dir)) dir.create(mod_output_dir) -->
-
-<!-- modelqg_name <- paste0(model_name,"gq") -->
-<!-- modelqg_name_ext <- paste0(modelqg_name,".stan") -->
-<!-- modgq_model_dir   <- here::here("model", "stan", modelqg_name) -->
-<!-- modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output") -->
-
-<!-- if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir) -->
-<!-- if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir) -->
-<!-- ``` -->
-
-<!-- ```{r stan-compile-cv, eval = FALSE} -->
-<!-- mod17cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1")) -->
-<!-- ``` -->
-
-<!-- ```{r dump-files-cv, eval = FALSE} -->
-<!-- write_stan_json(datastructcv, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-3.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-4.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-5.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-6.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-7.json"), always_decimal = FALSE) -->
-<!-- write_stan_json(initcv(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE) -->
-<!-- ``` -->
-
-<!-- After calculations, we loaded the output files using cmdstanr. -->
-
-<!-- ```{r stan-load-cv} -->
-<!-- fitcv <- cmdstanr::as_cmdstan_fit(c( -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-1.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-2.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-3.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-4.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-5.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-6.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-7.csv"), -->
-<!--                                   paste0(mod_output_dir,"/",  model_name, "-8.csv") -->
-<!--                                 )) -->
-<!-- ``` -->
-
-<!-- ## Summary of model parameters (table): -->
-
-<!-- The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. -->
-
-<!-- ```{r summary-cv} -->
-<!-- fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi"), max_rows=12) -->
-<!-- ``` -->
-
-
-<!-- ## Genereted quantitites -->
-
-<!-- ```{r generete-quntities-cv, eval=FALSE} -->
-<!-- mod17cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext)) -->
-<!-- fitcvgq  <- mod17cvgq$generate_quantities(fitcv, -->
-<!--                                           data = datastructcv, -->
-<!--                                           seed = 123, -->
-<!--                                           parallel_chains = 8, -->
-<!--                                           output_dir = modgq_output_dir, -->
-<!--                                           output_basename = modelqg_name) -->
-<!-- ``` -->
-
-<!-- ## Results -->
-<!-- ### Load -->
-<!-- ```{r eta-load-cv} -->
-<!-- x <- cmdstanr::read_cmdstan_csv(c( -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"), -->
-<!--                                   paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv") -->
-<!--                                 )) -->
-<!-- draws_gen_df <- as_draws_df(x$generated_quantities) -->
-<!-- ``` -->
-
-<!-- ### Fits -->
-
-<!-- ```{r ind-pop-predictions-cv} -->
-<!-- fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){ -->
-
-<!--   p1 <- draws_gen_df %>% -->
-<!--   slice_sample(n=1000) %>% -->
-<!--   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>% -->
-<!--   rename(ID=i) %>% -->
-<!--   left_join(analytes_names) %>% -->
-<!--   filter(ID %in% .analytes_idx) %>% -->
-<!--   tidyr::expand_grid(fi = seq(0,1,0.1)) %>% -->
-<!--   mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>% -->
-<!--   mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>% -->
-<!--   ggplot() + -->
-<!--   ggdist::stat_lineribbon(aes(x = fi, y = logkind), .width = c(.90), alpha = 1/2) + -->
-<!--   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) + -->
-<!--   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) + -->
-<!--   facet_wrap(~Analyte)+ -->
-<!--   labs(x="\u03C6", y="logk (individual and population)") + -->
-<!--   theme(legend.position = "none") + -->
-<!--   coord_cartesian(xlim=c(0,1),ylim=c(-1,2)) -->
-<!-- } -->
-
-<!-- p1<-fun_plot_ind_pop(idx_analytes_out[1:20]) -->
-<!-- p2<-fun_plot_ind_pop(idx_analytes_in[1:20]) -->
-
-<!-- print(p1) -->
-<!-- print(p2) -->
-
-<!-- ``` -->
+```
 
 # Session info
 

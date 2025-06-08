@@ -107,6 +107,7 @@ model {
 
 generated quantities {
   matrix[nAnalytes,2] seta_ind;
+    matrix[nAnalytes,2] seta_decorr_ind;
   matrix[nAnalytes,2] sparam_pop;
   matrix[nAnalytes,2] sparam_ind;
   vector[nObs] slogkHat_ind;
@@ -130,10 +131,12 @@ generated quantities {
   }}
    
   sparam_pop= miu + (L_K_pop * eta_pop * L_V');
-  }
-  
-  seta_ind = sparam_ind - miu;
 
+  seta_ind = sparam_ind - miu;
+  matrix[nAnalytes, 2] temp = mdivide_left_tri_low(L_K_pop, seta_ind);
+  seta_decorr_ind = mdivide_right_tri_low(temp, L_V');
+  
+    }
   for (i in 1 : nAnalytes) {
     slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
     slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);

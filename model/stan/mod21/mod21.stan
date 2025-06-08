@@ -4,29 +4,26 @@ functions {
     return lpdf;
   }
 
-real matrix_student_t_lpdf(vector x, vector mu, matrix L_K, matrix L_Omega, real nu) {
-  int n = rows(L_K);
-  int m = rows(L_Omega);
+  real matrix_normal_lpdf(vector x, vector mu, matrix L_K, matrix L_Omega) {
+    int n = rows(L_K); 
+    int m = rows(L_Omega);  
 
-  vector[n * m] z = x - mu;
-  matrix[n, m] Z = to_matrix(z, n, m);
+    vector[n * m] z = x - mu;
+    matrix[n, m] Z = to_matrix(z, n, m);
 
-  // Whiten using Cholesky factors
-  matrix[n, m] W = mdivide_left_tri_low(L_K, Z);
-  matrix[m, n] V = mdivide_left_tri_low(L_Omega, W')';
+    matrix[n, m] W = mdivide_left_tri_low(L_K, Z);     // Solve L_K * W = Z
+    matrix[m, n] V = mdivide_left_tri_low(L_Omega, W'); // Solve L_Omega * V = W'
+    real quad_form_x = dot_self(to_vector(V));
 
-  real quad_form_x = dot_self(to_vector(V));
 
-  real log_det_K = 2 * sum(log(diagonal(L_K)));
-  real log_det_Omega = 2 * sum(log(diagonal(L_Omega)));
+    real log_det_K = 2 * sum(log(diagonal(L_K)));
+    real log_det_Omega = 2 * sum(log(diagonal(L_Omega)));
+    real log_det = m * log_det_K + n * log_det_Omega;
+    real constant = -0.5 * n * m * log(2.0 * pi());
 
-  real constant = lgamma((nu + n * m) / 2) - lgamma(nu / 2)
-                  - 0.5 * n * m * log(nu * pi())
-                  - m * log_det_K - n * log_det_Omega;
-
-  real log_prob = constant - 0.5 * (nu + n * m) * log1p(quad_form_x / nu);
-  return log_prob;
-}
+    // Final log-likelihood
+    return constant - 0.5 * (quad_form_x + log_det);
+  }
 
 
   vector funlogki(real logkw, real S1, real S2, vector fi) {
@@ -75,6 +72,7 @@ parameters {
   matrix[nAnalytes_uncorr, 2] param_uncorr;
   real<lower=0, upper=1> alpha;
   real<lower=2> nu;
+  cholesky_factor_cov[2] L_Omega_W;
 }
 
 transformed parameters {
@@ -108,13 +106,15 @@ model {
   piS1 ~ normal(0, sdpi[2]);
   sdpi ~ normal(0, 0.1);
   rho ~ lkj_corr_point_lower_tri(0.75, 0.125);
-  alpha ~ beta(5,0.5);
-    sigma ~ normal(0, 0.05);
-   nu ~ gamma(2,0.1);
-  target += matrix_student_t_lpdf(to_vector(param_corr) | to_vector(miu[idx_corr,1:2]), L_K, L_Omega, nu);
+  alpha ~ normal(0.5,0.5);
+  sigma ~ normal(0, 0.05);
+  nu ~ gamma(2,0.1);
+  
+  L_Omega_W ~ inv_wishart_cholesky(nu, L_Omega);
+  target += matrix_normal_lpdf(to_vector(param_corr) | to_vector(miu[idx_corr,1:2]), L_K, L_Omega_W);
 
   for (i in 1 : nAnalytes_uncorr) {
-  param_uncorr[i] ~ multi_normal(miu[idx_uncorr[i],1:2], Omega);
+  param_uncorr[i] ~ multi_normal_cholesky(miu[idx_uncorr[i],1:2], L_Omega_W);
   }
   
   if (run_estimation == 1) {
