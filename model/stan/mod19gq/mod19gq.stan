@@ -306,6 +306,7 @@ model {
 generated quantities {
   
   matrix[nAnalytes,2] seta_ind;
+  matrix[nAnalytes,2] seta_decorr_ind;
   matrix[nAnalytes,2] sparam_pop;
   matrix[nAnalytes,2] sparam_ind;
   vector[nObs] slogkHat_ind;
@@ -349,7 +350,6 @@ matrix[nAnalyte_subset_10,nAnalyte_subset_10]  rho10 = L_K_prec_10 * L_K_prec_10
   matrix[nAnalyte_subset_8, 2] eta_pop_8;
   matrix[nAnalyte_subset_9, 2] eta_pop_9;
   matrix[nAnalyte_subset_10, 2] eta_pop_10;
-  matrix[2, 2] rhoc;
    
 for (i in 1 : nAnalyte_subset_1){
     for (j in 1 : 2) {
@@ -382,34 +382,31 @@ for (i in 1 : nAnalyte_subset_1){
     for (j in 1 : 2) {
     eta_pop_10[i,j]=normal_rng(0,1);}}
 
-rhoc= cholesky_decompose(rho);
+matrix[nAnalyte_subset_1,nAnalyte_subset_1] L_K_1 = cholesky_decompose(chol2inv(L_K_prec_1));
+matrix[nAnalyte_subset_2,nAnalyte_subset_2] L_K_2 = cholesky_decompose(chol2inv(L_K_prec_2));
+matrix[nAnalyte_subset_3,nAnalyte_subset_3] L_K_3 = cholesky_decompose(chol2inv(L_K_prec_3));
+matrix[nAnalyte_subset_4,nAnalyte_subset_4] L_K_4 = cholesky_decompose(chol2inv(L_K_prec_4));
+matrix[nAnalyte_subset_5,nAnalyte_subset_5] L_K_5 = cholesky_decompose(chol2inv(L_K_prec_5));
+matrix[nAnalyte_subset_6,nAnalyte_subset_6] L_K_6 = cholesky_decompose(chol2inv(L_K_prec_6));
+matrix[nAnalyte_subset_7,nAnalyte_subset_7] L_K_7 = cholesky_decompose(chol2inv(L_K_prec_7));
+matrix[nAnalyte_subset_8,nAnalyte_subset_8] L_K_8 = cholesky_decompose(chol2inv(L_K_prec_8));
+matrix[nAnalyte_subset_9,nAnalyte_subset_9] L_K_9 = cholesky_decompose(chol2inv(L_K_prec_9));
+matrix[nAnalyte_subset_10,nAnalyte_subset_10] L_K_10 = cholesky_decompose(chol2inv(L_K_prec_10));
 
-matrix[nAnalyte_subset_1,nAnalyte_subset_1] L_K_1 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_1), L_K_prec_1)';
-matrix[nAnalyte_subset_2,nAnalyte_subset_2] L_K_2 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_2), L_K_prec_2)';
-matrix[nAnalyte_subset_3,nAnalyte_subset_3] L_K_3 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_3), L_K_prec_3)';
-matrix[nAnalyte_subset_4,nAnalyte_subset_4] L_K_4 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_4), L_K_prec_4)';
-matrix[nAnalyte_subset_5,nAnalyte_subset_5] L_K_5 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_5), L_K_prec_5)';
-matrix[nAnalyte_subset_6,nAnalyte_subset_6] L_K_6 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_6), L_K_prec_6)';
-matrix[nAnalyte_subset_7,nAnalyte_subset_7] L_K_7 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_7), L_K_prec_7)';
-matrix[nAnalyte_subset_8,nAnalyte_subset_8] L_K_8 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_8), L_K_prec_8)';
-matrix[nAnalyte_subset_9,nAnalyte_subset_9] L_K_9 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_9), L_K_prec_9)';
-matrix[nAnalyte_subset_10,nAnalyte_subset_10] L_K_10 = mdivide_right_tri_low(identity_matrix(nAnalyte_subset_10), L_K_prec_10)';
-
-param_corr_pop_1= miu_corr_1 + L_K_1 * eta_pop_1 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_2= miu_corr_2 + L_K_2  * eta_pop_2 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_3= miu_corr_3 + L_K_3  * eta_pop_3 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_4= miu_corr_4 + L_K_4  * eta_pop_4 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_5= miu_corr_5 + L_K_5  * eta_pop_5 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_6= miu_corr_6 + L_K_6  * eta_pop_6 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_7= miu_corr_7 + L_K_7  * eta_pop_7 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_8= miu_corr_8 + L_K_8  * eta_pop_8 * diag_pre_multiply(omega, rhoc)';
-param_corr_pop_9= miu_corr_9 + L_K_9  * eta_pop_9* diag_pre_multiply(omega, rhoc)';
-param_corr_pop_10= miu_corr_10 + L_K_10  * eta_pop_10* diag_pre_multiply(omega, rhoc)';
-}
+param_corr_pop_1= miu_corr_1 + L_K_1 * eta_pop_1 * L_Omega';
+param_corr_pop_2= miu_corr_2 + L_K_2  * eta_pop_2 * L_Omega';
+param_corr_pop_3= miu_corr_3 + L_K_3  * eta_pop_3 * L_Omega';
+param_corr_pop_4= miu_corr_4 + L_K_4  * eta_pop_4 * L_Omega';
+param_corr_pop_5= miu_corr_5 + L_K_5  * eta_pop_5 * L_Omega';
+param_corr_pop_6= miu_corr_6 + L_K_6  * eta_pop_6 * L_Omega';
+param_corr_pop_7= miu_corr_7 + L_K_7  * eta_pop_7 * L_Omega';
+param_corr_pop_8= miu_corr_8 + L_K_8  * eta_pop_8 * L_Omega';
+param_corr_pop_9= miu_corr_9 + L_K_9  * eta_pop_9 * L_Omega';
+param_corr_pop_10= miu_corr_10 + L_K_10  * eta_pop_10 * L_Omega';
 
 
  for (i in 1 : nAnalytes_uncorr) {
-  param_uncorr_pop[i,1:2] = multi_normal_rng(miu[idx_uncorr[i],1:2], Omega)';
+  param_uncorr_pop[i,1:2] = multi_normal_cholesky_rng(miu[idx_uncorr[i],1:2], L_Omega)';
   }
   
 sparam_pop[idx_corr[idx_corr_1],1:2]=param_corr_pop_1;
@@ -425,7 +422,30 @@ sparam_pop[idx_corr[idx_corr_10],1:2]=param_corr_pop_10;
 
   sparam_pop[idx_uncorr,1:2]=param_uncorr_pop;
   seta_ind = sparam_ind - miu;
-
+  seta_decorr_ind=seta_ind;
+  
+  matrix[nAnalyte_subset_1, 2] temp_1 = mdivide_left_tri_low(L_K_1, seta_ind[idx_corr[idx_corr_1],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_1],1:2] = mdivide_right_tri_low(temp_1, L_Omega');
+  matrix[nAnalyte_subset_2, 2] temp_2 = mdivide_left_tri_low(L_K_2, seta_ind[idx_corr[idx_corr_2],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_2],1:2] = mdivide_right_tri_low(temp_2, L_Omega');
+  matrix[nAnalyte_subset_3, 2] temp_3 = mdivide_left_tri_low(L_K_3, seta_ind[idx_corr[idx_corr_3],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_3],1:2] = mdivide_right_tri_low(temp_3, L_Omega');
+  matrix[nAnalyte_subset_4, 2] temp_4 = mdivide_left_tri_low(L_K_4, seta_ind[idx_corr[idx_corr_4],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_4],1:2] = mdivide_right_tri_low(temp_4, L_Omega');
+  matrix[nAnalyte_subset_5, 2] temp_5 = mdivide_left_tri_low(L_K_5, seta_ind[idx_corr[idx_corr_5],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_5],1:2] = mdivide_right_tri_low(temp_5, L_Omega');
+  matrix[nAnalyte_subset_6, 2] temp_6 = mdivide_left_tri_low(L_K_6, seta_ind[idx_corr[idx_corr_6],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_6],1:2] = mdivide_right_tri_low(temp_6, L_Omega');
+  matrix[nAnalyte_subset_7, 2] temp_7 = mdivide_left_tri_low(L_K_7, seta_ind[idx_corr[idx_corr_7],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_7],1:2] = mdivide_right_tri_low(temp_7, L_Omega');
+  matrix[nAnalyte_subset_8, 2] temp_8 = mdivide_left_tri_low(L_K_8, seta_ind[idx_corr[idx_corr_8],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_8],1:2] = mdivide_right_tri_low(temp_8, L_Omega');
+  matrix[nAnalyte_subset_9, 2] temp_9 = mdivide_left_tri_low(L_K_9, seta_ind[idx_corr[idx_corr_9],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_9],1:2] = mdivide_right_tri_low(temp_9, L_Omega');
+  matrix[nAnalyte_subset_10, 2] temp_10 = mdivide_left_tri_low(L_K_10, seta_ind[idx_corr[idx_corr_10],1:2]);
+  seta_decorr_ind[idx_corr[idx_corr_10],1:2] = mdivide_right_tri_low(temp_10, L_Omega');
+  }
+  
   for (i in 1 : nAnalytes) {
     slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
     slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);

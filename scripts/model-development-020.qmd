@@ -272,8 +272,6 @@ init <- function(){
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho =  matrix(c(1,0.75,0.75,1), nrow=2),
-          # eta = cbind((init_aprox$logkw-mean(init_aprox$logkw))/sd(init_aprox$logkw),
-          #             (init_aprox$S1-mean(init_aprox$S1))/sd(init_aprox$S1)),
           param = cbind(init_aprox$logkw,init_aprox$S1),
           pilogkw = rep(0,nK),
           piS1 = rep(0,nK),

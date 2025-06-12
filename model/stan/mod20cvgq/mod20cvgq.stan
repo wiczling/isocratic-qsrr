@@ -136,7 +136,7 @@ generated quantities {
   }}
   
   rhoc= cholesky_decompose(rho);
-  sparam_pop= miu + (L_K * eta_pop * diag_pre_multiply(omega, rhoc)');
+  sparam_pop= miu + (L_K * eta_pop * L_Omega');
 }
   seta_ind = sparam_ind - miu;
 

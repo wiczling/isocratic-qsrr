@@ -25,6 +25,7 @@ functions {
     return constant - 0.5 * (quad_form_x + log_det);
   }
 
+
   vector funlogki(real logkw, real S1, real S2, vector fi) {
     int d = num_elements(fi);
     vector[d] logki = logkw - S1 * (1 + S2) * fi ./ (1 + S2 * fi);
@@ -49,14 +50,14 @@ data {
   vector[nObs] logkobs;
   int<lower=0, upper=1> run_estimation;
   matrix[nAnalytes,nAnalytes] similarity_x;
-        int nObscv; // subset of analytes and measurments
+  int nObscv; // subset of analytes and measurments
   array[nObscv] int idxcv; // indices
 }
 
 transformed data {
   vector[nAnalytes] logP_centered = logPobs - 2.5;
   cov_matrix[nAnalytes_corr] similarity_s = similarity_x[idx_corr,idx_corr];
-      vector[nObscv] logkobscv = logkobs[idxcv];
+        vector[nObscv] logkobscv = logkobs[idxcv];
 }
 
 parameters {
@@ -73,6 +74,8 @@ parameters {
   matrix[nAnalytes_corr, 2] param_corr;
   matrix[nAnalytes_uncorr, 2] param_uncorr;
   real<lower=0, upper=1> alpha;
+  real<lower=2> nu;
+  cholesky_factor_cov[2] L_Omega_W;
 }
 
 transformed parameters {
@@ -106,13 +109,15 @@ model {
   piS1 ~ normal(0, sdpi[2]);
   sdpi ~ normal(0, 0.1);
   rho ~ lkj_corr_point_lower_tri(0.75, 0.125);
-  alpha ~ normal(0.5,0.25);
-    sigma ~ normal(0, 0.05);
-    
-  target += matrix_normal_lpdf(to_vector(param_corr) | to_vector(miu[idx_corr,1:2]), L_K, L_Omega);
+  alpha ~ normal(0.5,0.5);
+  sigma ~ normal(0, 0.05);
+  nu ~ gamma(2,0.1);
+  
+  L_Omega_W ~ inv_wishart_cholesky(nu, L_Omega);
+  target += matrix_normal_lpdf(to_vector(param_corr) | to_vector(miu[idx_corr,1:2]), L_K, L_Omega_W);
 
   for (i in 1 : nAnalytes_uncorr) {
-  param_uncorr[i] ~ multi_normal(miu[idx_uncorr[i],1:2], Omega);
+  param_uncorr[i] ~ multi_normal_cholesky(miu[idx_uncorr[i],1:2], L_Omega_W);
   }
   
   if (run_estimation == 1) {
@@ -121,9 +126,12 @@ model {
 
 }
 
+
 generated quantities {
   
   matrix[nAnalytes,2] seta_ind;
+  
+    matrix[nAnalytes,2] seta_decorr_ind;
   matrix[nAnalytes,2] sparam_pop;
   matrix[nAnalytes,2] sparam_ind;
   vector[nObs] slogkHat_ind;
@@ -140,6 +148,7 @@ generated quantities {
 
 {
   matrix[nAnalytes_corr,2] eta_pop;
+  
   matrix[2, 2] rhoc;
   matrix[nAnalytes_corr,nAnalytes_corr] L_K_gq = cholesky_decompose(similarity_s*alpha + (1.0-alpha)*identity_matrix(nAnalytes_corr));
 
@@ -149,11 +158,11 @@ generated quantities {
   }}
   
   rhoc= cholesky_decompose(rho);
-  param_corr_pop= miu[idx_corr,1:2] + (L_K_gq * eta_pop * diag_pre_multiply(omega, rhoc)');
-}
+  param_corr_pop= miu[idx_corr,1:2] + (L_K_gq * eta_pop * L_Omega_W');
+
 
   for (i in 1 : nAnalytes_uncorr) {
-  param_uncorr_pop[i,1:2] = multi_normal_rng(miu[idx_uncorr[i],1:2], Omega)';
+  param_uncorr_pop[i,1:2] = multi_normal_cholesky_rng (miu[idx_uncorr[i],1:2], L_Omega_W)';
   }
   
   sparam_pop[idx_corr,1:2]=param_corr_pop;
@@ -161,7 +170,11 @@ generated quantities {
   
   
   seta_ind = sparam_ind - miu;
-
+  seta_decorr_ind=seta_ind;
+  
+  matrix[nAnalytes_corr, 2] temp = mdivide_left_tri_low(L_K_gq, seta_ind[idx_corr,1:2]);
+  seta_decorr_ind[idx_corr,1:2] = mdivide_right_tri_low(temp, L_Omega_W');
+  }
   for (i in 1 : nAnalytes) {
     slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
     slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);

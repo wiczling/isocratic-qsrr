@@ -202,7 +202,7 @@ generated quantities {
   }}
   
   rhoc= cholesky_decompose(rho);
-  param_corr_pop[idx_g[1:n_g], 1:2]= miu_corr[idx_g[1:n_g], 1:2] + L_K_g_gq * eta_pop * diag_pre_multiply(omega, rhoc)';
+  param_corr_pop[idx_g[1:n_g], 1:2]= miu_corr[idx_g[1:n_g], 1:2] + L_K_g_gq * eta_pop * L_Omega';
 
 }
 }

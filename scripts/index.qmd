@@ -41,8 +41,6 @@ editor:
 
 -   logR \~ logP + fungr, multivariate student t-distribution: [Model
     003](model-development-003.html "Model 003")
-
-
     
 ## Scaled correlations matrix:
 
@@ -55,17 +53,24 @@ editor:
     fixed correlation matrix: [Model 016](model-development-016.html "Model 016")
     
 -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    scaled correlation matrix using alpha: [Model 017](model-development-017.html "Model 017")  
+    scaled correlation matrix using alpha: [Model 017](model-development-017.html "Model 017") 
+    
  -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    scaled correlation matrix using alpha (correlated and uncorelated): [Model 018](model-development-018.html "Model 018")     
+    scaled correlation matrix using alpha (correlated and uncorrelated): [Model 018](model-development-018.html "Model 018")     
     
-
+ -   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha (correlated and uncorrelated): [Model 021](model-development-021.html "Model 021") 
+    
+ -   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha and tau (correlated and uncorrelated): [Model 024](model-development-024.html "Model 024") 
+  -   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha and tau (correlated (splited into 10 blocks) and uncorrelated): [Model 027](model-development-027.html "Model 027")    
+    
 ## SEM 
-.
     
--   Precision matrix (after glasso) splitted into 10 blocks: [Model
-    019](model-development-019.html "Model 019").
- 
+-   Precision matrix (after glasso) splited into 10 blocks: [Model
+    019](model-development-019.html "Model 019")
+
  
 ## GP 
 ```         
@@ -78,88 +83,16 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
     020](model-development-020.html "Model 020")
 -   logR \~ logP + fungr, multivariate matrix normal distribution, block
      covariance matrix with rhop estimated: [Model
-    022](model-development-022.html "Model 022")    
-    
-# Appendix - to correct 
+    022](model-development-022.html "Model 022") 
+-   logR \~ logP + fungr, multivariate matrix normal distribution, full
+     covariance matrix with rhop estimated: [Model
+    023](model-development-023.html "Model 023")  
+-   logR \~ logP + fungr, multivariate matrix normal distribution, block
+     covariance matrix with rhop and tau estimated: [Model
+    025](model-development-025.html "Model 025")      
+-   logR \~ logP + fungr, multivariate matrix student-t distribution, block
+     covariance matrix with rhop estimated: [Model
+    026](model-development-026.html "Model 026")      
 
-The constant has to be added, otherwise different results are obtained. This model has to be reevaluated using the correct matrix_normal_lpdf:
-
-
-```         
-  real matrix_normal_lpdf(vector x, vector mu, matrix L_K, matrix L_Omega) {
-    int n = rows(L_K); 
-    int m = rows(L_Omega);  
-
-    vector[n * m] z = x - mu;
-    matrix[n, m] Z = to_matrix(z, n, m);
-
-    matrix[n, m] W = mdivide_left_tri_low(L_K, Z);     // Solve L_K * W = Z
-    matrix[m, n] V = mdivide_left_tri_low(L_Omega, W'); // Solve L_Omega * V = W'
-    real quad_form_x = dot_self(to_vector(V));
-
-
-    real log_det_K = 2 * sum(log(diagonal(L_K)));
-    real log_det_Omega = 2 * sum(log(diagonal(L_Omega)));
-    real log_det = m * log_det_K + n * log_det_Omega;
-    real constant = -0.5 * n * m * log(2.0 * pi());
-
-    // Final log-likelihood
-    return constant - 0.5 * (quad_form_x + log_det);
-  }
-```
-
-### Gausssian process
-
-```         
-matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
-matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
-```
-
--   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
-    full covariance matrix: [Model
-    004](model-development-004.html "Model 004")
-
--   logR \~ logP + fungr, multivariate matrix normal distribution,
-    estimated full covariance matrix: [Model
-    005](model-development-005.html "Model 005")
-
--   logR \~ logP + fungr, multivariate matrix normal distribution,
-    estimated (uncorrelated + correlated) covariance matrix: [Model
-    006](model-development-006.html "Model 006")
-
--   logR \~ logP + fungr, multivariate matrix student-t distribution,
-    estimated (uncorrelated + correlated) covariance matrix: [Model
-    007](model-development-007.html "Model 007")
-
--   GP: logR \~ logP + fungr, multivariate matrix student-t
-    distribution, estimated (uncorrelated + correlated) block covariance
-    matrix: [Model 008](model-development-008.html "Model 008")
-
--   OPENCL attempt (doesn't help) [Model
-    009](model-development-009.qmd "Model 009")
-
-### Structural Equation Modeling (SEM)
-
-The constant has to be added, otherwise different results are obtained. This model has to be reevaluated using the correct matrix_normal_lpdf:
-
-``` 
-target += lkj_corr_cholesky_prec_point_lower_tri_lpdf(L_K_prec \|
-point_mu_lower, point_sd_lower);
-target += matrix_normal_lpdf(to_vector(param_corr) \|
-to_vector(miu_corr), L_K_prec, L_Omega_W);
-target += multi_normal_cholesky_lpdf(param_uncorr \| miu_uncorr,
-L_Omega_W);
-``` 
-
--   full precision matrix with priors based on similarity matrix: [Model
-    010](model-development-010.html "Model 010")
-
--   Precision matrix splitted into 10 blocks: [Model
-    011](model-development-011.html "Model 011")
-
--   precision matrix splitted into 10 blocks reduce_sum: [Model
-    012](model-development-012.html "Model 012"). It doesn't help.
-    
--   pecision matrix splitted into 8 blocks using different tresholds using multivariate matrix normal distribution, : [Model
-    013](model-development-013.html "Model 013")
-    
+## Appendix
+OPENCL attempt (doesn't help) [Model009](model-development-009.qmd "Model 009")

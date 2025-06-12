@@ -16,7 +16,7 @@ export STAN_THREADS=true
 export CMDSTAN_MODEL_NAME="mod22"
 
 # paths
-export MODEL_SRC_DIR="/users/project1/pt01268/izogp"
+export MODEL_SRC_DIR="/users/project1/pt01268/izo22"
 cd ${CMDSTAN_DIR}
 
 # build/compile

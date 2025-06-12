@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-06-08">
+<meta name="dcterms.date" content="2025-06-09">
 
-<title>QSRR revisited. Model 017</title>
+<title>Model 017</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -136,7 +136,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">QSRR revisited. Model 017</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Model 017</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 </div>
 
 
@@ -160,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 8, 2025</p>
+      <p class="date">June 9, 2025</p>
     </div>
   </div>
   
@@ -562,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb49-34"><a href="#cb49-34" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega2 =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span>nAnalytes, nAnalytes),</span>
 <span id="cb49-35"><a href="#cb49-35" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
 <span id="cb49-36"><a href="#cb49-36" aria-hidden="true" tabindex="-1"></a>          <span class="at">param =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
-<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>          <span class="at">rhogp =</span> <span class="fl">0.75</span>,</span>
+<span id="cb49-37"><a href="#cb49-37" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.75</span>,</span>
 <span id="cb49-38"><a href="#cb49-38" aria-hidden="true" tabindex="-1"></a>          <span class="at">pilogkw =</span> <span class="fu">rep</span>(<span class="dv">0</span>,nK),</span>
 <span id="cb49-39"><a href="#cb49-39" aria-hidden="true" tabindex="-1"></a>          <span class="at">piS1 =</span> <span class="fu">rep</span>(<span class="dv">0</span>,nK),</span>
 <span id="cb49-40"><a href="#cb49-40" aria-hidden="true" tabindex="-1"></a>          <span class="at">sdpi =</span> <span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>)<span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)),</span>
@@ -1239,23 +1239,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>cor_matrix_ltr<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
 <span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
 <span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
-<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) </span>
-<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>cor_matrix_ltr<span class="ot">&lt;-</span> cor_matrix_ltr<span class="sc">%&gt;%</span></span>
-<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row)</span>
-<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> cor_matrix_ltr <span class="sc">%&gt;%</span></span>
-<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
-<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb78-22"><a href="#cb78-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb78-23"><a href="#cb78-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb78-24"><a href="#cb78-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-25"><a href="#cb78-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="model-development-017_files/figure-html/posterior-corelations-4.png" class="img-fluid" style="width:95.0%"></p>
@@ -1830,7 +1838,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb94" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "QSRR revisited. Model 017"</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Model 017"</span></span>
 <span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
 <span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: "Paweł Wiczling*"</span></span>
 <span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a><span class="co">    affiliations:</span></span>
@@ -2106,7 +2114,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb94-275"><a href="#cb94-275" aria-hidden="true" tabindex="-1"></a>          <span class="at">omega2 =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">/</span>nAnalytes, nAnalytes),</span>
 <span id="cb94-276"><a href="#cb94-276" aria-hidden="true" tabindex="-1"></a>          <span class="at">rho =</span>  <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>),</span>
 <span id="cb94-277"><a href="#cb94-277" aria-hidden="true" tabindex="-1"></a>          <span class="at">param =</span> <span class="fu">cbind</span>(init_aprox<span class="sc">$</span>logkw,init_aprox<span class="sc">$</span>S1),</span>
-<span id="cb94-278"><a href="#cb94-278" aria-hidden="true" tabindex="-1"></a>          <span class="at">rhogp =</span> <span class="fl">0.75</span>,</span>
+<span id="cb94-278"><a href="#cb94-278" aria-hidden="true" tabindex="-1"></a>          <span class="at">alpha =</span> <span class="fl">0.75</span>,</span>
 <span id="cb94-279"><a href="#cb94-279" aria-hidden="true" tabindex="-1"></a>          <span class="at">pilogkw =</span> <span class="fu">rep</span>(<span class="dv">0</span>,nK),</span>
 <span id="cb94-280"><a href="#cb94-280" aria-hidden="true" tabindex="-1"></a>          <span class="at">piS1 =</span> <span class="fu">rep</span>(<span class="dv">0</span>,nK),</span>
 <span id="cb94-281"><a href="#cb94-281" aria-hidden="true" tabindex="-1"></a>          <span class="at">sdpi =</span> <span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>)<span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">rnorm</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="fl">0.1</span>)),</span>
@@ -2601,185 +2609,194 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb94-770"><a href="#cb94-770" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
 <span id="cb94-771"><a href="#cb94-771" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_matrix_decorrelated[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
 <span id="cb94-772"><a href="#cb94-772" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-773"><a href="#cb94-773" aria-hidden="true" tabindex="-1"></a>cor_matrix_ltr<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
-<span id="cb94-774"><a href="#cb94-774" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb94-775"><a href="#cb94-775" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
-<span id="cb94-776"><a href="#cb94-776" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) </span>
-<span id="cb94-777"><a href="#cb94-777" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-778"><a href="#cb94-778" aria-hidden="true" tabindex="-1"></a>cor_matrix_ltr<span class="ot">&lt;-</span> cor_matrix_ltr<span class="sc">%&gt;%</span></span>
-<span id="cb94-779"><a href="#cb94-779" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row)</span>
-<span id="cb94-780"><a href="#cb94-780" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-781"><a href="#cb94-781" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> cor_matrix_ltr <span class="sc">%&gt;%</span></span>
-<span id="cb94-782"><a href="#cb94-782" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
-<span id="cb94-783"><a href="#cb94-783" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb94-784"><a href="#cb94-784" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb94-785"><a href="#cb94-785" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb94-786"><a href="#cb94-786" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb94-787"><a href="#cb94-787" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb94-788"><a href="#cb94-788" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-789"><a href="#cb94-789" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
-<span id="cb94-790"><a href="#cb94-790" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-791"><a href="#cb94-791" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-792"><a href="#cb94-792" aria-hidden="true" tabindex="-1"></a><span class="fu">#  Simulations (CV-based)</span></span>
-<span id="cb94-793"><a href="#cb94-793" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-796"><a href="#cb94-796" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb94-797"><a href="#cb94-797" aria-hidden="true" tabindex="-1"></a>distance <span class="ot">=</span> <span class="dv">1</span><span class="sc">-</span>similarity_matrix</span>
-<span id="cb94-798"><a href="#cb94-798" aria-hidden="true" tabindex="-1"></a>upper_tri_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">upper.tri</span>(distance), <span class="at">arr.ind =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb94-799"><a href="#cb94-799" aria-hidden="true" tabindex="-1"></a>upper_tri_values <span class="ot">&lt;-</span> distance[upper_tri_indices]</span>
-<span id="cb94-800"><a href="#cb94-800" aria-hidden="true" tabindex="-1"></a>top_100_indices <span class="ot">&lt;-</span> <span class="fu">order</span>(upper_tri_values)[<span class="fu">seq</span>(<span class="dv">1</span>,<span class="dv">1000</span>,<span class="at">by=</span><span class="dv">10</span>)]</span>
-<span id="cb94-801"><a href="#cb94-801" aria-hidden="true" tabindex="-1"></a>closest_pairs <span class="ot">&lt;-</span> upper_tri_indices[top_100_indices, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb94-773"><a href="#cb94-773" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-774"><a href="#cb94-774" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
+<span id="cb94-775"><a href="#cb94-775" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb94-776"><a href="#cb94-776" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb94-777"><a href="#cb94-777" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb94-778"><a href="#cb94-778" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb94-779"><a href="#cb94-779" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb94-780"><a href="#cb94-780" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb94-781"><a href="#cb94-781" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb94-782"><a href="#cb94-782" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb94-783"><a href="#cb94-783" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb94-784"><a href="#cb94-784" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb94-785"><a href="#cb94-785" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-786"><a href="#cb94-786" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
+<span id="cb94-787"><a href="#cb94-787" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb94-788"><a href="#cb94-788" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb94-789"><a href="#cb94-789" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb94-790"><a href="#cb94-790" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb94-791"><a href="#cb94-791" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb94-792"><a href="#cb94-792" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb94-793"><a href="#cb94-793" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb94-794"><a href="#cb94-794" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb94-795"><a href="#cb94-795" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb94-796"><a href="#cb94-796" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb94-797"><a href="#cb94-797" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-798"><a href="#cb94-798" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span>
+<span id="cb94-799"><a href="#cb94-799" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-800"><a href="#cb94-800" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-801"><a href="#cb94-801" aria-hidden="true" tabindex="-1"></a><span class="fu">#  Simulations (CV-based)</span></span>
 <span id="cb94-802"><a href="#cb94-802" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-803"><a href="#cb94-803" aria-hidden="true" tabindex="-1"></a>closest_pairs <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(closest_pairs)</span>
-<span id="cb94-804"><a href="#cb94-804" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(closest_pairs) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"row"</span>, <span class="st">"col"</span>)</span>
-<span id="cb94-805"><a href="#cb94-805" aria-hidden="true" tabindex="-1"></a>closest_pairs<span class="sc">$</span>distance <span class="ot">=</span> upper_tri_values[top_100_indices]</span>
-<span id="cb94-806"><a href="#cb94-806" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-807"><a href="#cb94-807" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(closest_pairs)</span>
-<span id="cb94-808"><a href="#cb94-808" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-809"><a href="#cb94-809" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-810"><a href="#cb94-810" aria-hidden="true" tabindex="-1"></a><span class="in">```{r datastruct-cv}</span></span>
-<span id="cb94-811"><a href="#cb94-811" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">=</span> <span class="fu">unique</span>(closest_pairs<span class="sc">$</span>col)</span>
-<span id="cb94-812"><a href="#cb94-812" aria-hidden="true" tabindex="-1"></a>datastructcv <span class="ot">=</span> datastruct;</span>
-<span id="cb94-813"><a href="#cb94-813" aria-hidden="true" tabindex="-1"></a>initcv<span class="ot">=</span>init;</span>
-<span id="cb94-814"><a href="#cb94-814" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb94-815"><a href="#cb94-815" aria-hidden="true" tabindex="-1"></a>idx_analytes_out <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">unique</span>(closest_pairs<span class="sc">$</span>col))</span>
-<span id="cb94-816"><a href="#cb94-816" aria-hidden="true" tabindex="-1"></a>idx_analytes_in <span class="ot">=</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(datastructcv<span class="sc">$</span>analyte),idx_analytes_out)</span>
-<span id="cb94-817"><a href="#cb94-817" aria-hidden="true" tabindex="-1"></a>idxcv <span class="ot">=</span>  <span class="fu">which</span>(datastructcv<span class="sc">$</span>analyte <span class="sc">%in%</span> idx_analytes_in)</span>
-<span id="cb94-818"><a href="#cb94-818" aria-hidden="true" tabindex="-1"></a>nObscv <span class="ot">=</span> <span class="fu">length</span>(idxcv);</span>
-<span id="cb94-819"><a href="#cb94-819" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>idxcv <span class="ot">=</span> idxcv;</span>
-<span id="cb94-820"><a href="#cb94-820" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>nObscv <span class="ot">=</span> nObscv;</span>
-<span id="cb94-821"><a href="#cb94-821" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-822"><a href="#cb94-822" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-823"><a href="#cb94-823" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitting the model</span></span>
-<span id="cb94-824"><a href="#cb94-824" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-825"><a href="#cb94-825" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mod-settings-cv}</span></span>
-<span id="cb94-826"><a href="#cb94-826" aria-hidden="true" tabindex="-1"></a>model_name <span class="ot">&lt;-</span> <span class="st">"mod17cv"</span></span>
-<span id="cb94-827"><a href="#cb94-827" aria-hidden="true" tabindex="-1"></a>model_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">".stan"</span>)</span>
-<span id="cb94-828"><a href="#cb94-828" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-829"><a href="#cb94-829" aria-hidden="true" tabindex="-1"></a><span class="co">#' folder shortcuts:</span></span>
-<span id="cb94-830"><a href="#cb94-830" aria-hidden="true" tabindex="-1"></a>mod_figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"figures"</span>, model_name)</span>
-<span id="cb94-831"><a href="#cb94-831" aria-hidden="true" tabindex="-1"></a>mod_tabels_dir  <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"tables"</span>, model_name)</span>
-<span id="cb94-832"><a href="#cb94-832" aria-hidden="true" tabindex="-1"></a>mod_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name)</span>
-<span id="cb94-833"><a href="#cb94-833" aria-hidden="true" tabindex="-1"></a>mod_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name, <span class="st">"output"</span>)</span>
-<span id="cb94-834"><a href="#cb94-834" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-835"><a href="#cb94-835" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_figures_dir)) <span class="fu">dir.create</span>(mod_figures_dir)</span>
-<span id="cb94-836"><a href="#cb94-836" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_tabels_dir)) <span class="fu">dir.create</span>(mod_tabels_dir)</span>
-<span id="cb94-837"><a href="#cb94-837" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_model_dir)) <span class="fu">dir.create</span>(mod_model_dir)</span>
-<span id="cb94-838"><a href="#cb94-838" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_output_dir)) <span class="fu">dir.create</span>(mod_output_dir)</span>
-<span id="cb94-839"><a href="#cb94-839" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-840"><a href="#cb94-840" aria-hidden="true" tabindex="-1"></a>modelqg_name <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">"gq"</span>)</span>
-<span id="cb94-841"><a href="#cb94-841" aria-hidden="true" tabindex="-1"></a>modelqg_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(modelqg_name,<span class="st">".stan"</span>)</span>
-<span id="cb94-842"><a href="#cb94-842" aria-hidden="true" tabindex="-1"></a>modgq_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name)</span>
-<span id="cb94-843"><a href="#cb94-843" aria-hidden="true" tabindex="-1"></a>modgq_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name, <span class="st">"output"</span>)</span>
-<span id="cb94-844"><a href="#cb94-844" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-845"><a href="#cb94-845" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_model_dir)) <span class="fu">dir.create</span>(modgq_model_dir)</span>
-<span id="cb94-846"><a href="#cb94-846" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_output_dir)) <span class="fu">dir.create</span>(modgq_output_dir)</span>
-<span id="cb94-847"><a href="#cb94-847" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-805"><a href="#cb94-805" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb94-806"><a href="#cb94-806" aria-hidden="true" tabindex="-1"></a>distance <span class="ot">=</span> <span class="dv">1</span><span class="sc">-</span>similarity_matrix</span>
+<span id="cb94-807"><a href="#cb94-807" aria-hidden="true" tabindex="-1"></a>upper_tri_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">upper.tri</span>(distance), <span class="at">arr.ind =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb94-808"><a href="#cb94-808" aria-hidden="true" tabindex="-1"></a>upper_tri_values <span class="ot">&lt;-</span> distance[upper_tri_indices]</span>
+<span id="cb94-809"><a href="#cb94-809" aria-hidden="true" tabindex="-1"></a>top_100_indices <span class="ot">&lt;-</span> <span class="fu">order</span>(upper_tri_values)[<span class="fu">seq</span>(<span class="dv">1</span>,<span class="dv">1000</span>,<span class="at">by=</span><span class="dv">10</span>)]</span>
+<span id="cb94-810"><a href="#cb94-810" aria-hidden="true" tabindex="-1"></a>closest_pairs <span class="ot">&lt;-</span> upper_tri_indices[top_100_indices, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb94-811"><a href="#cb94-811" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-812"><a href="#cb94-812" aria-hidden="true" tabindex="-1"></a>closest_pairs <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(closest_pairs)</span>
+<span id="cb94-813"><a href="#cb94-813" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(closest_pairs) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"row"</span>, <span class="st">"col"</span>)</span>
+<span id="cb94-814"><a href="#cb94-814" aria-hidden="true" tabindex="-1"></a>closest_pairs<span class="sc">$</span>distance <span class="ot">=</span> upper_tri_values[top_100_indices]</span>
+<span id="cb94-815"><a href="#cb94-815" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-816"><a href="#cb94-816" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(closest_pairs)</span>
+<span id="cb94-817"><a href="#cb94-817" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-818"><a href="#cb94-818" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-819"><a href="#cb94-819" aria-hidden="true" tabindex="-1"></a><span class="in">```{r datastruct-cv}</span></span>
+<span id="cb94-820"><a href="#cb94-820" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">=</span> <span class="fu">unique</span>(closest_pairs<span class="sc">$</span>col)</span>
+<span id="cb94-821"><a href="#cb94-821" aria-hidden="true" tabindex="-1"></a>datastructcv <span class="ot">=</span> datastruct;</span>
+<span id="cb94-822"><a href="#cb94-822" aria-hidden="true" tabindex="-1"></a>initcv<span class="ot">=</span>init;</span>
+<span id="cb94-823"><a href="#cb94-823" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb94-824"><a href="#cb94-824" aria-hidden="true" tabindex="-1"></a>idx_analytes_out <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">unique</span>(closest_pairs<span class="sc">$</span>col))</span>
+<span id="cb94-825"><a href="#cb94-825" aria-hidden="true" tabindex="-1"></a>idx_analytes_in <span class="ot">=</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(datastructcv<span class="sc">$</span>analyte),idx_analytes_out)</span>
+<span id="cb94-826"><a href="#cb94-826" aria-hidden="true" tabindex="-1"></a>idxcv <span class="ot">=</span>  <span class="fu">which</span>(datastructcv<span class="sc">$</span>analyte <span class="sc">%in%</span> idx_analytes_in)</span>
+<span id="cb94-827"><a href="#cb94-827" aria-hidden="true" tabindex="-1"></a>nObscv <span class="ot">=</span> <span class="fu">length</span>(idxcv);</span>
+<span id="cb94-828"><a href="#cb94-828" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>idxcv <span class="ot">=</span> idxcv;</span>
+<span id="cb94-829"><a href="#cb94-829" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>nObscv <span class="ot">=</span> nObscv;</span>
+<span id="cb94-830"><a href="#cb94-830" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-831"><a href="#cb94-831" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-832"><a href="#cb94-832" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitting the model</span></span>
+<span id="cb94-833"><a href="#cb94-833" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-834"><a href="#cb94-834" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mod-settings-cv}</span></span>
+<span id="cb94-835"><a href="#cb94-835" aria-hidden="true" tabindex="-1"></a>model_name <span class="ot">&lt;-</span> <span class="st">"mod17cv"</span></span>
+<span id="cb94-836"><a href="#cb94-836" aria-hidden="true" tabindex="-1"></a>model_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">".stan"</span>)</span>
+<span id="cb94-837"><a href="#cb94-837" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-838"><a href="#cb94-838" aria-hidden="true" tabindex="-1"></a><span class="co">#' folder shortcuts:</span></span>
+<span id="cb94-839"><a href="#cb94-839" aria-hidden="true" tabindex="-1"></a>mod_figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"figures"</span>, model_name)</span>
+<span id="cb94-840"><a href="#cb94-840" aria-hidden="true" tabindex="-1"></a>mod_tabels_dir  <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"tables"</span>, model_name)</span>
+<span id="cb94-841"><a href="#cb94-841" aria-hidden="true" tabindex="-1"></a>mod_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name)</span>
+<span id="cb94-842"><a href="#cb94-842" aria-hidden="true" tabindex="-1"></a>mod_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name, <span class="st">"output"</span>)</span>
+<span id="cb94-843"><a href="#cb94-843" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-844"><a href="#cb94-844" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_figures_dir)) <span class="fu">dir.create</span>(mod_figures_dir)</span>
+<span id="cb94-845"><a href="#cb94-845" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_tabels_dir)) <span class="fu">dir.create</span>(mod_tabels_dir)</span>
+<span id="cb94-846"><a href="#cb94-846" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_model_dir)) <span class="fu">dir.create</span>(mod_model_dir)</span>
+<span id="cb94-847"><a href="#cb94-847" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_output_dir)) <span class="fu">dir.create</span>(mod_output_dir)</span>
 <span id="cb94-848"><a href="#cb94-848" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-849"><a href="#cb94-849" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-compile-cv, eval = FALSE}</span></span>
-<span id="cb94-850"><a href="#cb94-850" aria-hidden="true" tabindex="-1"></a>mod17cv <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(here<span class="sc">::</span><span class="fu">here</span>(mod_model_dir, model_name_ext), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
-<span id="cb94-851"><a href="#cb94-851" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-852"><a href="#cb94-852" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-853"><a href="#cb94-853" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files-cv, eval = FALSE}</span></span>
-<span id="cb94-854"><a href="#cb94-854" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastructcv, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-855"><a href="#cb94-855" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-856"><a href="#cb94-856" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-857"><a href="#cb94-857" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-858"><a href="#cb94-858" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-859"><a href="#cb94-859" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-860"><a href="#cb94-860" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-861"><a href="#cb94-861" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-862"><a href="#cb94-862" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb94-863"><a href="#cb94-863" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-864"><a href="#cb94-864" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-865"><a href="#cb94-865" aria-hidden="true" tabindex="-1"></a>After calculations, we loaded the output files using cmdstanr.</span>
-<span id="cb94-866"><a href="#cb94-866" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-867"><a href="#cb94-867" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load-cv}</span></span>
-<span id="cb94-868"><a href="#cb94-868" aria-hidden="true" tabindex="-1"></a>fitcv <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb94-869"><a href="#cb94-869" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb94-870"><a href="#cb94-870" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb94-871"><a href="#cb94-871" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb94-872"><a href="#cb94-872" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb94-873"><a href="#cb94-873" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb94-874"><a href="#cb94-874" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb94-875"><a href="#cb94-875" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb94-876"><a href="#cb94-876" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb94-877"><a href="#cb94-877" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb94-878"><a href="#cb94-878" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-879"><a href="#cb94-879" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-880"><a href="#cb94-880" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
-<span id="cb94-881"><a href="#cb94-881" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-882"><a href="#cb94-882" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters.</span>
-<span id="cb94-883"><a href="#cb94-883" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-884"><a href="#cb94-884" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary-cv}</span></span>
-<span id="cb94-885"><a href="#cb94-885" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>, <span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">12</span>)</span>
-<span id="cb94-886"><a href="#cb94-886" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-887"><a href="#cb94-887" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-849"><a href="#cb94-849" aria-hidden="true" tabindex="-1"></a>modelqg_name <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">"gq"</span>)</span>
+<span id="cb94-850"><a href="#cb94-850" aria-hidden="true" tabindex="-1"></a>modelqg_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(modelqg_name,<span class="st">".stan"</span>)</span>
+<span id="cb94-851"><a href="#cb94-851" aria-hidden="true" tabindex="-1"></a>modgq_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name)</span>
+<span id="cb94-852"><a href="#cb94-852" aria-hidden="true" tabindex="-1"></a>modgq_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name, <span class="st">"output"</span>)</span>
+<span id="cb94-853"><a href="#cb94-853" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-854"><a href="#cb94-854" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_model_dir)) <span class="fu">dir.create</span>(modgq_model_dir)</span>
+<span id="cb94-855"><a href="#cb94-855" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_output_dir)) <span class="fu">dir.create</span>(modgq_output_dir)</span>
+<span id="cb94-856"><a href="#cb94-856" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-857"><a href="#cb94-857" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-858"><a href="#cb94-858" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-compile-cv, eval = FALSE}</span></span>
+<span id="cb94-859"><a href="#cb94-859" aria-hidden="true" tabindex="-1"></a>mod17cv <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(here<span class="sc">::</span><span class="fu">here</span>(mod_model_dir, model_name_ext), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
+<span id="cb94-860"><a href="#cb94-860" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-861"><a href="#cb94-861" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-862"><a href="#cb94-862" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files-cv, eval = FALSE}</span></span>
+<span id="cb94-863"><a href="#cb94-863" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastructcv, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-864"><a href="#cb94-864" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-865"><a href="#cb94-865" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-866"><a href="#cb94-866" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-867"><a href="#cb94-867" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-868"><a href="#cb94-868" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-869"><a href="#cb94-869" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-870"><a href="#cb94-870" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-871"><a href="#cb94-871" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb94-872"><a href="#cb94-872" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-873"><a href="#cb94-873" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-874"><a href="#cb94-874" aria-hidden="true" tabindex="-1"></a>After calculations, we loaded the output files using cmdstanr.</span>
+<span id="cb94-875"><a href="#cb94-875" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-876"><a href="#cb94-876" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load-cv}</span></span>
+<span id="cb94-877"><a href="#cb94-877" aria-hidden="true" tabindex="-1"></a>fitcv <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
+<span id="cb94-878"><a href="#cb94-878" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb94-879"><a href="#cb94-879" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb94-880"><a href="#cb94-880" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb94-881"><a href="#cb94-881" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb94-882"><a href="#cb94-882" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb94-883"><a href="#cb94-883" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb94-884"><a href="#cb94-884" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb94-885"><a href="#cb94-885" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb94-886"><a href="#cb94-886" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb94-887"><a href="#cb94-887" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb94-888"><a href="#cb94-888" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-889"><a href="#cb94-889" aria-hidden="true" tabindex="-1"></a><span class="fu">## Genereted quantitites</span></span>
+<span id="cb94-889"><a href="#cb94-889" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
 <span id="cb94-890"><a href="#cb94-890" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-891"><a href="#cb94-891" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities-cv, eval=FALSE}</span></span>
-<span id="cb94-892"><a href="#cb94-892" aria-hidden="true" tabindex="-1"></a>mod17cvgq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
-<span id="cb94-893"><a href="#cb94-893" aria-hidden="true" tabindex="-1"></a>fitcvgq  <span class="ot">&lt;-</span> mod17cvgq<span class="sc">$</span><span class="fu">generate_quantities</span>(fitcv,</span>
-<span id="cb94-894"><a href="#cb94-894" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastructcv,</span>
-<span id="cb94-895"><a href="#cb94-895" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb94-896"><a href="#cb94-896" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
-<span id="cb94-897"><a href="#cb94-897" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
-<span id="cb94-898"><a href="#cb94-898" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
-<span id="cb94-899"><a href="#cb94-899" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-900"><a href="#cb94-900" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-901"><a href="#cb94-901" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
-<span id="cb94-902"><a href="#cb94-902" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load</span></span>
-<span id="cb94-903"><a href="#cb94-903" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load-cv}</span></span>
-<span id="cb94-904"><a href="#cb94-904" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
-<span id="cb94-905"><a href="#cb94-905" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb94-906"><a href="#cb94-906" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb94-907"><a href="#cb94-907" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb94-908"><a href="#cb94-908" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb94-909"><a href="#cb94-909" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb94-910"><a href="#cb94-910" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb94-911"><a href="#cb94-911" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb94-912"><a href="#cb94-912" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb94-913"><a href="#cb94-913" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb94-914"><a href="#cb94-914" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
-<span id="cb94-915"><a href="#cb94-915" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-916"><a href="#cb94-916" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-917"><a href="#cb94-917" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fits</span></span>
-<span id="cb94-918"><a href="#cb94-918" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-919"><a href="#cb94-919" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-predictions-cv}</span></span>
-<span id="cb94-920"><a href="#cb94-920" aria-hidden="true" tabindex="-1"></a>fun_plot_ind_pop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">.analytes_idx=</span>analytes_idx){</span>
-<span id="cb94-921"><a href="#cb94-921" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-922"><a href="#cb94-922" aria-hidden="true" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb94-923"><a href="#cb94-923" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb94-924"><a href="#cb94-924" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
-<span id="cb94-925"><a href="#cb94-925" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb94-926"><a href="#cb94-926" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb94-927"><a href="#cb94-927" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> .analytes_idx) <span class="sc">%&gt;%</span></span>
-<span id="cb94-928"><a href="#cb94-928" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb94-929"><a href="#cb94-929" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkind =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb94-930"><a href="#cb94-930" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkpop =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb94-931"><a href="#cb94-931" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb94-932"><a href="#cb94-932" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkind), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb94-933"><a href="#cb94-933" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkpop), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb94-934"><a href="#cb94-934" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> .analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span></span>
-<span id="cb94-935"><a href="#cb94-935" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
-<span id="cb94-936"><a href="#cb94-936" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual and population)"</span>) <span class="sc">+</span></span>
-<span id="cb94-937"><a href="#cb94-937" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb94-938"><a href="#cb94-938" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb94-939"><a href="#cb94-939" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb94-940"><a href="#cb94-940" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-941"><a href="#cb94-941" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>])</span>
-<span id="cb94-942"><a href="#cb94-942" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">&lt;-</span><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>])</span>
-<span id="cb94-943"><a href="#cb94-943" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-944"><a href="#cb94-944" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
-<span id="cb94-945"><a href="#cb94-945" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
-<span id="cb94-946"><a href="#cb94-946" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-947"><a href="#cb94-947" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb94-948"><a href="#cb94-948" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-949"><a href="#cb94-949" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
-<span id="cb94-950"><a href="#cb94-950" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb94-953"><a href="#cb94-953" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb94-954"><a href="#cb94-954" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb94-955"><a href="#cb94-955" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-891"><a href="#cb94-891" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters.</span>
+<span id="cb94-892"><a href="#cb94-892" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-893"><a href="#cb94-893" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary-cv}</span></span>
+<span id="cb94-894"><a href="#cb94-894" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>, <span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">12</span>)</span>
+<span id="cb94-895"><a href="#cb94-895" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-896"><a href="#cb94-896" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-897"><a href="#cb94-897" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-898"><a href="#cb94-898" aria-hidden="true" tabindex="-1"></a><span class="fu">## Genereted quantitites</span></span>
+<span id="cb94-899"><a href="#cb94-899" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-900"><a href="#cb94-900" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities-cv, eval=FALSE}</span></span>
+<span id="cb94-901"><a href="#cb94-901" aria-hidden="true" tabindex="-1"></a>mod17cvgq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
+<span id="cb94-902"><a href="#cb94-902" aria-hidden="true" tabindex="-1"></a>fitcvgq  <span class="ot">&lt;-</span> mod17cvgq<span class="sc">$</span><span class="fu">generate_quantities</span>(fitcv,</span>
+<span id="cb94-903"><a href="#cb94-903" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastructcv,</span>
+<span id="cb94-904"><a href="#cb94-904" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb94-905"><a href="#cb94-905" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
+<span id="cb94-906"><a href="#cb94-906" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
+<span id="cb94-907"><a href="#cb94-907" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
+<span id="cb94-908"><a href="#cb94-908" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-909"><a href="#cb94-909" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-910"><a href="#cb94-910" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb94-911"><a href="#cb94-911" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load</span></span>
+<span id="cb94-912"><a href="#cb94-912" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load-cv}</span></span>
+<span id="cb94-913"><a href="#cb94-913" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
+<span id="cb94-914"><a href="#cb94-914" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb94-915"><a href="#cb94-915" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb94-916"><a href="#cb94-916" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb94-917"><a href="#cb94-917" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb94-918"><a href="#cb94-918" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb94-919"><a href="#cb94-919" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb94-920"><a href="#cb94-920" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb94-921"><a href="#cb94-921" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb94-922"><a href="#cb94-922" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb94-923"><a href="#cb94-923" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
+<span id="cb94-924"><a href="#cb94-924" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-925"><a href="#cb94-925" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-926"><a href="#cb94-926" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fits</span></span>
+<span id="cb94-927"><a href="#cb94-927" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-928"><a href="#cb94-928" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-predictions-cv}</span></span>
+<span id="cb94-929"><a href="#cb94-929" aria-hidden="true" tabindex="-1"></a>fun_plot_ind_pop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">.analytes_idx=</span>analytes_idx){</span>
+<span id="cb94-930"><a href="#cb94-930" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-931"><a href="#cb94-931" aria-hidden="true" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb94-932"><a href="#cb94-932" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb94-933"><a href="#cb94-933" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
+<span id="cb94-934"><a href="#cb94-934" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb94-935"><a href="#cb94-935" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb94-936"><a href="#cb94-936" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> .analytes_idx) <span class="sc">%&gt;%</span></span>
+<span id="cb94-937"><a href="#cb94-937" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb94-938"><a href="#cb94-938" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkind =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb94-939"><a href="#cb94-939" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkpop =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb94-940"><a href="#cb94-940" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb94-941"><a href="#cb94-941" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkind), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb94-942"><a href="#cb94-942" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkpop), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb94-943"><a href="#cb94-943" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> .analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span></span>
+<span id="cb94-944"><a href="#cb94-944" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
+<span id="cb94-945"><a href="#cb94-945" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual and population)"</span>) <span class="sc">+</span></span>
+<span id="cb94-946"><a href="#cb94-946" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb94-947"><a href="#cb94-947" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb94-948"><a href="#cb94-948" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb94-949"><a href="#cb94-949" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-950"><a href="#cb94-950" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>])</span>
+<span id="cb94-951"><a href="#cb94-951" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">&lt;-</span><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>])</span>
+<span id="cb94-952"><a href="#cb94-952" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-953"><a href="#cb94-953" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
+<span id="cb94-954"><a href="#cb94-954" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
+<span id="cb94-955"><a href="#cb94-955" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-956"><a href="#cb94-956" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb94-957"><a href="#cb94-957" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-958"><a href="#cb94-958" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb94-959"><a href="#cb94-959" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-962"><a href="#cb94-962" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb94-963"><a href="#cb94-963" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb94-964"><a href="#cb94-964" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

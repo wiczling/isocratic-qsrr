@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Model 017"
+title: "Model 021"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -441,7 +441,7 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
 
 ```{r summary}
-fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=12)
+fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi","nu"), max_rows=13)
 ```
 
 
@@ -762,27 +762,31 @@ walk(plot_groups, function(group) {
 
 ### Posterior correlations
 ```{r posterior-corelations}
-# https://pmc.ncbi.nlm.nih.gov/articles/PMC5321813/ use decorelations for assessment
+similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
+
 etas <- draws_gen_df %>%
   select(starts_with("seta_ind"))
 etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))]
 cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column
 
+etas_decor <- draws_gen_df %>%
+  select(starts_with("seta_decorr_ind"))
+etas_decor_subset <- etas_decor[, grepl("\\[\\d+,1\\]", names(etas_decor))]
+cor_matrix_decorrelated <- cor(etas_decor_subset, use = "complete.obs")  # exclude .draw column
+
 rownames(cor_matrix) <- 1:1026
 colnames(cor_matrix) <- 1:1026
-
+rownames(cor_matrix_decorrelated) <- 1:1026
+colnames(cor_matrix_decorrelated) <- 1:1026
 ggcorrplot(similarity_matrix_corrected[001:100,001:100])
 ggcorrplot(cor_matrix[001:100,001:100])
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
 
-cor_matrix_ltr=similarity_to_ltr_fun(cor_matrix)%>%
+p1 =similarity_to_ltr_fun(cor_matrix)%>%
   rename(corr = similarity) %>%
-  left_join(similarity_to_ltr_fun(similarity_matrix_corrected)) %>%
-  filter(row!=col) 
-
-cor_matrix_ltr<- cor_matrix_ltr%>%
-  filter(col %in% row)
-
-p1 <- cor_matrix_ltr %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) %>%
+  filter(col %in% row) %>%
   ggplot(aes(y = corr, x = similarity)) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() +  # cleaner theme
@@ -790,7 +794,19 @@ p1 <- cor_matrix_ltr %>%
        x = "Similarity") +
   theme(legend.position = "none")
 
-print(p1)
+p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
+  rename(corr = similarity) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) %>%
+  filter(col %in% row) %>%
+  ggplot(aes(y = corr, x = similarity)) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_minimal() +  # cleaner theme
+  labs(y = "Correlation",
+       x = "Similarity") +
+  theme(legend.position = "none")
+
+print(p1+p2)
 ```
 
 #  Simulations (CV-based)

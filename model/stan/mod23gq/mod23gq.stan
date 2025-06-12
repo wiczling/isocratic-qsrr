@@ -31,7 +31,6 @@ functions {
     return logki;
   }
 }
-
 data {
   int nAnalytes;
   int nObs;
@@ -48,13 +47,6 @@ data {
 }
 
 transformed data {
-  matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
-  matrix[nAnalytes, nAnalytes] L_K;
-  for (n in 1:nAnalytes) {
-    K[n, n] = K[n, n] + 0.01;
-  }
-  L_K = cholesky_decompose(K);
-  
   vector[nAnalytes] logP_centered = logPobs - 2.5;
 }
 
@@ -70,17 +62,33 @@ parameters {
   vector[nK] piS1;
   vector<lower=0.01>[2] sdpi;
   matrix[nAnalytes, 2] param;
+  real<lower=0> rhogp;
 }
 
 transformed parameters {
   matrix[nAnalytes, 2] miu;
   vector[nObs] logkx;
   matrix[2, 2] L_Omega;
+  
+
   {
     matrix[2, 2] Omega = quad_form_diag(rho, omega);
     L_Omega = cholesky_decompose(Omega);
   }
 
+  real lprior=0;
+  lprior += normal_lpdf(logkwHat | 2, 4);
+  lprior += normal_lpdf(S1Hat | 4, 2);
+  lprior += lognormal_lpdf(S2Hat | 0.693, 0.125);
+  lprior += normal_lpdf(beta | [0.7, 0.5]', [0.125, 0.5]');
+  lprior += normal_lpdf(omega | 0, 1);
+  lprior += normal_lpdf(pilogkw | 0, sdpi[1]);
+  lprior += normal_lpdf(piS1 | 0, sdpi[2]);
+  lprior += normal_lpdf(sdpi | 0, 0.1);
+  lprior += lkj_corr_point_lower_tri_lpdf(rho | 0.75, 0.125);
+  lprior += inv_gamma_lpdf(rhogp | 5, 2);
+  lprior += normal_lpdf(sigma| 0, 0.05);
+  
   miu[,1] = logkwHat + beta[1] * logP_centered + fgrp * pilogkw;
   miu[,2] = S1Hat + beta[2] * logP_centered + fgrp * piS1;
   for (i in 1:nAnalytes) {
@@ -89,22 +97,22 @@ transformed parameters {
 }
 
 model {
-  logkwHat ~ normal(2, 4);
-  S1Hat ~ normal(4, 2);
-  S2Hat ~ lognormal(0.693, 0.125);
-  beta[1] ~ normal(0.7, 0.125);
-  beta[2] ~ normal(0.5, 0.5);
-  omega ~ normal(0, 1);
-  pilogkw ~ normal(0, sdpi[1]);
-  piS1 ~ normal(0, sdpi[2]);
-  sdpi ~ normal(0, 0.1);
-  rho ~ lkj_corr_point_lower_tri(0.75, 0.125);
+  
+  matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, rhogp)+ 
+      diag_matrix(rep_vector(0.01, nAnalytes));
+  matrix[nAnalytes, nAnalytes] L_K;
+  L_K = cholesky_decompose(K);
+  
   target += matrix_normal_lpdf(to_vector(param) | to_vector(miu), L_K, L_Omega);
-  sigma ~ normal(0, 0.05);
+  
   if (run_estimation == 1) {
-    logkobs ~ student_t(7, logkx, sigma);
+    target += student_t_lpdf(logkobs | 7, logkx, sigma);
   }
+  
+  // prior 
+  target += lprior;
 }
+
 
 generated quantities {
   
@@ -123,6 +131,9 @@ generated quantities {
 {
   matrix[nAnalytes,2] eta_pop;
   matrix[2, 2] rhoc;
+  matrix[nAnalytes, nAnalytes] K_gq = gp_exp_quad_cov(distance_x, 1.0, rhogp)+ diag_matrix(rep_vector(0.01, nAnalytes));
+  matrix[nAnalytes, nAnalytes] L_K_gq;
+  L_K_gq = cholesky_decompose(K_gq);
   
   for (i in 1 : nAnalytes) {
     for (j in 1 : 2) {
@@ -130,7 +141,7 @@ generated quantities {
   }}
   
   rhoc= cholesky_decompose(rho);
-  sparam_pop= miu + (L_K * eta_pop * diag_pre_multiply(omega, rhoc)');
+  sparam_pop= miu + (L_K_gq * eta_pop * diag_pre_multiply(omega, rhoc)');
 }
   seta_ind = sparam_ind - miu;
 

@@ -123,18 +123,17 @@ generated quantities {
   {
   matrix[nAnalytes,nAnalytes] L_K_pop=cholesky_decompose(similarity_x * alpha + (1-alpha)*identity_matrix(nAnalytes));
   matrix[nAnalytes,2] eta_pop;
-  matrix[2,2] L_V = cholesky_decompose(Omega);
   
    for (i in 1 : nAnalytes) {
     for (j in 1 : 2) {
     eta_pop[i,j]=normal_rng(0,1);
   }}
    
-  sparam_pop= miu + (L_K_pop * eta_pop * L_V');
+  sparam_pop= miu + (L_K_pop * eta_pop * L_Omega');
 
   seta_ind = sparam_ind - miu;
   matrix[nAnalytes, 2] temp = mdivide_left_tri_low(L_K_pop, seta_ind);
-  seta_decorr_ind = mdivide_right_tri_low(temp, L_V');
+  seta_decorr_ind = mdivide_right_tri_low(temp, L_Omega');
   
     }
   for (i in 1 : nAnalytes) {

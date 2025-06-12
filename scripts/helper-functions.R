@@ -1,3 +1,5 @@
+`%notin%` <- Negate(`%in%`)
+
 ### MCS 
 extract_diff_fragments_combined <- function(idx1, idx2, smiles, .mcs_params = mcs_params, .fg_hierarchy = fg_hierarchy) {
   

@@ -1,0 +1,973 @@
+---
+title: "Model 024"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+---
+
+
+# Introductions
+
+
+# Setup
+```{r setup, message=FALSE}
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+
+library(bbr)
+library(bbr.bayes)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(gridExtra)
+library(naniar)
+library(knitr)
+library(data.table)
+library(tidyverse)
+library(glue)
+library(whisker)
+library(here)
+library(cmdstanr)
+library(gridExtra)
+library(posterior)
+library(bayesplot)
+library(tidybayes)
+library(reshape2)
+library(pracma)
+library(mrgmisc)
+library(GGally)
+library(igraph)
+library(ggcorrplot)
+#remotes::install_github("metrumresearchgroup/mrgmisc")
+set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
+set.seed(10271998) ## not required but assures repeatable results
+select<-dplyr::select
+source("helper-functions.R")
+```
+
+```{r settings}
+data_dir = here::here("data")
+model_dir <- here::here("model","stan")  
+figures_dir <- here::here("deliv","figures", "stan")
+tables_dir <- here::here("deliv","tables", "stan")
+if(!file.exists(figures_dir)) dir.create(figures_dir, recursive = T)
+if(!file.exists(model_dir)) dir.create(model_dir, recursive = T)
+if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
+
+data_deliv_dir = here::here("data","deliv")
+data_derived_dir = here::here("data","derived")
+if(!file.exists(data_deliv_dir)) dir.create(data_deliv_dir, recursive = T)
+if(!file.exists(data_derived_dir)) dir.create(data_derived_dir, recursive = T)
+
+figures_eda_dir <- here::here("deliv","figures", "stan")
+tables_eda_dir <- here::here("deliv","tables", "stan")
+if(!file.exists(figures_eda_dir)) dir.create(figures_eda_dir, recursive = T)
+if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
+```
+
+
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
+
+The values of molecular mass MM were added to the dataset. They were calculated using [ACD/Labs program](www.acdlabs.com) based on the provided structures of analytes. The MM ranged from 73.09 to 656.8. The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
+
+
+## Load data
+```{r load-data, message=FALSE, warning=FALSE}
+data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
+analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
+smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
+
+data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
+data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
+
+data_ACD$logP =data %>% distinct(ID, .keep_all = TRUE) %>% pull(logP_ACD)
+data_ACD$MW =data %>% distinct(ID, .keep_all = TRUE) %>% pull(MW_ACD)
+data_ACD$logP[526] = mean(data_ACD$logP, na.rm = TRUE)
+
+fg_df = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE)
+
+descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
+
+similarity_ltri_rcdk_df <- read.csv(file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), header = TRUE)
+similarity_matrix <- make_similarity_matrix_fun(similarity_ltri_rcdk_df)
+
+smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
+smiles$smiles[501] = "c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"
+smiles$smiles[401]= "CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"
+smiles$smiles[686] = "CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"
+smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
+
+analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
+```
+
+## Prepare data
+```{r prepare-data, message=FALSE, warning=FALSE}
+data<-data %>%
+  left_join(analytes_names) %>%
+  mutate(mm_group =case_when(
+             MW_ACD < 200 ~ "MM < 200",
+             MW_ACD < 300 & MW_ACD >= 200 ~ "200 \u2264 MM < 300",
+             MW_ACD < 400 & MW_ACD >= 300 ~ "300 \u2264 MM < 400",
+             .default = "400 \u2264 MM"))
+
+functional_groups = fg_df %>%
+  select(where(~ is.character(.) || !all(. == 0, na.rm = TRUE))) %>%
+  select(-c(id1,id2,SMILES, Anion, Kation,Ammonium))
+
+functional_groups_names<- colnames(functional_groups)
+totalnrgroups <- summarise_each(functional_groups, funs(sum))
+
+dissociation = list(
+pKaslit = data_ACD[,3:5],           # pKa values as predicted by ACD
+pKasliterror = data_ACD[,17:19],    # pKa error as predicted by ACD
+chargesA = abs(data_ACD[,9:12]),    # number of ionized groups (anions)
+chargesB = abs(data_ACD[,13:16]))   # number of ionized groups (cations)
+dissociation$charges = dissociation$chargesA+dissociation$chargesB                  # absolute charge
+dissociation$groupsA = (dissociation$chargesA[,2:4]-dissociation$chargesA[,1:3])         # acidic group
+dissociation$groupsB = -(dissociation$chargesB[,2:4]-dissociation$chargesB[,1:3])        # basic group
+dissociation$R = rowSums(data_ACD[,3:5]<14) # number of dissociation steps
+dissociation$groups = dissociation$groupsB-dissociation$groupsA
+dissociation$logPobs =data_ACD$logP
+dissociation$MW =data_ACD$MW
+# identify acidic groups
+dissociation$idxGroupsA <-which(dissociation$groupsA!=0,arr.ind = T)
+dissociation$nGroupsA <- nrow(dissociation$idxGroupsA)
+dissociation$pKaslitA<-dissociation$pKaslit[dissociation$idxGroupsA]
+# identify basic groups
+dissociation$idxGroupsB <-which(dissociation$groupsB!=0,arr.ind = T)
+dissociation$nGroupsB <- nrow(dissociation$idxGroupsB)
+dissociation$pKaslitB<-dissociation$pKaslit[dissociation$idxGroupsB]
+# groups dissociated in the whole pH range
+dissociation$chargesA0 <- dissociation$chargesA[,1]
+dissociation$chargesB0 <- dissociation$chargesB[,max(dissociation$R)]
+dissociation$idxA0 = c(which(dissociation$chargesA0==1), which(dissociation$chargesA0==2))
+dissociation$idxB0 = c(which(dissociation$chargesB0==1), which(dissociation$chargesB0==2))
+dissociation$nA0 <- length(dissociation$idxA0)
+dissociation$nB0 <- length(dissociation$idxB0)
+
+```
+
+## Initial estimates
+```{r initial-estimates}
+nAnalytes <- length(unique(data$ID))
+initial_param <- matrix(NA,nAnalytes,3)
+
+for(i in 1:nAnalytes){
+  if(length(data$fi[data$ID==i])==1){
+    initial_param[i,2] <- polyfit(-16*data$fi[data$ID==i]/(1+2*data$fi[data$ID==i]), data$logk[data$ID==i],0)
+    initial_param[i,1] <- -16
+  }else{
+    initial_param[i,1:2] <- polyfit(data$fi[data$ID==i]/(1+2*data$fi[data$ID==i]), data$logk[data$ID==i],1)
+  }
+}
+
+initial_param[,3] <- rep(2,nAnalytes)
+init_aprox <-  data.frame(logkw = initial_param[,2])
+init_aprox$S2 <- rep(2,nAnalytes)
+init_aprox$S1 <- -initial_param[,1]/(1+2)
+```
+
+# Data analysis
+## Model
+The data was analyzed using a ...
+
+$$
+\begin{aligned}
+& logk_{i,j}  = logkw_{i} - S_{1,i} \cdot (1 + S_{2}) \cdot \varphi_{i,j} / (1 + S_{2} \cdot \varphi_{i,j})
+\end{aligned}
+$$
+The statistical model has the following structure (hierarchical model):
+
+$$ 
+\begin{aligned}
+& \log k_{obs_{i,j}} \sim student_t(\nu,logk_{i,j},\sigma) \\
+& R_{i} \sim \text{MVN}(\theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i , \Omega) \\
+& \pi_{R,k} \sim N(0,\kappa_R)
+\end{aligned}
+$$
+Needs improvements!! where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MVN$ is a multivariate normal distribution, $\theta_R$ is a vector of typical values of $R_i$, $\beta_R$ is a vector of slopes between $R_i$ and $logP_i$, and $\pi_R$ is a vector of slopes between $R_i$ and functional group vector $Xi$. In turn, $\sigma$ is the scale and $\Omega$ is the scale matrix for the random effects related to the residual and unexplained between-analyte variability. $\Omega$ was decomposed to:
+
+$$
+\Omega = diag(\omega) \cdot \rho \cdot diag(\omega) 
+$$
+
+where $\rho$ denotes correlation a correlation matrix and $\omega$ denotes standard deviation for between analyte variability.
+
+## Priors
+
+The priors were specified as follows:
+
+$$ 
+\begin{aligned}
+& \theta_{logkw} \sim normal(2, 4), \\
+& \theta_{S1} \sim normal(4, 2), \\
+& \theta_{S2} \sim lognormal(0.693, 0.125), \\
+& \nu = 7,\\
+& \omega_{logkw},\omega_{S1} \sim normal_+(0, 1), \\
+& \beta_{logkw} \sim  normal(0.7, 0.125), \\
+& \beta_{S1} \sim  normal(0.5, 0.125), \\
+& \kappa_{logkw},\kappa_{S1} \sim  normal(0, 0.1), \\
+& \sigma \sim normal_+(0,0.05), \\
+& p(\rho) \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
+& c_u = [0.75]
+\end{aligned}
+$$
+
+LKJ(2) ensure that the density is uniform over correlation matrices of order 2 and u denotes the unique lower triangular elements of correlation matrix (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
+
+# Stan
+
+Multilevel modeling was performed in [Stan software](https://mc-stan.org/) linked with R/ [cmdstanr](https://mc-stan.org/cmdstanr/). For the inference we used 500 iterations, 1000 warmup iterations, and 8 Markov chains. The reduce_sum function was selected to accelerate the calculations. It works by parallelizing the execution of a single Stan chain across multiple cores. Convergence diagnostics were checked using Gelman−Rubin statistics and trace plots.
+
+### Initialize variables and parameters
+
+```{r stan-setup}
+
+
+#https://github.com/stan-dev/math/issues/86
+
+
+# create Stan data set: data
+nObs <- length(data$ID)
+nAnalytes <- length(unique(data$ID))
+start <- (1:nObs)[!duplicated(data$ID)]
+end <- c(start[-1] - 1, nObs)
+nK = ncol(functional_groups)
+
+similarity_matrix_corrected <- as.matrix(Matrix::nearPD(similarity_matrix, corr = TRUE)$mat)
+
+distance_x = 1-similarity_matrix_corrected
+diag(distance_x)<-1
+mines = apply(distance_x,2,min)
+idx_uncorelatted = which(mines>0.5)
+idx_corelatted = which(mines<=0.5)
+
+datastruct <- with(data,
+                  list(nAnalytes=length(unique(data$ID)),
+                       nAnalytes_corr=length(idx_corelatted),
+                       nAnalytes_uncorr=length(idx_uncorelatted),
+                       idx_corr = idx_corelatted,
+                       idx_uncorr = idx_uncorelatted,
+                       nObs=length(data$ID),
+                       analyte=match(data$ID, unique(data$ID)),
+                       fi=data$fi,
+                       logPobs=data_ACD$logP,
+                       nK = nK,
+                       fgrp = functional_groups,
+                       similarity_x = similarity_matrix_corrected,
+                       start = start,
+                       end= end,
+                       logkobs=logk,
+                       run_estimation=1))
+
+# initialize the values for each variable in each chain:
+init <- function(){
+  list(   logkwHat  = rnorm(1,2,2),
+          S1Hat    = rnorm(1,5,1),
+          S2Hat = 2*exp(rnorm(1,0,0.125)),
+          beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
+          omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
+          rho =  matrix(c(1,0.75,0.75,1), nrow=2),
+          L_Omega_W = t(chol(matrix(c(1,0.75,0.75,1), nrow=2))),
+          param_corr = cbind(init_aprox$logkw[idx_corelatted],init_aprox$S1[idx_corelatted]),
+          param_uncorr = cbind(init_aprox$logkw[idx_uncorelatted],init_aprox$S1[idx_uncorelatted]),
+          alpha = 0.75,
+          tau = 0.2,
+          pilogkw = rep(0,nK),
+          piS1 = rep(0,nK),
+          nu= max(3,rgamma(1,2,0.1)),
+          sdpi = c(0.1,0.1)* exp(rnorm(2,0,0.1)),
+          sigma  =  0.05*exp(rnorm(1, 0, 0.5))
+  )
+}
+```
+
+### Fitting the model
+We compiled the model using cmdstanr:
+```{r mod-settings}
+model_name <- "mod24"
+model_name_ext <- paste0(model_name,".stan")
+
+#' folder shortcuts:
+mod_figures_dir <- here::here("deliv", "figures", model_name)
+mod_tabels_dir  <- here::here("deliv", "tables", model_name)
+mod_model_dir   <- here::here("model", "stan", model_name)
+mod_output_dir   <- here::here("model", "stan", model_name, "output")
+
+if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir)
+if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir)
+if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
+if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+
+modelqg_name <- paste0(model_name,"gq")
+modelqg_name_ext <- paste0(modelqg_name,".stan")
+modgq_model_dir   <- here::here("model", "stan", modelqg_name)
+modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
+
+if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
+if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+```
+
+```{r stan-compile, eval = FALSE}
+mod24 <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+We used optimization for initial testing:
+
+```{r stan-optimize, eval = FALSE}
+fit_opt <- mod24$optimize(
+  data = datastruct,
+  output_dir = mod_output_dir,
+  output_basename = "mod24-opt",
+  init = init,
+  iter=3000
+)
+
+fit_opt$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi","tau", "nu"), max_rows=13)
+```
+
+
+```{r plots-optimize}
+fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
+
+data$logkopt<-fit_opt$mle("logkx")
+
+set.seed(123)
+p1<-data %>%
+  filter(ID %in% sample(unique(data$ID),12)) %>%
+  left_join(analytes_names) %>%
+  ggplot(aes(x=fi, y=logk)) + 
+  geom_point() + 
+  geom_line(aes(x=fi, y=logkopt)) + 
+  xlim(0,1)+
+  facet_wrap(~Analyte) +
+  labs(x = "\u03C6", y = expression(logk)) + 
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none", 
+        axis.text =element_text(size = 8),
+        strip.text =element_text(size = 8))
+
+p1
+```
+
+For local computations one can use cmdstanr:
+
+```{r stan-sample, eval = FALSE}
+ fit <- mod24$sample(
+   data = datastruct,
+   output_dir = mod_output_dir,
+   output_basename = "mod24-loc",
+   init = init,
+   iter_warmup = 500,
+   iter_sampling = 250,
+   chains = 4,
+   parallel_chains = 4,
+   refresh = 100,
+   adapt_delta=0.9
+ )
+
+ fit$save_object(file = here(mod_output_dir,"mod24-loc.RDS"))
+```
+
+We performed out computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
+
+1.  we dumped the necessary data to .json format
+
+```{r dump-files, eval = FALSE}
+write_stan_json(datastruct, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-3.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-4.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-5.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-6.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-7.json"), always_decimal = FALSE)
+write_stan_json(init(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE)
+```
+
+2.  we run the model using the batch file:
+
+```{=html}
+<pre> 
+</pre>
+```
+
+3.  After calculations, we loaded the output files using cmdstanr. 
+
+```{r stan-load}
+fit <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-8.csv")
+                                ))
+```
+
+4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
+
+```{r stan-diagnose, eval = FALSE}
+ #fit$cmdstan_diagnose()
+ setwd(mod_output_dir)
+ str = paste0(cmdstan_path(), '/bin/diagnose  mod24-*.csv')
+ system(str,intern=TRUE)
+```
+
+The diagnostics are reasonable given model complexity. Output copied here to save time:
+
+```{=html}
+<pre>
+</pre>
+```
+
+## Summary of model parameters (table):
+
+The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
+
+```{r summary}
+fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","tau","sdpi","nu"), max_rows=13)
+```
+
+
+# Genereted quantitites
+
+```{r generete-quntities, eval=FALSE}
+mod24gq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+fitgq  <- mod24gq$generate_quantities(fit,
+                                          data = datastruct,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = modelqg_name)
+```
+
+# Results
+## Load
+```{r eta-load}
+x <- cmdstanr::read_cmdstan_csv(c(
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
+                                ))
+draws_gen_df <- as_draws_df(x$generated_quantities)
+
+gc()
+```
+
+## Trace plots
+
+Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters
+
+```{r trace-plots, include=TRUE}
+bayesplot::mcmc_trace(fit$draws(c("logkwHat","S1Hat","beta","S2Hat"))) 
+bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi"))) 
+
+```
+
+## Summary of model parameters (figures)
+
+```{r mcmc-intervals}
+mcmc_intervals(fit$draws(c("logkwHat","S1Hat","beta","S2Hat")))
+mcmc_intervals(fit$draws(c("omega","sigma","sdpi")))
+```
+## Functional groups effect 
+```{r functinoal-group-effects}
+#| fig-width: 6
+#| fig-height: 12
+
+idx1 <- which(totalnrgroups > 10)
+idx2 <- which(totalnrgroups <= 10)
+
+draws_df_subset <- fit$draws(format = "df", variable = c("pilogkw","piS1"))
+
+param1<-draws_df_subset %>%
+  tidybayes::spread_draws(pilogkw[No])%>%
+  ggdist::median_qi(pilogkw) %>%
+  mutate(param = "pilogkw") %>%
+  rename(dv=pilogkw)%>%
+  mutate(functional_groups_name = functional_groups_names) %>%
+  filter(functional_groups_name %in% functional_groups_names[idx1])
+
+param2<-draws_df_subset %>%
+  tidybayes::spread_draws(piS1[No])%>%
+  ggdist::median_qi(piS1) %>%
+  mutate(param = "piS1")%>%
+  rename(dv=piS1)%>%
+  mutate(functional_groups_name = functional_groups_names)%>%
+  filter(functional_groups_name %in% functional_groups_names[idx1])
+
+param<-rbind(param1,param2) 
+p_common <- param %>%
+  mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  tidybayes::geom_pointinterval() +
+  labs(x="Effect", y="Functional group id")+
+  facet_wrap(.~param)+
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
+
+param1<-draws_df_subset %>%
+  tidybayes::spread_draws(pilogkw[No])%>%
+  ggdist::median_qi(pilogkw) %>%
+  mutate(param = "pilogkw") %>%
+  rename(dv=pilogkw)%>%
+  mutate(functional_groups_name = functional_groups_names) %>%
+  filter(functional_groups_name %in% functional_groups_names[idx2])
+
+param2<-draws_df_subset %>%
+  tidybayes::spread_draws(piS1[No])%>%
+  ggdist::median_qi(piS1) %>%
+  mutate(param = "piS1")%>%
+  rename(dv=piS1)%>%
+  mutate(functional_groups_name = functional_groups_names)%>%
+  filter(functional_groups_name %in% functional_groups_names[idx2])
+
+param<-rbind(param1,param2) 
+p_uncommon <- param %>%
+  mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  tidybayes::geom_pointinterval() +
+  labs(x="Effect", y="Functional group id")+
+  facet_wrap(.~param) +
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
+
+p_uncommon
+p_common
+```
+
+## Fits
+
+```{r ind-pop-gof-plots}
+results_ind <-draws_gen_df %>%
+  slice_sample(n=200) %>%
+  tidybayes::spread_draws(slogk_ind[i]) %>% 
+  rename(ID=i) %>%
+  group_by(ID)%>%
+  tidybayes::median_qi(logkpred = slogk_ind) %>%
+  select(-ID)
+
+results_pop <-draws_gen_df %>%
+  slice_sample(n=200) %>%
+  tidybayes::spread_draws(slogk_pop[i]) %>% 
+  rename(ID=i) %>%
+  group_by(ID)%>%
+  tidybayes::median_qi(logkpred = slogk_pop) %>%
+  select(-ID)
+
+p1 = data%>%
+  cbind(results_ind) %>%
+  ggplot(aes(x=logkpred, y=logk)) + 
+  geom_point() + 
+  #geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "logk (individual)", y = "logk (observed)") +
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none")
+
+p2 = data%>%
+  cbind(results_pop) %>%
+  ggplot(aes(x=logkpred, y=logk)) + 
+  geom_point() + 
+  #geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+
+  geom_abline(intercept = 0, slope = 1) +
+  labs(x = "logk (population)", y = "logk (observed)") + 
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none")
+
+p1+p2
+```
+
+
+```{r ind-predictions}
+
+analytes_idx = c(1:9, 501,510, 626)
+
+p <-draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logk = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot(aes(x = fi, y = logk)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% analytes_idx),aes(x=fi, y=logk)) + 
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk (individual)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+
+print(p)
+```
+
+```{r pop-predictions}
+analytes_idx = c(1:9, 501,510, 626)
+
+p <-draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logk = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot(aes(x = fi, y = logk)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% analytes_idx),aes(x=fi, y=logk)) + 
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk (population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+
+print(p)
+```
+
+
+```{r pop-predictions-vpc}
+p <-draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logk = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))%>%
+  mutate(draw=.draw)%>%
+  group_by(draw, fi)%>%
+  summarise(mlogk = mean(logk),
+            llogk = quantile(logk, prob=0.05),
+            ulogk = quantile(logk, prob=0.95))%>%
+  group_by(fi)%>%
+  summarise(mmlogk = mean(mlogk),
+            mllogk = quantile(llogk, prob=0.05),
+            mulogk = quantile(ulogk, prob=0.95))%>%
+  ggplot() +
+  geom_line(aes(x = fi, y = mmlogk))+
+  geom_line(aes(x = fi, y = mllogk))+
+  geom_line(aes(x = fi, y = mulogk))+
+  geom_point(data=data,aes(x=fi, y=logk)) + 
+  labs(x="\u03C6", y="logk (population)") +
+  theme(legend.position = "none") 
+
+print(p)
+```
+## Individual Parameters and etaplots
+
+Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.
+
+### Individual parameters
+
+```{r iparam}
+param <- draws_gen_df %>%
+  select(starts_with("sparam_ind")) %>%
+  summarise(across(.fns = mean)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "value")
+
+param1 <- param$value[1:nAnalytes]
+param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
+
+data_to_plot_param <- cbind(param1,param2, param1-param2, datastruct$logPobs)
+colnames(data_to_plot_param) <- c(expression('logkwN'[i]),expression('S1mN'[i]),expression('logka'[i]), expression('logP'[i]))
+
+p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
+        labeller = "label_parsed",upper = list(continuous = "points"))
+
+print(p)
+```
+
+### Etas
+```{r ieta}
+param <- draws_gen_df %>%
+  select(starts_with("seta_ind")) %>%
+  summarise(across(.fns = mean)) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "value")
+
+param1 <- param$value[1:nAnalytes]
+param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
+
+data_to_plot_param <- cbind(param1,param2,param1-param2,datastruct$logPobs)
+colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('etalogka'[i]),expression('logP'[i]))
+
+p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
+        labeller = "label_parsed",upper = list(continuous = "points"))
+
+print(p)
+```
+
+### Effect of functional groups (screening)
+```{r effect-fg-screening}
+
+valid_indices <- which(totalnrgroups > 10)
+
+plots <- map(valid_indices, function(i) {
+  # Extract functional group as a factor
+  nrgroups <- as.factor(functional_groups[, i])
+  
+  # Create data frame for plotting
+  data_to_plot_fungr <- data.frame(
+    param1 = param1,
+    param2 = param2,
+    param3= param1-param2,
+    nrgroups = nrgroups
+  )
+  
+  data_to_plot_fungr %>%
+    pivot_longer(cols = c(param1, param2, param3), 
+                 names_to = "name", 
+                 values_to = "count") %>%
+    mutate(etaname = recode(name, 
+                           param1 = "etalogkw", 
+                           param2 = "etaS",
+                           param3 = "etalogka")) %>%
+    ggplot(aes(y = count, x = nrgroups)) +
+    geom_boxplot() +
+    facet_wrap(~etaname) +
+    labs(title = functional_groups_names[i], 
+         x = "Nr of functional groups", 
+         y = "eta")+
+  theme(title=element_text(size = 8),
+        axis.text =element_text(size = 8),
+        strip.text =element_text(size = 8))
+})
+
+
+plot_groups <- split(plots, ceiling(seq_along(plots) / 4))
+
+# Print each group of up to four plots
+walk(plot_groups, function(group) {
+  combined_plot <- wrap_plots(group, ncol = 2, nrow = 2)
+  print(combined_plot)
+})
+```
+
+### Posterior correlations
+```{r posterior-corelations}
+similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
+
+etas <- draws_gen_df %>%
+  select(starts_with("seta_ind"))
+etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))]
+cor_matrix <- cor(etas_subset, use = "complete.obs")  # exclude .draw column
+
+etas_decor <- draws_gen_df %>%
+  select(starts_with("seta_decorr_ind"))
+etas_decor_subset <- etas_decor[, grepl("\\[\\d+,1\\]", names(etas_decor))]
+cor_matrix_decorrelated <- cor(etas_decor_subset, use = "complete.obs")  # exclude .draw column
+
+rownames(cor_matrix) <- 1:1026
+colnames(cor_matrix) <- 1:1026
+rownames(cor_matrix_decorrelated) <- 1:1026
+colnames(cor_matrix_decorrelated) <- 1:1026
+ggcorrplot(similarity_matrix_corrected[001:100,001:100])
+ggcorrplot(cor_matrix[001:100,001:100])
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
+
+p1 =similarity_to_ltr_fun(cor_matrix)%>%
+  rename(corr = similarity) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) %>%
+  filter(col %in% row) %>%
+  ggplot(aes(y = corr, x = similarity)) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_minimal() +  # cleaner theme
+  labs(y = "Correlation",
+       x = "Similarity") +
+  theme(legend.position = "none")
+
+p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
+  rename(corr = similarity) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) %>%
+  filter(col %in% row) %>%
+  ggplot(aes(y = corr, x = similarity)) +
+  geom_point(alpha = 0.3, size = 1) +
+  theme_minimal() +  # cleaner theme
+  labs(y = "Correlation",
+       x = "Similarity") +
+  theme(legend.position = "none")
+
+print(p1+p2)
+```
+
+#  Simulations (CV-based)
+
+```{r}
+distance = 1-similarity_matrix
+upper_tri_indices <- which(upper.tri(distance), arr.ind = TRUE)
+upper_tri_values <- distance[upper_tri_indices]
+top_100_indices <- order(upper_tri_values)[seq(1,1000,by=10)]
+closest_pairs <- upper_tri_indices[top_100_indices, , drop = FALSE]
+
+closest_pairs <- as.data.frame(closest_pairs)
+colnames(closest_pairs) <- c("row", "col")
+closest_pairs$distance = upper_tri_values[top_100_indices]
+
+head(closest_pairs)
+```
+
+```{r datastruct-cv}
+idx = unique(closest_pairs$col)
+datastructcv = datastruct;
+initcv=init;
+set.seed(1)
+idx_analytes_out = sort(unique(closest_pairs$col))
+idx_analytes_in = setdiff(unique(datastructcv$analyte),idx_analytes_out)
+idxcv =  which(datastructcv$analyte %in% idx_analytes_in)
+nObscv = length(idxcv);
+datastructcv$idxcv = idxcv;
+datastructcv$nObscv = nObscv;
+```
+
+## Fitting the model
+
+```{r mod-settings-cv}
+model_name <- "mod24cv"
+model_name_ext <- paste0(model_name,".stan")
+
+#' folder shortcuts:
+mod_figures_dir <- here::here("deliv", "figures", model_name)
+mod_tabels_dir  <- here::here("deliv", "tables", model_name)
+mod_model_dir   <- here::here("model", "stan", model_name)
+mod_output_dir   <- here::here("model", "stan", model_name, "output")
+
+if (!file.exists(mod_figures_dir)) dir.create(mod_figures_dir)
+if (!file.exists(mod_tabels_dir)) dir.create(mod_tabels_dir)
+if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
+if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+
+modelqg_name <- paste0(model_name,"gq")
+modelqg_name_ext <- paste0(modelqg_name,".stan")
+modgq_model_dir   <- here::here("model", "stan", modelqg_name)
+modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
+
+if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
+if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+```
+
+```{r stan-compile-cv, eval = FALSE}
+mod24cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+```{r dump-files-cv, eval = FALSE}
+write_stan_json(datastructcv, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-1.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-2.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-3.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-4.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-5.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-6.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-7.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE)
+```
+
+After calculations, we loaded the output files using cmdstanr.
+
+```{r stan-load-cv}
+fitcv <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-8.csv")
+                                ))
+```
+
+## Summary of model parameters (table):
+
+The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters.
+
+```{r summary-cv}
+fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=12)
+```
+
+
+## Genereted quantitites
+
+```{r generete-quntities-cv, eval=FALSE}
+mod24cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+fitcvgq  <- mod24cvgq$generate_quantities(fitcv,
+                                          data = datastructcv,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = modelqg_name)
+```
+
+## Results
+### Load
+```{r eta-load-cv}
+x <- cmdstanr::read_cmdstan_csv(c(
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
+                                ))
+draws_gen_df <- as_draws_df(x$generated_quantities)
+```
+
+### Fits
+
+```{r ind-pop-predictions-cv}
+fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
+
+  p1 <- draws_gen_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot() +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk (individual and population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+}
+
+p1<-fun_plot_ind_pop(idx_analytes_out[1:20])
+p2<-fun_plot_ind_pop(idx_analytes_in[1:20])
+
+print(p1)
+print(p2)
+
+```
+
+
+# Session info
+
+```{r}
+sessionInfo()
+```

@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Model 004. GP attempt"
+title: "Model 22"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -278,7 +278,6 @@ repeat {
 nodes$group_combined <- as.integer(factor(df$group))
 
 distance <- 1-similarity_matrix_corrected
-distance[similarity_matrix_corrected>=0.5]= 0.0
 
 datastruct <- with(data,
                   list(nAnalytes=length(unique(data$ID)),
@@ -792,6 +791,7 @@ idx <- foo %>%
   group_by(group) %>%
   mutate(N=n()) %>%
   sample_frac(0.1) %>% pull(id)
+
 
 datastructcv = datastruct;
 initcv=init;

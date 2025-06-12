@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Model 004. GP attempt"
+title: "Model 23"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -328,7 +328,7 @@ fit_opt$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]"
 ```
 
 
-```{r plots-optimize}
+```{r plots-optimize, eval = FALSE}
 fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
 
 data$logkopt<-fit_opt$mle("logkx")
@@ -435,7 +435,7 @@ fit$print(max_rows = 180)
 
 # Genereted quantitites
 
-```{r generete-quntities, eval=FALSE}
+```{r generete-quntities}
 mod23gq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitgq  <- mod23gq$generate_quantities(fit,
                                           data = datastruct,
@@ -841,7 +841,7 @@ fitcv$print(max_rows = 180)
 
 ## Genereted quantitites
 
-```{r generete-quntities-cv, eval=FALSE}
+```{r generete-quntities-cv}
 mod23cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitcvgq  <- mod23cvgq$generate_quantities(fitcv,
                                           data = datastructcv,
