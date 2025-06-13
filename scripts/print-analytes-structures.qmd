@@ -121,6 +121,7 @@ save_png_fun <- function(i) {
   
   # Return a data frame with analyte name and HTML image tag
   data.frame(
+    ID = analytes_names[i, 1],
     Analyte_Name = analyte_name,
     Figure = sprintf('<img src="%s" width="100" height="100"/>',  
                          paste0("print-analytes-structures_files/structures/", make_filename_safe(analyte_name), "_", i, ".png")),
@@ -135,10 +136,12 @@ results_df <- bind_rows(results)
 # Create and print a kable table with images
 kableExtra::kbl(results_df, 
                 caption = "Analyte Names and Corresponding Structure Images",
-                col.names = c("Analyte Name", "Structure"),
+                col.names = c("ID", "Analyte Name", "Structure"),
                 escape = FALSE) %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
                             full_width = FALSE) %>%
+  kableExtra::column_spec(2, width = "200px", 
+                          extra_css = "word-wrap: break-word; white-space: normal;") %>%
   print()
 
 # Optionally save the table as HTML for inclusion in reports
