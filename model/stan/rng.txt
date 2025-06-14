@@ -1,0 +1,23 @@
+  // Helper: Matrix-variate normal RNG: X ~ MN(mu, SigmaR, SigmaC)
+  matrix matrix_normal_cholesky_rng(matrix mu,
+                                    matrix L_R,  // Cholesky of row cov
+                                    matrix L_C) { // Cholesky of column cov
+    int p = rows(mu);
+    int q = cols(mu);
+    matrix[p, q] Z;
+    for (i in 1:p, j in 1:q)
+      Z[i, j] = normal_rng(0, 1);
+    return mu + L_R * Z * L_C';
+  }
+
+  // Matrix-T RNG: X ~ Matrix-T(mu, SigmaR, SigmaC, nu)
+  matrix matrix_t_rng(matrix mu,
+                      matrix L_SigmaR,     // Cholesky of SigmaR (p x p)
+                      matrix L_OmegaC,     // Cholesky of Omega = inv(SigmaC) (q x q)
+                      real nu) {
+    int q = cols(mu);
+    matrix[q, q] Xi = wishart_rng(nu, inverse_spd(L_OmegaC * L_OmegaC'));
+    matrix[q, q] L_Xi = cholesky_decompose(Xi);
+    return matrix_normal_cholesky_rng(mu, L_SigmaR, inverse_spd(L_Xi));
+  }
+https://github.com/mlysy/mniw/tree/ef05408960e06308037ea9fcdf1c5e54aefba6e3

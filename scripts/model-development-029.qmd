@@ -341,7 +341,7 @@ init <- function(){
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho =  matrix(c(1,0.75,0.75,1), nrow=2),
-          L_Omega_W = t(chol(matrix(c(1,0.75,0.75,1), nrow=2))),
+          L_Omega_W = t(chol(inv(matrix(c(1,0.75,0.75,1), nrow=2)))),
           param_corr = cbind(init_aprox$logkw[idx_corelatted],init_aprox$S1[idx_corelatted]),
           param_uncorr = cbind(init_aprox$logkw[idx_uncorelatted],init_aprox$S1[idx_uncorelatted]),
           alpha = max(0.1,min(0.95,rnorm(1,0.5,0.25))),
@@ -506,7 +506,7 @@ fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","si
 
 # Genereted quantitites
 
-```{r generete-quntities, eval=FALSE}
+```{r generete-quntities}
 mod29gq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitgq  <- mod29gq$generate_quantities(fit,
                                           data = datastruct,
@@ -1019,7 +1019,7 @@ fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","
 
 ## Genereted quantitites
 
-```{r generete-quntities-cv, eval=FALSE}
+```{r generete-quntities-cv}
 mod29cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitcvgq  <- mod29cvgq$generate_quantities(fitcv,
                                           data = datastructcv,

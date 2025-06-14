@@ -345,6 +345,10 @@ fit_opt$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]"
 ```{r plots-optimize}
 fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
 
+fit_opt$print(variables = c("logkwHat","S1Hat", "dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","sdpi"), max_rows=13)
+
+
+
 data$logkopt<-fit_opt$mle("logkx")
 
 set.seed(123)
