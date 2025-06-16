@@ -821,19 +821,19 @@ K = S* \alpha + (1-\alpha)*I \\
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> variable mean median   sd  mad   q5  q95 rhat ess_bulk ess_tail
- logkwHat 2.93   2.93 0.19 0.19 2.62 3.26 1.00     2322     3060
- S1Hat    3.57   3.56 0.17 0.17 3.30 3.85 1.00     2659     2950
- beta[1]  0.86   0.86 0.05 0.05 0.78 0.95 1.00     2925     2899
- beta[2]  0.62   0.62 0.05 0.05 0.54 0.70 1.00     3054     3335
- S2Hat    2.89   2.89 0.03 0.03 2.84 2.95 1.02      376      621
- omega[1] 1.03   1.03 0.07 0.07 0.93 1.14 1.00     4127     3339
- omega[2] 0.91   0.91 0.06 0.06 0.81 1.00 1.00     4063     2876
- rho[1,2] 0.88   0.88 0.02 0.02 0.85 0.91 1.00     3707     3591
- sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     2116     2834
- alpha    0.60   0.60 0.05 0.05 0.52 0.68 1.00     4223     3798
- sdpi[1]  0.14   0.13 0.02 0.02 0.11 0.17 1.01      604     1414
- sdpi[2]  0.13   0.13 0.02 0.02 0.10 0.16 1.00      762     1765
- sdpi[3]  0.30   0.29 0.06 0.06 0.21 0.39 1.01     1130     2473
+ logkwHat 2.93   2.93 0.19 0.19 2.61 3.25 1.00     2366     3148
+ S1Hat    3.57   3.57 0.17 0.17 3.29 3.85 1.00     2336     3188
+ beta[1]  0.86   0.86 0.05 0.05 0.78 0.95 1.00     3146     3316
+ beta[2]  0.62   0.62 0.05 0.05 0.54 0.70 1.00     2903     2998
+ S2Hat    2.90   2.90 0.03 0.03 2.84 2.95 1.02      310     1096
+ omega[1] 1.06   1.06 0.07 0.07 0.95 1.17 1.00     3813     3197
+ omega[2] 0.93   0.93 0.06 0.06 0.83 1.03 1.00     3673     2825
+ rho[1,2] 0.88   0.88 0.02 0.02 0.85 0.91 1.00     5360     3171
+ sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     2197     2762
+ alpha    0.60   0.60 0.05 0.05 0.51 0.68 1.00     4549     3342
+ sdpi[1]  0.14   0.14 0.02 0.02 0.11 0.17 1.01      638     1184
+ sdpi[2]  0.13   0.13 0.02 0.02 0.10 0.16 1.01      869     1561
+ sdpi[3]  0.29   0.29 0.06 0.06 0.20 0.40 1.01     1841     2523
 
  # showing 13 of 14 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
@@ -856,14 +856,14 @@ K = S* \alpha + (1-\alpha)*I \\
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 8 MCMC chains, all chains in parallel ...
 
-Chain 2 finished in 0.0 seconds.
-Chain 4 finished in 0.0 seconds.
-Chain 7 finished in 0.0 seconds.
-Chain 8 finished in 0.0 seconds.
 Chain 3 finished in 0.0 seconds.
+Chain 4 finished in 0.0 seconds.
 Chain 5 finished in 0.0 seconds.
-Chain 6 finished in 0.0 seconds.
+Chain 8 finished in 0.0 seconds.
 Chain 1 finished in 0.0 seconds.
+Chain 2 finished in 0.0 seconds.
+Chain 6 finished in 0.0 seconds.
+Chain 7 finished in 0.0 seconds.
 
 All 8 chains finished successfully.
 Mean chain execution time: 0.0 seconds.
@@ -1546,19 +1546,19 @@ Total execution time: 32.0 seconds.</code></pre>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> variable mean median   sd  mad   q5  q95 rhat ess_bulk ess_tail
- logkwHat 2.94   2.94 0.19 0.19 2.61 3.26 1.00     3012     3333
- S1Hat    3.59   3.59 0.17 0.16 3.31 3.87 1.00     2879     2987
- beta[1]  0.87   0.87 0.05 0.06 0.78 0.96 1.00     3257     3223
- beta[2]  0.62   0.62 0.05 0.05 0.54 0.70 1.00     3154     3246
- S2Hat    2.89   2.89 0.03 0.03 2.84 2.95 1.01      477      697
- omega[1] 1.02   1.02 0.07 0.06 0.92 1.14 1.00     5069     3019
- omega[2] 0.90   0.90 0.06 0.06 0.81 1.00 1.00     4805     2957
- rho[1,2] 0.88   0.88 0.02 0.02 0.84 0.90 1.00     4559     3714
- sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     1978     2871
- alpha    0.59   0.59 0.05 0.05 0.50 0.67 1.00     4815     3380
- sdpi[1]  0.14   0.14 0.02 0.02 0.11 0.17 1.01      685     1379
- sdpi[2]  0.13   0.13 0.02 0.02 0.10 0.16 1.01      805     1643
- sdpi[3]  0.29   0.29 0.06 0.06 0.20 0.39 1.01     1795     3144
+ logkwHat 2.95   2.95 0.19 0.19 2.64 3.28 1.00     2756     3090
+ S1Hat    3.60   3.60 0.16 0.17 3.32 3.87 1.00     2872     3127
+ beta[1]  0.87   0.87 0.05 0.05 0.78 0.96 1.00     3083     2962
+ beta[2]  0.62   0.62 0.05 0.05 0.54 0.70 1.00     3133     3027
+ S2Hat    2.89   2.89 0.03 0.03 2.84 2.95 1.02      512      960
+ omega[1] 1.06   1.05 0.07 0.07 0.95 1.16 1.00     4698     3494
+ omega[2] 0.93   0.93 0.06 0.06 0.83 1.03 1.00     4428     3336
+ rho[1,2] 0.88   0.88 0.02 0.02 0.85 0.90 1.00     4384     3727
+ sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     1825     2858
+ alpha    0.59   0.59 0.05 0.05 0.49 0.67 1.00     4769     3565
+ sdpi[1]  0.14   0.14 0.02 0.02 0.11 0.17 1.01      602     1484
+ sdpi[2]  0.13   0.13 0.02 0.02 0.10 0.16 1.01      894     1712
+ sdpi[3]  0.30   0.29 0.06 0.06 0.20 0.39 1.00     1847     2957
 
  # showing 13 of 14 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
@@ -1580,18 +1580,18 @@ Total execution time: 32.0 seconds.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Running standalone generated quantities after 8 MCMC chains, all chains in parallel ...
 
+Chain 1 finished in 0.0 seconds.
 Chain 2 finished in 0.0 seconds.
+Chain 5 finished in 0.0 seconds.
+Chain 7 finished in 0.0 seconds.
+Chain 6 finished in 0.0 seconds.
+Chain 8 finished in 0.0 seconds.
 Chain 4 finished in 0.0 seconds.
 Chain 3 finished in 0.0 seconds.
-Chain 5 finished in 0.0 seconds.
-Chain 6 finished in 0.0 seconds.
-Chain 7 finished in 0.0 seconds.
-Chain 8 finished in 0.0 seconds.
-Chain 1 finished in 0.0 seconds.
 
 All 8 chains finished successfully.
 Mean chain execution time: 0.0 seconds.
-Total execution time: 31.4 seconds.</code></pre>
+Total execution time: 31.5 seconds.</code></pre>
 </div>
 </div>
 </section>
