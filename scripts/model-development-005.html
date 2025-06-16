@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-06-14">
+<meta name="dcterms.date" content="2025-06-16">
 
 <title>Model 005</title>
 <style>
@@ -135,7 +135,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 14, 2025</p>
+      <p class="date">June 16, 2025</p>
     </div>
   </div>
   
@@ -667,7 +667,7 @@ K = S* \alpha + (1-\alpha)*I \\
 </details>
 </div>
 <p>We used optimization for initial testing:</p>
-<div class="cell" data-hash="model-development-005_cache/html/stan-optimize_59f824c5426a40dc102cece4fd462355">
+<div class="cell" data-hash="model-development-005_cache/html/stan-optimize_df579ea9dfeddc558c40396bcfa7baa2">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> mod5<span class="sc">$</span><span class="fu">optimize</span>(</span>
@@ -678,27 +678,25 @@ K = S* \alpha + (1-\alpha)*I \\
 <span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">3000</span></span>
 <span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>For local computations one can use cmdstanr:</p>
-<div class="cell" data-hash="model-development-005_cache/html/stan-sample_30087f4a8eb035335047c03ee9b94fa1">
+<div class="cell" data-hash="model-development-005_cache/html/stan-sample_713009afa65549619c05ca445ecbf354">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod5<span class="sc">$</span><span class="fu">sample</span>(</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> mod_output_dir,</span>
-<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod5-loc"</span>,</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod5"</span>,</span>
 <span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
-<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
-<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
-<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">500</span>,</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">8</span>,</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
 <span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
 <span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
-<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a> )</span>
-<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-14"><a href="#cb57-14" aria-hidden="true" tabindex="-1"></a> fit<span class="sc">$</span><span class="fu">save_object</span>(<span class="at">file =</span> <span class="fu">here</span>(mod_output_dir,<span class="st">"mod5-loc.RDS"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>We performed out computations at the Academic Computer Center in Gdańsk, <a href="https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/">Tryton Cluster</a>. In this case:</p>
@@ -760,27 +758,30 @@ K = S* \alpha + (1-\alpha)*I \\
 <section id="summary-of-model-parameters-table" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-model-parameters-table">Summary of model parameters (table):</h2>
 <p>The <a href="https://mc-stan.org/docs/cmdstan-guide/stansummary.html">stansummary</a> function was used to report summary and diagnostic statistics over model parameters.</p>
-<div class="cell" data-hash="model-development-005_cache/html/summary_ea8e8ce0dc3a45c502d7de884d2ce572">
+<div class="cell" data-hash="model-development-005_cache/html/summary_a91df866219492a3a88d53a6d532707c">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>, <span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code> variable mean median   sd  mad   q5  q95 rhat ess_bulk ess_tail
- logkwHat 2.59   2.60 0.18 0.18 2.29 2.88 1.00     2378     3191
- S1Hat    3.15   3.16 0.16 0.16 2.89 3.41 1.00     2368     2832
- beta[1]  0.85   0.85 0.05 0.05 0.76 0.93 1.00     2716     3066
- beta[2]  0.59   0.59 0.05 0.05 0.51 0.67 1.00     2413     3207
- S2Hat    2.90   2.90 0.03 0.03 2.84 2.95 1.02      334      991
- omega[1] 1.07   1.07 0.06 0.06 0.96 1.18 1.00     4951     3485
- omega[2] 0.94   0.94 0.06 0.06 0.85 1.04 1.00     5226     3115
- rho[1,2] 0.87   0.87 0.02 0.02 0.84 0.90 1.00     4160     3838
- sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     2042     2591
- sdpi[1]  0.17   0.17 0.02 0.02 0.14 0.21 1.02      771     1563
- sdpi[2]  0.18   0.18 0.02 0.02 0.15 0.22 1.01     1176     2415
- sdpi[3]  0.34   0.33 0.05 0.05 0.26 0.42 1.00     3233     3711
- sdpi[4]  0.21   0.21 0.05 0.05 0.14 0.29 1.00     1973     3025
- nu       2.36   2.32 0.23 0.22 2.05 2.79 1.00     3249     2536</code></pre>
+<pre><code>  variable  mean median   sd  mad    q5   q95 rhat ess_bulk ess_tail
+ logkwHat   2.69   2.69 0.17 0.18  2.41  2.97 1.00     2603     3459
+ S1Hat      3.31   3.31 0.15 0.15  3.06  3.56 1.00     2521     2924
+ dlogkwHat -0.38  -0.38 0.11 0.11 -0.56 -0.19 1.00     3636     3613
+ dS1Hat     0.32   0.32 0.09 0.09  0.17  0.46 1.00     3014     3111
+ beta[1]    0.84   0.84 0.05 0.05  0.75  0.92 1.00     2645     3326
+ beta[2]    0.60   0.60 0.05 0.05  0.52  0.68 1.00     2510     3242
+ S2Hat      2.89   2.89 0.03 0.03  2.83  2.94 1.01      430      963
+ omega[1]   1.02   1.01 0.06 0.07  0.91  1.12 1.00     5377     2811
+ omega[2]   0.90   0.90 0.06 0.06  0.81  1.00 1.00     5316     3515
+ rho[1,2]   0.87   0.87 0.02 0.02  0.84  0.90 1.00     4549     3142
+ sigma      0.05   0.05 0.00 0.00  0.05  0.05 1.00     1753     2203
+ sdpi[1]    0.17   0.16 0.02 0.02  0.13  0.20 1.01      787     1716
+ sdpi[2]    0.17   0.16 0.02 0.02  0.13  0.20 1.00     1019     2005
+ sdpi[3]    0.31   0.31 0.05 0.05  0.23  0.40 1.00     3175     3274
+ sdpi[4]    0.20   0.20 0.05 0.05  0.13  0.29 1.00     1801     2388
+
+ # showing 15 of 16 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
 </div>
 </section>
@@ -1577,7 +1578,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb69-394"><a href="#cb69-394" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">3000</span></span>
 <span id="cb69-395"><a href="#cb69-395" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb69-396"><a href="#cb69-396" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-397"><a href="#cb69-397" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
+<span id="cb69-397"><a href="#cb69-397" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
 <span id="cb69-398"><a href="#cb69-398" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb69-399"><a href="#cb69-399" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb69-400"><a href="#cb69-400" aria-hidden="true" tabindex="-1"></a></span>
@@ -1587,103 +1588,101 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb69-404"><a href="#cb69-404" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod5<span class="sc">$</span><span class="fu">sample</span>(</span>
 <span id="cb69-405"><a href="#cb69-405" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
 <span id="cb69-406"><a href="#cb69-406" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> mod_output_dir,</span>
-<span id="cb69-407"><a href="#cb69-407" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod5-loc"</span>,</span>
+<span id="cb69-407"><a href="#cb69-407" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod5"</span>,</span>
 <span id="cb69-408"><a href="#cb69-408" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
-<span id="cb69-409"><a href="#cb69-409" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
-<span id="cb69-410"><a href="#cb69-410" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
-<span id="cb69-411"><a href="#cb69-411" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb69-412"><a href="#cb69-412" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
+<span id="cb69-409"><a href="#cb69-409" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">1000</span>,</span>
+<span id="cb69-410"><a href="#cb69-410" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">500</span>,</span>
+<span id="cb69-411"><a href="#cb69-411" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">8</span>,</span>
+<span id="cb69-412"><a href="#cb69-412" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
 <span id="cb69-413"><a href="#cb69-413" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
 <span id="cb69-414"><a href="#cb69-414" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
 <span id="cb69-415"><a href="#cb69-415" aria-hidden="true" tabindex="-1"></a> )</span>
-<span id="cb69-416"><a href="#cb69-416" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-417"><a href="#cb69-417" aria-hidden="true" tabindex="-1"></a> fit<span class="sc">$</span><span class="fu">save_object</span>(<span class="at">file =</span> <span class="fu">here</span>(mod_output_dir,<span class="st">"mod5-loc.RDS"</span>))</span>
-<span id="cb69-418"><a href="#cb69-418" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-416"><a href="#cb69-416" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-417"><a href="#cb69-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-418"><a href="#cb69-418" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
 <span id="cb69-419"><a href="#cb69-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-420"><a href="#cb69-420" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
+<span id="cb69-420"><a href="#cb69-420" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
 <span id="cb69-421"><a href="#cb69-421" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-422"><a href="#cb69-422" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
-<span id="cb69-423"><a href="#cb69-423" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-424"><a href="#cb69-424" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files, eval = FALSE}</span></span>
-<span id="cb69-425"><a href="#cb69-425" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-426"><a href="#cb69-426" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-427"><a href="#cb69-427" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-428"><a href="#cb69-428" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-429"><a href="#cb69-429" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-430"><a href="#cb69-430" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-431"><a href="#cb69-431" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-432"><a href="#cb69-432" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-433"><a href="#cb69-433" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb69-434"><a href="#cb69-434" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-422"><a href="#cb69-422" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files, eval = FALSE}</span></span>
+<span id="cb69-423"><a href="#cb69-423" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-424"><a href="#cb69-424" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-425"><a href="#cb69-425" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-426"><a href="#cb69-426" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-427"><a href="#cb69-427" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-428"><a href="#cb69-428" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-429"><a href="#cb69-429" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-430"><a href="#cb69-430" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-431"><a href="#cb69-431" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb69-432"><a href="#cb69-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-433"><a href="#cb69-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-434"><a href="#cb69-434" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
 <span id="cb69-435"><a href="#cb69-435" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-436"><a href="#cb69-436" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
-<span id="cb69-437"><a href="#cb69-437" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-438"><a href="#cb69-438" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb69-439"><a href="#cb69-439" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
-<span id="cb69-440"><a href="#cb69-440" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb69-441"><a href="#cb69-441" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-436"><a href="#cb69-436" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb69-437"><a href="#cb69-437" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
+<span id="cb69-438"><a href="#cb69-438" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb69-439"><a href="#cb69-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-440"><a href="#cb69-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-441"><a href="#cb69-441" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
 <span id="cb69-442"><a href="#cb69-442" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-443"><a href="#cb69-443" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
-<span id="cb69-444"><a href="#cb69-444" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-445"><a href="#cb69-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load}</span></span>
-<span id="cb69-446"><a href="#cb69-446" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb69-447"><a href="#cb69-447" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb69-448"><a href="#cb69-448" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb69-449"><a href="#cb69-449" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb69-450"><a href="#cb69-450" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb69-451"><a href="#cb69-451" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb69-452"><a href="#cb69-452" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb69-453"><a href="#cb69-453" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb69-454"><a href="#cb69-454" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb69-455"><a href="#cb69-455" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb69-456"><a href="#cb69-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-443"><a href="#cb69-443" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load}</span></span>
+<span id="cb69-444"><a href="#cb69-444" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
+<span id="cb69-445"><a href="#cb69-445" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb69-446"><a href="#cb69-446" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb69-447"><a href="#cb69-447" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb69-448"><a href="#cb69-448" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb69-449"><a href="#cb69-449" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb69-450"><a href="#cb69-450" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb69-451"><a href="#cb69-451" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb69-452"><a href="#cb69-452" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb69-453"><a href="#cb69-453" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb69-454"><a href="#cb69-454" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-455"><a href="#cb69-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-456"><a href="#cb69-456" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
 <span id="cb69-457"><a href="#cb69-457" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-458"><a href="#cb69-458" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
-<span id="cb69-459"><a href="#cb69-459" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-460"><a href="#cb69-460" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-diagnose, eval = FALSE}</span></span>
-<span id="cb69-461"><a href="#cb69-461" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
-<span id="cb69-462"><a href="#cb69-462" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(mod_output_dir)</span>
-<span id="cb69-463"><a href="#cb69-463" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod5-*.csv'</span>)</span>
-<span id="cb69-464"><a href="#cb69-464" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
-<span id="cb69-465"><a href="#cb69-465" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-458"><a href="#cb69-458" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-diagnose, eval = FALSE}</span></span>
+<span id="cb69-459"><a href="#cb69-459" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
+<span id="cb69-460"><a href="#cb69-460" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(mod_output_dir)</span>
+<span id="cb69-461"><a href="#cb69-461" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod5-*.csv'</span>)</span>
+<span id="cb69-462"><a href="#cb69-462" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
+<span id="cb69-463"><a href="#cb69-463" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-464"><a href="#cb69-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-465"><a href="#cb69-465" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
 <span id="cb69-466"><a href="#cb69-466" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-467"><a href="#cb69-467" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
-<span id="cb69-468"><a href="#cb69-468" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-469"><a href="#cb69-469" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb69-470"><a href="#cb69-470" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
-<span id="cb69-471"><a href="#cb69-471" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb69-472"><a href="#cb69-472" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-467"><a href="#cb69-467" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb69-468"><a href="#cb69-468" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
+<span id="cb69-469"><a href="#cb69-469" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb69-470"><a href="#cb69-470" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-471"><a href="#cb69-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-472"><a href="#cb69-472" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
 <span id="cb69-473"><a href="#cb69-473" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-474"><a href="#cb69-474" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
+<span id="cb69-474"><a href="#cb69-474" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
 <span id="cb69-475"><a href="#cb69-475" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-476"><a href="#cb69-476" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
-<span id="cb69-477"><a href="#cb69-477" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-478"><a href="#cb69-478" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
-<span id="cb69-479"><a href="#cb69-479" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
-<span id="cb69-480"><a href="#cb69-480" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-476"><a href="#cb69-476" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
+<span id="cb69-477"><a href="#cb69-477" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>, <span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
+<span id="cb69-478"><a href="#cb69-478" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-479"><a href="#cb69-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-480"><a href="#cb69-480" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
 <span id="cb69-481"><a href="#cb69-481" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-482"><a href="#cb69-482" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
+<span id="cb69-482"><a href="#cb69-482" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
 <span id="cb69-483"><a href="#cb69-483" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-484"><a href="#cb69-484" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
-<span id="cb69-485"><a href="#cb69-485" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-486"><a href="#cb69-486" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
-<span id="cb69-487"><a href="#cb69-487" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span>
-<span id="cb69-488"><a href="#cb69-488" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>))) </span>
-<span id="cb69-489"><a href="#cb69-489" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-484"><a href="#cb69-484" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
+<span id="cb69-485"><a href="#cb69-485" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span>
+<span id="cb69-486"><a href="#cb69-486" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>))) </span>
+<span id="cb69-487"><a href="#cb69-487" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-488"><a href="#cb69-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-489"><a href="#cb69-489" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
 <span id="cb69-490"><a href="#cb69-490" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-491"><a href="#cb69-491" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
-<span id="cb69-492"><a href="#cb69-492" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-493"><a href="#cb69-493" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
-<span id="cb69-494"><a href="#cb69-494" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span>
-<span id="cb69-495"><a href="#cb69-495" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>)))</span>
-<span id="cb69-496"><a href="#cb69-496" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb69-497"><a href="#cb69-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-491"><a href="#cb69-491" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
+<span id="cb69-492"><a href="#cb69-492" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span>
+<span id="cb69-493"><a href="#cb69-493" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>)))</span>
+<span id="cb69-494"><a href="#cb69-494" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-495"><a href="#cb69-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-496"><a href="#cb69-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-497"><a href="#cb69-497" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
 <span id="cb69-498"><a href="#cb69-498" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-499"><a href="#cb69-499" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
-<span id="cb69-500"><a href="#cb69-500" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-503"><a href="#cb69-503" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb69-504"><a href="#cb69-504" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb69-505"><a href="#cb69-505" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb69-501"><a href="#cb69-501" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb69-502"><a href="#cb69-502" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb69-503"><a href="#cb69-503" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

@@ -43,6 +43,7 @@ library(posterior)
 library(bayesplot)
 library(tidybayes)
 library(reshape2)
+library(mniw)
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 source("helper-functions.R")
 set.seed(123) 
@@ -157,72 +158,118 @@ ggplot(data, aes(x = x)) +
        y = "correlation")
 ```
 
-# Matri normal distribution - test
+# Matrix-t distriution 
 
-```{r simulate-from-normal-matrix-noncentered}
-# Set parameters
-set.seed(1)
-n <- 100
-num_sim <- 1000
+```{r mst}
+# Define parameters
+N <- 5
+K <- 2
+nu <- 10
+mu <- matrix(rep(0,N*K), nrow=N)
+omega = c(1,4)
+rho = matrix(c(1,0.75,0.75,1), nrow=2)
+Omega <-diag(omega) %*% rho %*% diag(omega)
+# Save Stan model to file
+stan_file <- write_stan_file("
 
-rho_row_true = 0.9;
-rho_col_true = 0.1;
-omega1 = 1.4
-omega2 = 1
+functions {
+  
+  // Matrix Normal draw with row-scale Cholesky and column-precision Cholesky
+  matrix generate_matrix_normal_rng(matrix mu, matrix SigmaRL, matrix OmegaCL, int p, int q) {
+    matrix[p, q] Z;
+    for (i in 1:p)
+      for (j in 1:q)
+        Z[i, j] = normal_rng(0, 1);
 
-# Create correlation matrices
-rho1 <- matrix(rho_row_true, nrow = n, ncol = n)
-diag(rho1) <- 1
-L_rho1 <- t(chol(rho1))
-
-rho2 <- matrix(c(1, rho_col_true, rho_col_true, 1), nrow = 2)
-L_rho2 <- t(chol(rho2))
-
-pred_two_analytes <- function(n) {
-  eta <- matrix(rnorm(2 * n, 0, 1), nrow = n)
-  f <- L_rho1 %*% eta %*% t(diag(c(omega1, omega2)) %*% L_rho2)
-  return(c(f[1, 1], f[1, 2], f[2, 1]))
+    matrix[p, q] X = SigmaRL * (Z * OmegaCL');
+    
+    return X + mu;
+  }
+  matrix generate_matrix_t_rng(matrix Mu, matrix SigmaRL, matrix OmegaCL, real nu, int p, int q) {
+    matrix[q, q] CL = inv_wishart_cholesky_rng(nu, OmegaCL);
+    return generate_matrix_normal_rng(Mu, SigmaRL, CL, p, q);
+  }
 }
 
-# Simulate data
-sim_data <- replicate(num_sim, pred_two_analytes(n)) %>%
-  t() %>%
-  as.data.frame() %>%
-  setNames(c("logkw1", "S1", "logkw2"))
+data {
+  int<lower=1> N;
+  int<lower=1> K;
+  real<lower=1> nu;
+  matrix[N,K] mu;
+  vector<lower=0>[K] omega;
+  corr_matrix[K] rho; 
+}
+generated quantities {
+  array[N] vector[K] x1;
+  matrix[N,K] x2;
+  matrix[2, 2] Omega = quad_form_diag(rho, omega);
+  cholesky_factor_cov[2] L_Omega= cholesky_decompose(Omega); 
+  matrix[2,2] L_Omega_inv = cholesky_decompose(inverse_spd(Omega));
 
-# Calculate statistics
-stats <- sim_data %>%
-  summarise(
-    sd_logkw1 = sd(logkw1),
-    sd_S1 = sd(S1),
-    sd_logkw2 = sd(logkw2),
-    rho_logkw1_S1 = cor(logkw1, S1),
-    rho_logkw1_logkw2 = cor(logkw1, logkw2)
-  )
+  for (n in 1:N)
+    x1[n] = multi_student_t_rng(nu, mu[n], Omega);
 
-# Print results
-cat(sprintf("Simulated sd_logkw1 = %.2f: true = %.2f\n", stats$sd_logkw1,omega1),
-    sprintf("Simulated sd_S1 = %.2f: true = %.2f\n", stats$sd_S1,omega2),
-    sprintf("Simulated sd_logkw2 = %.2f: true = %.2f\n", stats$sd_logkw2,omega1),
-    sprintf("Simulated rho_logkw1_S1 = %.2f: true =%.2f\n", stats$rho_logkw1_S1,rho_col_true),
-    sprintf("Simulated rho_logkw1_logkw2 = %.2f: true = %.2f\n", stats$rho_logkw1_logkw2,rho_row_true))
+  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N)*nu);
+  x2 =  generate_matrix_t_rng(mu, L_K, L_Omega, nu, N, K);
 
-# Create scatter plots
-plot1 <- ggplot(sim_data, aes(x = logkw1, y = S1)) +
-  geom_point(alpha = 0.5) +
+}
+")
+
+# Compile
+mod <- cmdstan_model(stan_file)
+
+# Data for Stan
+stan_data <- list(N = N, K = K, nu = nu, mu = mu, omega = omega, rho = rho)
+
+# Sample with Fixed_param since we only want RNG draws
+fit <- mod$sample(
+  data = stan_data,
+  seed = 12345,
+  chains = 1,
+  iter_sampling = 1000,
+  fixed_param = TRUE
+)
+
+
+df1 <- posterior::as_draws_df(fit$draws("x1")) %>%
+  dplyr::select(`x1[1,1]`, `x1[1,2]`) %>%
+  rename(logkw = `x1[1,1]`, S = `x1[1,2]`)
+
+df2 <- posterior::as_draws_df(fit$draws("x2")) %>%
+  dplyr::select(`x2[1,1]`, `x2[1,2]`) %>%
+  rename(logkw = `x2[1,1]`, S = `x2[1,2]`)
+
+
+df1$source <- "student-t"
+df2$source <- "matrix-t distribution"
+
+df_long <- bind_rows(df1, df2)
+
+# simulate n draws
+X <- rMNIW(n=1000, Lambda = mu, Sigma = diag(N)*nu, Psi = Omega, nu = nu)
+
+samples3 <-X$X
+
+
+df3 <- data.frame(logkw = samples3[1,1,1:1000],S = samples3[1,2,1:1000])
+
+
+df3$source <- "matrix-t distribution (mniv)"
+
+df_long <- bind_rows(df1, df2, df3) %>%
+  pivot_longer(cols = c("logkw", "S"), names_to = "Variable", values_to = "Value")
+
+# Plot using ggplot2
+ggplot(df_long, aes(x = Value, fill = source)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~Variable, scales = "free_y", ncol = 1) +
   theme_minimal() +
-  labs(title = "logkw1 vs S1", x = "logkw1", y = "S1")
+  labs(title = "Marginal Distribution Comparison",
+       fill = "Sample Source")
 
-plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
-  geom_point(alpha = 0.5) +
-  theme_minimal() +
-  labs(title = "logkw1 vs logkw2", x = "logkw1", y = "logkw2")
-
-# Display plots
-print(plot1+plot2)
 ```
 
-
+ 
 ```{r info}
 sessionInfo()
 ```

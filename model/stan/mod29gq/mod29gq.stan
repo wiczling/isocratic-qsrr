@@ -138,7 +138,6 @@ transformed parameters {
   vector[nObs] logkx;
   matrix[2, 2] Omega = quad_form_diag(rho, omega);
   cholesky_factor_cov[2] L_Omega= cholesky_decompose(Omega); 
-  matrix[2,2] L_Omega_inv = mdivide_left_tri_low(L_Omega, diag_matrix(rep_vector(1.0, 2)));
   matrix[nAnalytes, 2] param;
 
   
@@ -180,7 +179,7 @@ transformed parameters {
 
 model {
 
-   target += wishart_cholesky_lpdf(L_Omega_W | nu, L_Omega_inv);
+   target += inv_wishart_cholesky_lpdf(L_Omega_W | nu, L_Omega);
 
   for (g in 1:mGroup) {
   int n_g = n_corr_per_group[g];
@@ -195,7 +194,7 @@ model {
     miu_g[i] = miu_corr[idx_g[i], 1:2];
   }
 
-   L_K_g =cholesky_decompose(similarity_s[idx_g,idx_g]*alpha + (1.0-alpha)*identity_matrix(n_g));
+   L_K_g =cholesky_decompose(similarity_s[idx_g,idx_g]*alpha*nu + (1.0-alpha)*identity_matrix(n_g)*nu);
    target += matrix_normal_lpdf(to_vector(param_g) | to_vector(miu_g), L_K_g, L_Omega_W);
 }
 
@@ -237,7 +236,7 @@ generated quantities {
   matrix[n_g, n_g] L_K_g_gq;
   matrix[n_g,2] eta_pop;
    
-  L_K_g_gq =cholesky_decompose(similarity_s[idx_g,idx_g]*alpha + (1.0-alpha)*identity_matrix(n_g));
+  L_K_g_gq =cholesky_decompose(similarity_s[idx_g,idx_g]*alpha*nu + (1.0-alpha)*identity_matrix(n_g)*nu);
 
   for (i in 1 : n_g) {
     for (j in 1 : 2) {
