@@ -21,7 +21,7 @@ knitr:
 
 # Introductions
 
-Modeling HPLC data taking the similarity of analytes into account. Log P and functional groups calculated using open programs.
+Modeling HPLC data taking the similarity of analytes into account. Log P and functional groups calculated using rdkit.
 
 # Setup
 ```{r setup, message=FALSE}
@@ -205,8 +205,7 @@ The statistical model has the following structure (hierarchical model):
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu_{obs},logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MN}(\theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i , K, \Omega_\nu) \\
-& \Omega_{\nu} \sim IW(\Omega,\nu) \\
+& R_{i} \sim \text{MN}(\theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i , K, \Omega) \\
 & \pi_{R,k} \sim N(0,\kappa_R)
 \end{aligned}
 $$
@@ -237,7 +236,6 @@ $$
 & \kappa_{logkw},\kappa_{S1} \sim  normal(0, 0.1), \\
 & \sigma \sim normal_+(0,0.05), \\
 & \alpha \sim normal(0.5,0.25)T[0,1], \\
-& \nu_{obs} \sim gamma(2,0.1), \\
 & p(LL') \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
 & c_u = [0.75]
 \end{aligned}
@@ -341,12 +339,10 @@ init <- function(){
           beta  = rnorm(2,c(0.7,0.5),c(0.125,0.5)),
           omega = c(1,1)*exp(rnorm(2, 0, 0.5)),
           rho =  matrix(c(1,0.75,0.75,1), nrow=2),
-          L_Omega_W = t(chol(inv(matrix(c(1,0.75,0.75,1), nrow=2)))),
           param_corr = cbind(init_aprox$logkw[idx_corelatted],init_aprox$S1[idx_corelatted]),
           param_uncorr = cbind(init_aprox$logkw[idx_uncorelatted],init_aprox$S1[idx_uncorelatted]),
           alpha = max(0.1,min(0.95,rnorm(1,0.5,0.25))),
           pilogkw = rep(0,nK),
-          nu = max(3,rgamma(1,2,0.1)),
           piS1 = rep(0,nK),
           sdpi = c(0.1,0.1,0.1,0.1)* exp(rnorm(4,0,0.1)),
           sigma  =  0.05*exp(rnorm(1, 0, 0.5))
@@ -394,13 +390,13 @@ fit_opt <- mod29$optimize(
   init = init,
   iter=3000
 )
-
-fit_opt$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=13)
 ```
 
 
 ```{r plots-optimize}
 fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
+
+fit_opt$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=13)
 
 data$logkopt<-fit_opt$mle("logkx")
 
@@ -484,7 +480,7 @@ fit <- cmdstanr::as_cmdstan_fit(c(
 ```{r stan-diagnose, eval = FALSE}
  #fit$cmdstan_diagnose()
  setwd(mod_output_dir)
- str = paste0(cmdstan_path(), '/bin/diagnose  mod29-*.csv')
+ str = paste0(cmdstan_path(), '/bin/diagnose  mod29-1.csv mod29-2.csv mod29-3.csv mod29-4.csv mod29-5.csv mod29-6.csv mod29-7.csv mod29-8.csv')
  system(str,intern=TRUE)
 ```
 
@@ -492,6 +488,8 @@ The diagnostics are reasonable given model complexity. Output copied here to sav
 
 ```{=html}
 <pre>
+ [1] "Checking sampler transitions treedepth."                                                                  [2] "Treedepth satisfactory for all transitions."                                                              [3] ""                                                                                                         [4] "Checking sampler transitions for divergences."                                                            [5] "No divergent transitions found."                                                                          [6] ""                                                                                                         [7] "Checking E-BFMI - sampler transitions HMC potential energy."                                              [8] "E-BFMI satisfactory."                                                                                     [9] ""                                                                                                        [10] "Rank-normalized split effective sample size satisfactory for all parameters."                            [11] ""                                                                                                        [12] "The following parameters had rank-normalized split R-hat greater than 1.01:"                             [13] "  sdpi[4], param_corr[252,1], param_corr[328,1], param_corr[405,1], param_corr[328,2], param_corr[405,2], param_uncorr[14,1], param_uncorr[14,2], logkx[621], logkx[622], logkx[2346], logkx[2347], logkx[2862], logkx[2863], logkx[2864], logkx[3365], logkx[3366], param[95,1], param[394,1], param[510,1], param[626,1], param[95,2], param[510,2], param[626,2], lprior"
+[14] "Such high values indicate incomplete mixing and biased estimation."                                      [15] "You should consider regularizating your model with additional prior information or a more effective parameterization."                                                                                            [16] ""                                                                                                        [17] "Processing complete."
 </pre>
 ```
 
@@ -506,7 +504,7 @@ fit$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","si
 
 # Genereted quantitites
 
-```{r generete-quntities}
+```{r generete-quntities, eval=FALSE}
 mod29gq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitgq  <- mod29gq$generate_quantities(fit,
                                           data = datastruct,
@@ -544,9 +542,10 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 ## Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-mcmc_intervals(fit$draws(c("logkwHat","S1Hat","beta","S2Hat")))
+mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
 mcmc_intervals(fit$draws(c("omega","sigma","sdpi")))
 ```
+
 ## Functional groups effect 
 ```{r functinoal-group-effects}
 #| fig-width: 6
@@ -1019,7 +1018,7 @@ fitcv$print(variables = c("logkwHat","S1Hat","beta","S2Hat","omega","rho[1,2]","
 
 ## Genereted quantitites
 
-```{r generete-quntities-cv}
+```{r generete-quntities-cv, eval=FALSE}
 mod29cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
 fitcvgq  <- mod29cvgq$generate_quantities(fitcv,
                                           data = datastructcv,
@@ -1048,12 +1047,7 @@ draws_gen_df <- as_draws_df(x$generated_quantities)
 ### Fits
 
 ```{r ind-pop-predictions-cv}
-
-# datax <- fromJSON(here("model/stan/mod29cv/standata.json"))
-# which(unique(data$Analyte) %notin% unique(data$Analyte[datax$idxcv]))
-# idx_analytes_out = which(unique(data$Analyte) %notin% unique(data$Analyte[datax$idxcv]))
-# idx_analytes_in = which(unique(data$Analyte) %in% unique(data$Analyte[datax$idxcv]))
-
+# 
 fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
 
   p1 <- draws_gen_df %>%
@@ -1069,14 +1063,23 @@ fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
-  facet_wrap(~Analyte)+
+  facet_wrap(~Analyte, ncol=2)+
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
   coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+  print(p1)
 }
 
-p1<-fun_plot_ind_pop(idx_analytes_out[1:20])
-p2<-fun_plot_ind_pop(idx_analytes_in[1:20])
+fun_plot_ind_pop(idx_analytes_out[1:10])
+fun_plot_ind_pop(idx_analytes_out[11:20])
+fun_plot_ind_pop(idx_analytes_out[21:30])
+fun_plot_ind_pop(idx_analytes_out[31:40])
+fun_plot_ind_pop(idx_analytes_out[41:50])
+fun_plot_ind_pop(idx_analytes_in[1:10])
+fun_plot_ind_pop(idx_analytes_in[11:20])
+fun_plot_ind_pop(idx_analytes_in[21:30])
+fun_plot_ind_pop(idx_analytes_in[31:40])
+fun_plot_ind_pop(idx_analytes_in[41:50])
 
 print(p1)
 print(p2)

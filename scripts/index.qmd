@@ -44,6 +44,9 @@ editor:
 
 -   logR \~ logP + fungr(diss + nondiss), multivariate student t-distribution: [Model
     004](model-development-004.html "Model 004") 
+
+-   logR \~ logP + fungr(diss + nondiss), multivariate normal distribution: [Model
+    005](model-development-005.html "Model 005") 
     
 ## Scaled correlations matrix:
 
@@ -73,8 +76,10 @@ editor:
   -   logR \~ logP (rdkit) + fungr, multivariate matrix student-t distribution,
     scaled correlation matrix using alpha (correlated (splited into 10 blocks) and uncorrelated): [Model 028](model-development-028.html "Model 028")     
 
-  -   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix student-t distribution, scaled correlation matrix using alpha (correlated (splited into 10 blocks) and uncorrelated): [Model 029](model-development-029.html "Model 029")  
+  -   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix normal distribution, scaled correlation matrix using alpha (correlated (splited into 10 blocks, cor<0.5) and uncorrelated): [Model 029](model-development-029.html "Model 029")  
 
+  -   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix normal distribution, scaled correlation matrix using alpha (correlated (splited into 6 blocks, corr<1/3) and uncorrelated): [Model 030](model-development-030.html "Model 030")  
+  
 ## SEM 
     
 -   Precision matrix (after glasso) splited into 10 blocks: [Model

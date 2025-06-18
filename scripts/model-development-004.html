@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-06-14">
+<meta name="dcterms.date" content="2025-06-17">
 
 <title>Model 004</title>
 <style>
@@ -149,7 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 14, 2025</p>
+      <p class="date">June 17, 2025</p>
     </div>
   </div>
   
@@ -630,9 +630,7 @@ $$
 <span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">output_basename =</span> <span class="st">"mod4-opt"</span>,</span>
 <span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">init =</span> init,</span>
 <span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">3000</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -640,25 +638,24 @@ $$
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-opt-1.csv"</span>)))</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>, <span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  variable estimate
- logkwHat      4.27
- S1Hat         4.81
- dlogkwHat    -0.48
- dS1Hat        0.24
- beta[1]       1.17
- beta[2]       0.92
- S2Hat         2.85
- omega[1]      0.98
- omega[2]      0.87
- rho[1,2]      0.93
- sigma         0.03
- sdpi[1]       0.01
- sdpi[2]       0.01
-
- # showing 13 of 15 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
+<pre><code> variable estimate
+ logkwHat     4.27
+ S1Hat        4.81
+ beta[1]      1.17
+ beta[2]      0.92
+ S2Hat        2.85
+ omega[1]     0.98
+ omega[2]     0.87
+ rho[1,2]     0.93
+ sigma        0.03
+ sdpi[1]      0.01
+ sdpi[2]      0.01
+ sdpi[3]      0.37
+ sdpi[4]      0.02
+ nu           2.10</code></pre>
 </div>
 <details>
 <summary>Code</summary>
@@ -1981,469 +1978,465 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb84-337"><a href="#cb84-337" aria-hidden="true" tabindex="-1"></a>  <span class="at">init =</span> init,</span>
 <span id="cb84-338"><a href="#cb84-338" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter=</span><span class="dv">3000</span></span>
 <span id="cb84-339"><a href="#cb84-339" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb84-340"><a href="#cb84-340" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-341"><a href="#cb84-341" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
-<span id="cb84-342"><a href="#cb84-342" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-343"><a href="#cb84-343" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-344"><a href="#cb84-344" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-345"><a href="#cb84-345" aria-hidden="true" tabindex="-1"></a><span class="in">```{r plots-optimize}</span></span>
-<span id="cb84-346"><a href="#cb84-346" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-opt-1.csv"</span>)))</span>
+<span id="cb84-340"><a href="#cb84-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-341"><a href="#cb84-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-342"><a href="#cb84-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-343"><a href="#cb84-343" aria-hidden="true" tabindex="-1"></a><span class="in">```{r plots-optimize}</span></span>
+<span id="cb84-344"><a href="#cb84-344" aria-hidden="true" tabindex="-1"></a>fit_opt <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-opt-1.csv"</span>)))</span>
+<span id="cb84-345"><a href="#cb84-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-346"><a href="#cb84-346" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>, <span class="st">"nu"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
 <span id="cb84-347"><a href="#cb84-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-348"><a href="#cb84-348" aria-hidden="true" tabindex="-1"></a>fit_opt<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>, <span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
+<span id="cb84-348"><a href="#cb84-348" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>logkopt<span class="ot">&lt;-</span>fit_opt<span class="sc">$</span><span class="fu">mle</span>(<span class="st">"logkx"</span>)</span>
 <span id="cb84-349"><a href="#cb84-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-350"><a href="#cb84-350" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-351"><a href="#cb84-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-352"><a href="#cb84-352" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>logkopt<span class="ot">&lt;-</span>fit_opt<span class="sc">$</span><span class="fu">mle</span>(<span class="st">"logkx"</span>)</span>
-<span id="cb84-353"><a href="#cb84-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-354"><a href="#cb84-354" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb84-355"><a href="#cb84-355" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span>data <span class="sc">%&gt;%</span></span>
-<span id="cb84-356"><a href="#cb84-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> <span class="fu">sample</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID),<span class="dv">12</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-357"><a href="#cb84-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-358"><a href="#cb84-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-359"><a href="#cb84-359" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb84-360"><a href="#cb84-360" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logkopt)) <span class="sc">+</span> </span>
-<span id="cb84-361"><a href="#cb84-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span></span>
-<span id="cb84-362"><a href="#cb84-362" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte) <span class="sc">+</span></span>
-<span id="cb84-363"><a href="#cb84-363" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(logk)) <span class="sc">+</span> </span>
-<span id="cb84-364"><a href="#cb84-364" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
-<span id="cb84-365"><a href="#cb84-365" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>, </span>
-<span id="cb84-366"><a href="#cb84-366" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb84-367"><a href="#cb84-367" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))</span>
-<span id="cb84-368"><a href="#cb84-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-369"><a href="#cb84-369" aria-hidden="true" tabindex="-1"></a>p1</span>
-<span id="cb84-370"><a href="#cb84-370" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-371"><a href="#cb84-371" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-372"><a href="#cb84-372" aria-hidden="true" tabindex="-1"></a>For local computations one can use cmdstanr:</span>
-<span id="cb84-373"><a href="#cb84-373" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-374"><a href="#cb84-374" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-sample, eval = FALSE}</span></span>
-<span id="cb84-375"><a href="#cb84-375" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod4<span class="sc">$</span><span class="fu">sample</span>(</span>
-<span id="cb84-376"><a href="#cb84-376" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
-<span id="cb84-377"><a href="#cb84-377" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> mod_output_dir,</span>
-<span id="cb84-378"><a href="#cb84-378" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod4-loc"</span>,</span>
-<span id="cb84-379"><a href="#cb84-379" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
-<span id="cb84-380"><a href="#cb84-380" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
-<span id="cb84-381"><a href="#cb84-381" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
-<span id="cb84-382"><a href="#cb84-382" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb84-383"><a href="#cb84-383" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
-<span id="cb84-384"><a href="#cb84-384" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
-<span id="cb84-385"><a href="#cb84-385" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
-<span id="cb84-386"><a href="#cb84-386" aria-hidden="true" tabindex="-1"></a> )</span>
-<span id="cb84-387"><a href="#cb84-387" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-388"><a href="#cb84-388" aria-hidden="true" tabindex="-1"></a> fit<span class="sc">$</span><span class="fu">save_object</span>(<span class="at">file =</span> <span class="fu">here</span>(mod_output_dir,<span class="st">"mod4-loc.RDS"</span>))</span>
-<span id="cb84-389"><a href="#cb84-389" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-350"><a href="#cb84-350" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb84-351"><a href="#cb84-351" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">&lt;-</span>data <span class="sc">%&gt;%</span></span>
+<span id="cb84-352"><a href="#cb84-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> <span class="fu">sample</span>(<span class="fu">unique</span>(data<span class="sc">$</span>ID),<span class="dv">12</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-353"><a href="#cb84-353" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-354"><a href="#cb84-354" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-355"><a href="#cb84-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb84-356"><a href="#cb84-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logkopt)) <span class="sc">+</span> </span>
+<span id="cb84-357"><a href="#cb84-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb84-358"><a href="#cb84-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte) <span class="sc">+</span></span>
+<span id="cb84-359"><a href="#cb84-359" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"\u03C6"</span>, <span class="at">y =</span> <span class="fu">expression</span>(logk)) <span class="sc">+</span> </span>
+<span id="cb84-360"><a href="#cb84-360" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
+<span id="cb84-361"><a href="#cb84-361" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>, </span>
+<span id="cb84-362"><a href="#cb84-362" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb84-363"><a href="#cb84-363" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))</span>
+<span id="cb84-364"><a href="#cb84-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-365"><a href="#cb84-365" aria-hidden="true" tabindex="-1"></a>p1</span>
+<span id="cb84-366"><a href="#cb84-366" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-367"><a href="#cb84-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-368"><a href="#cb84-368" aria-hidden="true" tabindex="-1"></a>For local computations one can use cmdstanr:</span>
+<span id="cb84-369"><a href="#cb84-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-370"><a href="#cb84-370" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-sample, eval = FALSE}</span></span>
+<span id="cb84-371"><a href="#cb84-371" aria-hidden="true" tabindex="-1"></a> fit <span class="ot">&lt;-</span> mod4<span class="sc">$</span><span class="fu">sample</span>(</span>
+<span id="cb84-372"><a href="#cb84-372" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> datastruct,</span>
+<span id="cb84-373"><a href="#cb84-373" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_dir =</span> mod_output_dir,</span>
+<span id="cb84-374"><a href="#cb84-374" aria-hidden="true" tabindex="-1"></a>   <span class="at">output_basename =</span> <span class="st">"mod4-loc"</span>,</span>
+<span id="cb84-375"><a href="#cb84-375" aria-hidden="true" tabindex="-1"></a>   <span class="at">init =</span> init,</span>
+<span id="cb84-376"><a href="#cb84-376" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_warmup =</span> <span class="dv">500</span>,</span>
+<span id="cb84-377"><a href="#cb84-377" aria-hidden="true" tabindex="-1"></a>   <span class="at">iter_sampling =</span> <span class="dv">250</span>,</span>
+<span id="cb84-378"><a href="#cb84-378" aria-hidden="true" tabindex="-1"></a>   <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb84-379"><a href="#cb84-379" aria-hidden="true" tabindex="-1"></a>   <span class="at">parallel_chains =</span> <span class="dv">4</span>,</span>
+<span id="cb84-380"><a href="#cb84-380" aria-hidden="true" tabindex="-1"></a>   <span class="at">refresh =</span> <span class="dv">100</span>,</span>
+<span id="cb84-381"><a href="#cb84-381" aria-hidden="true" tabindex="-1"></a>   <span class="at">adapt_delta=</span><span class="fl">0.9</span></span>
+<span id="cb84-382"><a href="#cb84-382" aria-hidden="true" tabindex="-1"></a> )</span>
+<span id="cb84-383"><a href="#cb84-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-384"><a href="#cb84-384" aria-hidden="true" tabindex="-1"></a> fit<span class="sc">$</span><span class="fu">save_object</span>(<span class="at">file =</span> <span class="fu">here</span>(mod_output_dir,<span class="st">"mod4-loc.RDS"</span>))</span>
+<span id="cb84-385"><a href="#cb84-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-386"><a href="#cb84-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-387"><a href="#cb84-387" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
+<span id="cb84-388"><a href="#cb84-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-389"><a href="#cb84-389" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
 <span id="cb84-390"><a href="#cb84-390" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-391"><a href="#cb84-391" aria-hidden="true" tabindex="-1"></a>We performed out computations at the Academic Computer Center in Gdańsk, <span class="co">[</span><span class="ot">Tryton Cluster</span><span class="co">](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/)</span>. In this case:</span>
-<span id="cb84-392"><a href="#cb84-392" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-393"><a href="#cb84-393" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>we dumped the necessary data to .json format</span>
-<span id="cb84-394"><a href="#cb84-394" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-395"><a href="#cb84-395" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files, eval = FALSE}</span></span>
-<span id="cb84-396"><a href="#cb84-396" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-397"><a href="#cb84-397" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-398"><a href="#cb84-398" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-399"><a href="#cb84-399" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-400"><a href="#cb84-400" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-401"><a href="#cb84-401" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-402"><a href="#cb84-402" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-403"><a href="#cb84-403" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-404"><a href="#cb84-404" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb84-405"><a href="#cb84-405" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-406"><a href="#cb84-406" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-407"><a href="#cb84-407" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
-<span id="cb84-408"><a href="#cb84-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-409"><a href="#cb84-409" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb84-410"><a href="#cb84-410" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
-<span id="cb84-411"><a href="#cb84-411" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb84-412"><a href="#cb84-412" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-413"><a href="#cb84-413" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-414"><a href="#cb84-414" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
-<span id="cb84-415"><a href="#cb84-415" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-416"><a href="#cb84-416" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load}</span></span>
-<span id="cb84-417"><a href="#cb84-417" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb84-418"><a href="#cb84-418" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb84-419"><a href="#cb84-419" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb84-420"><a href="#cb84-420" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb84-421"><a href="#cb84-421" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb84-422"><a href="#cb84-422" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb84-423"><a href="#cb84-423" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb84-424"><a href="#cb84-424" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb84-425"><a href="#cb84-425" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb84-426"><a href="#cb84-426" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb84-427"><a href="#cb84-427" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-428"><a href="#cb84-428" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-429"><a href="#cb84-429" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
-<span id="cb84-430"><a href="#cb84-430" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-431"><a href="#cb84-431" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-diagnose, eval = FALSE}</span></span>
-<span id="cb84-432"><a href="#cb84-432" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
-<span id="cb84-433"><a href="#cb84-433" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(mod_output_dir)</span>
-<span id="cb84-434"><a href="#cb84-434" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod4-*.csv'</span>)</span>
-<span id="cb84-435"><a href="#cb84-435" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
-<span id="cb84-436"><a href="#cb84-436" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-437"><a href="#cb84-437" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-438"><a href="#cb84-438" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
-<span id="cb84-439"><a href="#cb84-439" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-440"><a href="#cb84-440" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
-<span id="cb84-441"><a href="#cb84-441" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
-<span id="cb84-442"><a href="#cb84-442" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
-<span id="cb84-443"><a href="#cb84-443" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-391"><a href="#cb84-391" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files, eval = FALSE}</span></span>
+<span id="cb84-392"><a href="#cb84-392" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastruct, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-393"><a href="#cb84-393" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-394"><a href="#cb84-394" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-395"><a href="#cb84-395" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-396"><a href="#cb84-396" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-397"><a href="#cb84-397" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-398"><a href="#cb84-398" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-399"><a href="#cb84-399" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-400"><a href="#cb84-400" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">init</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb84-401"><a href="#cb84-401" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-402"><a href="#cb84-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-403"><a href="#cb84-403" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>we run the model using the batch file:</span>
+<span id="cb84-404"><a href="#cb84-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-405"><a href="#cb84-405" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb84-406"><a href="#cb84-406" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt; </span></span>
+<span id="cb84-407"><a href="#cb84-407" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb84-408"><a href="#cb84-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-409"><a href="#cb84-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-410"><a href="#cb84-410" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>After calculations, we loaded the output files using cmdstanr. </span>
+<span id="cb84-411"><a href="#cb84-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-412"><a href="#cb84-412" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load}</span></span>
+<span id="cb84-413"><a href="#cb84-413" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
+<span id="cb84-414"><a href="#cb84-414" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb84-415"><a href="#cb84-415" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb84-416"><a href="#cb84-416" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb84-417"><a href="#cb84-417" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb84-418"><a href="#cb84-418" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb84-419"><a href="#cb84-419" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb84-420"><a href="#cb84-420" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb84-421"><a href="#cb84-421" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb84-422"><a href="#cb84-422" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb84-423"><a href="#cb84-423" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-424"><a href="#cb84-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-425"><a href="#cb84-425" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein <span class="co">[</span><span class="ot">diagnose</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)</span></span>
+<span id="cb84-426"><a href="#cb84-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-427"><a href="#cb84-427" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-diagnose, eval = FALSE}</span></span>
+<span id="cb84-428"><a href="#cb84-428" aria-hidden="true" tabindex="-1"></a> <span class="co">#fit$cmdstan_diagnose()</span></span>
+<span id="cb84-429"><a href="#cb84-429" aria-hidden="true" tabindex="-1"></a> <span class="fu">setwd</span>(mod_output_dir)</span>
+<span id="cb84-430"><a href="#cb84-430" aria-hidden="true" tabindex="-1"></a> str <span class="ot">=</span> <span class="fu">paste0</span>(<span class="fu">cmdstan_path</span>(), <span class="st">'/bin/diagnose  mod4-*.csv'</span>)</span>
+<span id="cb84-431"><a href="#cb84-431" aria-hidden="true" tabindex="-1"></a> <span class="fu">system</span>(str,<span class="at">intern=</span><span class="cn">TRUE</span>)</span>
+<span id="cb84-432"><a href="#cb84-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-433"><a href="#cb84-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-434"><a href="#cb84-434" aria-hidden="true" tabindex="-1"></a>The diagnostics are reasonable given model complexity. Output copied here to save time:</span>
+<span id="cb84-435"><a href="#cb84-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-436"><a href="#cb84-436" aria-hidden="true" tabindex="-1"></a><span class="in">```{=html}</span></span>
+<span id="cb84-437"><a href="#cb84-437" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;pre&gt;</span></span>
+<span id="cb84-438"><a href="#cb84-438" aria-hidden="true" tabindex="-1"></a><span class="in">&lt;/pre&gt;</span></span>
+<span id="cb84-439"><a href="#cb84-439" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-440"><a href="#cb84-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-441"><a href="#cb84-441" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
+<span id="cb84-442"><a href="#cb84-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-443"><a href="#cb84-443" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
 <span id="cb84-444"><a href="#cb84-444" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-445"><a href="#cb84-445" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
-<span id="cb84-446"><a href="#cb84-446" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-447"><a href="#cb84-447" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
+<span id="cb84-445"><a href="#cb84-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
+<span id="cb84-446"><a href="#cb84-446" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
+<span id="cb84-447"><a href="#cb84-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb84-448"><a href="#cb84-448" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-449"><a href="#cb84-449" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
-<span id="cb84-450"><a href="#cb84-450" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
-<span id="cb84-451"><a href="#cb84-451" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-452"><a href="#cb84-452" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-453"><a href="#cb84-453" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-454"><a href="#cb84-454" aria-hidden="true" tabindex="-1"></a><span class="fu"># Genereted quantitites</span></span>
-<span id="cb84-455"><a href="#cb84-455" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-456"><a href="#cb84-456" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities, eval=FALSE}</span></span>
-<span id="cb84-457"><a href="#cb84-457" aria-hidden="true" tabindex="-1"></a>mod4gq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
-<span id="cb84-458"><a href="#cb84-458" aria-hidden="true" tabindex="-1"></a>fitgq  <span class="ot">&lt;-</span> mod4gq<span class="sc">$</span><span class="fu">generate_quantities</span>(fit,</span>
-<span id="cb84-459"><a href="#cb84-459" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastruct,</span>
-<span id="cb84-460"><a href="#cb84-460" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb84-461"><a href="#cb84-461" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
-<span id="cb84-462"><a href="#cb84-462" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
-<span id="cb84-463"><a href="#cb84-463" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
-<span id="cb84-464"><a href="#cb84-464" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-465"><a href="#cb84-465" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-466"><a href="#cb84-466" aria-hidden="true" tabindex="-1"></a><span class="fu"># Results</span></span>
-<span id="cb84-467"><a href="#cb84-467" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load</span></span>
-<span id="cb84-468"><a href="#cb84-468" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load}</span></span>
-<span id="cb84-469"><a href="#cb84-469" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
-<span id="cb84-470"><a href="#cb84-470" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb84-471"><a href="#cb84-471" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb84-472"><a href="#cb84-472" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb84-473"><a href="#cb84-473" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb84-474"><a href="#cb84-474" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb84-475"><a href="#cb84-475" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb84-476"><a href="#cb84-476" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb84-477"><a href="#cb84-477" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb84-478"><a href="#cb84-478" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb84-479"><a href="#cb84-479" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
-<span id="cb84-480"><a href="#cb84-480" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-449"><a href="#cb84-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-450"><a href="#cb84-450" aria-hidden="true" tabindex="-1"></a><span class="fu"># Genereted quantitites</span></span>
+<span id="cb84-451"><a href="#cb84-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-452"><a href="#cb84-452" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities, eval=FALSE}</span></span>
+<span id="cb84-453"><a href="#cb84-453" aria-hidden="true" tabindex="-1"></a>mod4gq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
+<span id="cb84-454"><a href="#cb84-454" aria-hidden="true" tabindex="-1"></a>fitgq  <span class="ot">&lt;-</span> mod4gq<span class="sc">$</span><span class="fu">generate_quantities</span>(fit,</span>
+<span id="cb84-455"><a href="#cb84-455" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastruct,</span>
+<span id="cb84-456"><a href="#cb84-456" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb84-457"><a href="#cb84-457" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
+<span id="cb84-458"><a href="#cb84-458" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
+<span id="cb84-459"><a href="#cb84-459" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
+<span id="cb84-460"><a href="#cb84-460" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-461"><a href="#cb84-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-462"><a href="#cb84-462" aria-hidden="true" tabindex="-1"></a><span class="fu"># Results</span></span>
+<span id="cb84-463"><a href="#cb84-463" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load</span></span>
+<span id="cb84-464"><a href="#cb84-464" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load}</span></span>
+<span id="cb84-465"><a href="#cb84-465" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
+<span id="cb84-466"><a href="#cb84-466" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb84-467"><a href="#cb84-467" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb84-468"><a href="#cb84-468" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb84-469"><a href="#cb84-469" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb84-470"><a href="#cb84-470" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb84-471"><a href="#cb84-471" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb84-472"><a href="#cb84-472" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb84-473"><a href="#cb84-473" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb84-474"><a href="#cb84-474" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb84-475"><a href="#cb84-475" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
+<span id="cb84-476"><a href="#cb84-476" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-477"><a href="#cb84-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-478"><a href="#cb84-478" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
+<span id="cb84-479"><a href="#cb84-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-480"><a href="#cb84-480" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
 <span id="cb84-481"><a href="#cb84-481" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-482"><a href="#cb84-482" aria-hidden="true" tabindex="-1"></a><span class="fu">## Trace plots</span></span>
-<span id="cb84-483"><a href="#cb84-483" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-484"><a href="#cb84-484" aria-hidden="true" tabindex="-1"></a>Trace plots are time series plots of Markov chains. Here we show standard trace plots for several parameters</span>
-<span id="cb84-485"><a href="#cb84-485" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-486"><a href="#cb84-486" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
-<span id="cb84-487"><a href="#cb84-487" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>, <span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span>
-<span id="cb84-488"><a href="#cb84-488" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>))) </span>
-<span id="cb84-489"><a href="#cb84-489" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-490"><a href="#cb84-490" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-491"><a href="#cb84-491" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
-<span id="cb84-492"><a href="#cb84-492" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-493"><a href="#cb84-493" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
-<span id="cb84-494"><a href="#cb84-494" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span>
-<span id="cb84-495"><a href="#cb84-495" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>)))</span>
-<span id="cb84-496"><a href="#cb84-496" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-497"><a href="#cb84-497" aria-hidden="true" tabindex="-1"></a><span class="fu">## Functional groups effect </span></span>
-<span id="cb84-498"><a href="#cb84-498" aria-hidden="true" tabindex="-1"></a><span class="in">```{r functinoal-group-effects}</span></span>
-<span id="cb84-499"><a href="#cb84-499" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 6</span></span>
-<span id="cb84-500"><a href="#cb84-500" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 12</span></span>
-<span id="cb84-501"><a href="#cb84-501" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-502"><a href="#cb84-502" aria-hidden="true" tabindex="-1"></a>idx1 <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&gt;</span> <span class="dv">10</span>)</span>
-<span id="cb84-503"><a href="#cb84-503" aria-hidden="true" tabindex="-1"></a>idx2 <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&lt;=</span> <span class="dv">10</span>)</span>
-<span id="cb84-504"><a href="#cb84-504" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-505"><a href="#cb84-505" aria-hidden="true" tabindex="-1"></a>draws_df_subset <span class="ot">&lt;-</span> fit<span class="sc">$</span><span class="fu">draws</span>(<span class="at">format =</span> <span class="st">"df"</span>, <span class="at">variable =</span> <span class="fu">c</span>(<span class="st">"pilogkw"</span>,<span class="st">"piS1"</span>))</span>
-<span id="cb84-506"><a href="#cb84-506" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-507"><a href="#cb84-507" aria-hidden="true" tabindex="-1"></a>param1<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
-<span id="cb84-508"><a href="#cb84-508" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(pilogkw[No])<span class="sc">%&gt;%</span></span>
-<span id="cb84-509"><a href="#cb84-509" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(pilogkw) <span class="sc">%&gt;%</span></span>
-<span id="cb84-510"><a href="#cb84-510" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"pilogkw"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-511"><a href="#cb84-511" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>pilogkw)<span class="sc">%&gt;%</span></span>
-<span id="cb84-512"><a href="#cb84-512" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-513"><a href="#cb84-513" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx1])</span>
-<span id="cb84-514"><a href="#cb84-514" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-515"><a href="#cb84-515" aria-hidden="true" tabindex="-1"></a>param2<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
-<span id="cb84-516"><a href="#cb84-516" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(piS1[No])<span class="sc">%&gt;%</span></span>
-<span id="cb84-517"><a href="#cb84-517" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(piS1) <span class="sc">%&gt;%</span></span>
-<span id="cb84-518"><a href="#cb84-518" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"piS1"</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb84-519"><a href="#cb84-519" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>piS1)<span class="sc">%&gt;%</span></span>
-<span id="cb84-520"><a href="#cb84-520" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names)<span class="sc">%&gt;%</span></span>
-<span id="cb84-521"><a href="#cb84-521" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx1])</span>
-<span id="cb84-522"><a href="#cb84-522" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-523"><a href="#cb84-523" aria-hidden="true" tabindex="-1"></a>param<span class="ot">&lt;-</span><span class="fu">rbind</span>(param1,param2) </span>
-<span id="cb84-524"><a href="#cb84-524" aria-hidden="true" tabindex="-1"></a>p_common <span class="ot">&lt;-</span> param <span class="sc">%&gt;%</span></span>
-<span id="cb84-525"><a href="#cb84-525" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> <span class="fu">factor</span>(functional_groups_name, <span class="at">levels =</span> functional_groups_names)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-526"><a href="#cb84-526" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> functional_groups_name, <span class="at">x =</span> dv, <span class="at">xmin =</span> .lower, <span class="at">xmax =</span> .upper)) <span class="sc">+</span></span>
-<span id="cb84-527"><a href="#cb84-527" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">geom_pointinterval</span>() <span class="sc">+</span></span>
-<span id="cb84-528"><a href="#cb84-528" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Effect"</span>, <span class="at">y=</span><span class="st">"Functional group id"</span>)<span class="sc">+</span></span>
-<span id="cb84-529"><a href="#cb84-529" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>param)<span class="sc">+</span></span>
-<span id="cb84-530"><a href="#cb84-530" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>,<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>)</span>
-<span id="cb84-531"><a href="#cb84-531" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-532"><a href="#cb84-532" aria-hidden="true" tabindex="-1"></a>param1<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
-<span id="cb84-533"><a href="#cb84-533" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(pilogkw[No])<span class="sc">%&gt;%</span></span>
-<span id="cb84-534"><a href="#cb84-534" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(pilogkw) <span class="sc">%&gt;%</span></span>
-<span id="cb84-535"><a href="#cb84-535" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"pilogkw"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-536"><a href="#cb84-536" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>pilogkw)<span class="sc">%&gt;%</span></span>
-<span id="cb84-537"><a href="#cb84-537" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-538"><a href="#cb84-538" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx2])</span>
-<span id="cb84-539"><a href="#cb84-539" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-540"><a href="#cb84-540" aria-hidden="true" tabindex="-1"></a>param2<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
-<span id="cb84-541"><a href="#cb84-541" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(piS1[No])<span class="sc">%&gt;%</span></span>
-<span id="cb84-542"><a href="#cb84-542" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(piS1) <span class="sc">%&gt;%</span></span>
-<span id="cb84-543"><a href="#cb84-543" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"piS1"</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb84-544"><a href="#cb84-544" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>piS1)<span class="sc">%&gt;%</span></span>
-<span id="cb84-545"><a href="#cb84-545" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names)<span class="sc">%&gt;%</span></span>
-<span id="cb84-546"><a href="#cb84-546" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx2])</span>
-<span id="cb84-547"><a href="#cb84-547" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-548"><a href="#cb84-548" aria-hidden="true" tabindex="-1"></a>param<span class="ot">&lt;-</span><span class="fu">rbind</span>(param1,param2) </span>
-<span id="cb84-549"><a href="#cb84-549" aria-hidden="true" tabindex="-1"></a>p_uncommon <span class="ot">&lt;-</span> param <span class="sc">%&gt;%</span></span>
-<span id="cb84-550"><a href="#cb84-550" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> <span class="fu">factor</span>(functional_groups_name, <span class="at">levels =</span> functional_groups_names)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-551"><a href="#cb84-551" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> functional_groups_name, <span class="at">x =</span> dv, <span class="at">xmin =</span> .lower, <span class="at">xmax =</span> .upper)) <span class="sc">+</span></span>
-<span id="cb84-552"><a href="#cb84-552" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">geom_pointinterval</span>() <span class="sc">+</span></span>
-<span id="cb84-553"><a href="#cb84-553" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Effect"</span>, <span class="at">y=</span><span class="st">"Functional group id"</span>)<span class="sc">+</span></span>
-<span id="cb84-554"><a href="#cb84-554" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>param) <span class="sc">+</span></span>
-<span id="cb84-555"><a href="#cb84-555" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>,<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>)</span>
+<span id="cb84-482"><a href="#cb84-482" aria-hidden="true" tabindex="-1"></a><span class="in">```{r trace-plots, include=TRUE}</span></span>
+<span id="cb84-483"><a href="#cb84-483" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>, <span class="st">"beta"</span>,<span class="st">"S2Hat"</span>))) </span>
+<span id="cb84-484"><a href="#cb84-484" aria-hidden="true" tabindex="-1"></a>bayesplot<span class="sc">::</span><span class="fu">mcmc_trace</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>))) </span>
+<span id="cb84-485"><a href="#cb84-485" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-486"><a href="#cb84-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-487"><a href="#cb84-487" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (figures)</span></span>
+<span id="cb84-488"><a href="#cb84-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-489"><a href="#cb84-489" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mcmc-intervals}</span></span>
+<span id="cb84-490"><a href="#cb84-490" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>)))</span>
+<span id="cb84-491"><a href="#cb84-491" aria-hidden="true" tabindex="-1"></a><span class="fu">mcmc_intervals</span>(fit<span class="sc">$</span><span class="fu">draws</span>(<span class="fu">c</span>(<span class="st">"omega"</span>,<span class="st">"sigma"</span>,<span class="st">"sdpi"</span>)))</span>
+<span id="cb84-492"><a href="#cb84-492" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-493"><a href="#cb84-493" aria-hidden="true" tabindex="-1"></a><span class="fu">## Functional groups effect </span></span>
+<span id="cb84-494"><a href="#cb84-494" aria-hidden="true" tabindex="-1"></a><span class="in">```{r functinoal-group-effects}</span></span>
+<span id="cb84-495"><a href="#cb84-495" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 6</span></span>
+<span id="cb84-496"><a href="#cb84-496" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 12</span></span>
+<span id="cb84-497"><a href="#cb84-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-498"><a href="#cb84-498" aria-hidden="true" tabindex="-1"></a>idx1 <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&gt;</span> <span class="dv">10</span>)</span>
+<span id="cb84-499"><a href="#cb84-499" aria-hidden="true" tabindex="-1"></a>idx2 <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&lt;=</span> <span class="dv">10</span>)</span>
+<span id="cb84-500"><a href="#cb84-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-501"><a href="#cb84-501" aria-hidden="true" tabindex="-1"></a>draws_df_subset <span class="ot">&lt;-</span> fit<span class="sc">$</span><span class="fu">draws</span>(<span class="at">format =</span> <span class="st">"df"</span>, <span class="at">variable =</span> <span class="fu">c</span>(<span class="st">"pilogkw"</span>,<span class="st">"piS1"</span>))</span>
+<span id="cb84-502"><a href="#cb84-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-503"><a href="#cb84-503" aria-hidden="true" tabindex="-1"></a>param1<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
+<span id="cb84-504"><a href="#cb84-504" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(pilogkw[No])<span class="sc">%&gt;%</span></span>
+<span id="cb84-505"><a href="#cb84-505" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(pilogkw) <span class="sc">%&gt;%</span></span>
+<span id="cb84-506"><a href="#cb84-506" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"pilogkw"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-507"><a href="#cb84-507" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>pilogkw)<span class="sc">%&gt;%</span></span>
+<span id="cb84-508"><a href="#cb84-508" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-509"><a href="#cb84-509" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx1])</span>
+<span id="cb84-510"><a href="#cb84-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-511"><a href="#cb84-511" aria-hidden="true" tabindex="-1"></a>param2<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
+<span id="cb84-512"><a href="#cb84-512" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(piS1[No])<span class="sc">%&gt;%</span></span>
+<span id="cb84-513"><a href="#cb84-513" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(piS1) <span class="sc">%&gt;%</span></span>
+<span id="cb84-514"><a href="#cb84-514" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"piS1"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb84-515"><a href="#cb84-515" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>piS1)<span class="sc">%&gt;%</span></span>
+<span id="cb84-516"><a href="#cb84-516" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names)<span class="sc">%&gt;%</span></span>
+<span id="cb84-517"><a href="#cb84-517" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx1])</span>
+<span id="cb84-518"><a href="#cb84-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-519"><a href="#cb84-519" aria-hidden="true" tabindex="-1"></a>param<span class="ot">&lt;-</span><span class="fu">rbind</span>(param1,param2) </span>
+<span id="cb84-520"><a href="#cb84-520" aria-hidden="true" tabindex="-1"></a>p_common <span class="ot">&lt;-</span> param <span class="sc">%&gt;%</span></span>
+<span id="cb84-521"><a href="#cb84-521" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> <span class="fu">factor</span>(functional_groups_name, <span class="at">levels =</span> functional_groups_names)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-522"><a href="#cb84-522" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> functional_groups_name, <span class="at">x =</span> dv, <span class="at">xmin =</span> .lower, <span class="at">xmax =</span> .upper)) <span class="sc">+</span></span>
+<span id="cb84-523"><a href="#cb84-523" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">geom_pointinterval</span>() <span class="sc">+</span></span>
+<span id="cb84-524"><a href="#cb84-524" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Effect"</span>, <span class="at">y=</span><span class="st">"Functional group id"</span>)<span class="sc">+</span></span>
+<span id="cb84-525"><a href="#cb84-525" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>param)<span class="sc">+</span></span>
+<span id="cb84-526"><a href="#cb84-526" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>,<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>)</span>
+<span id="cb84-527"><a href="#cb84-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-528"><a href="#cb84-528" aria-hidden="true" tabindex="-1"></a>param1<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
+<span id="cb84-529"><a href="#cb84-529" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(pilogkw[No])<span class="sc">%&gt;%</span></span>
+<span id="cb84-530"><a href="#cb84-530" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(pilogkw) <span class="sc">%&gt;%</span></span>
+<span id="cb84-531"><a href="#cb84-531" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"pilogkw"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-532"><a href="#cb84-532" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>pilogkw)<span class="sc">%&gt;%</span></span>
+<span id="cb84-533"><a href="#cb84-533" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-534"><a href="#cb84-534" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx2])</span>
+<span id="cb84-535"><a href="#cb84-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-536"><a href="#cb84-536" aria-hidden="true" tabindex="-1"></a>param2<span class="ot">&lt;-</span>draws_df_subset <span class="sc">%&gt;%</span></span>
+<span id="cb84-537"><a href="#cb84-537" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(piS1[No])<span class="sc">%&gt;%</span></span>
+<span id="cb84-538"><a href="#cb84-538" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">median_qi</span>(piS1) <span class="sc">%&gt;%</span></span>
+<span id="cb84-539"><a href="#cb84-539" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">param =</span> <span class="st">"piS1"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb84-540"><a href="#cb84-540" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">dv=</span>piS1)<span class="sc">%&gt;%</span></span>
+<span id="cb84-541"><a href="#cb84-541" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> functional_groups_names)<span class="sc">%&gt;%</span></span>
+<span id="cb84-542"><a href="#cb84-542" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(functional_groups_name <span class="sc">%in%</span> functional_groups_names[idx2])</span>
+<span id="cb84-543"><a href="#cb84-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-544"><a href="#cb84-544" aria-hidden="true" tabindex="-1"></a>param<span class="ot">&lt;-</span><span class="fu">rbind</span>(param1,param2) </span>
+<span id="cb84-545"><a href="#cb84-545" aria-hidden="true" tabindex="-1"></a>p_uncommon <span class="ot">&lt;-</span> param <span class="sc">%&gt;%</span></span>
+<span id="cb84-546"><a href="#cb84-546" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">functional_groups_name =</span> <span class="fu">factor</span>(functional_groups_name, <span class="at">levels =</span> functional_groups_names)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-547"><a href="#cb84-547" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> functional_groups_name, <span class="at">x =</span> dv, <span class="at">xmin =</span> .lower, <span class="at">xmax =</span> .upper)) <span class="sc">+</span></span>
+<span id="cb84-548"><a href="#cb84-548" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">geom_pointinterval</span>() <span class="sc">+</span></span>
+<span id="cb84-549"><a href="#cb84-549" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Effect"</span>, <span class="at">y=</span><span class="st">"Functional group id"</span>)<span class="sc">+</span></span>
+<span id="cb84-550"><a href="#cb84-550" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>param) <span class="sc">+</span></span>
+<span id="cb84-551"><a href="#cb84-551" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>,<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>)</span>
+<span id="cb84-552"><a href="#cb84-552" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-553"><a href="#cb84-553" aria-hidden="true" tabindex="-1"></a>p_uncommon</span>
+<span id="cb84-554"><a href="#cb84-554" aria-hidden="true" tabindex="-1"></a>p_common</span>
+<span id="cb84-555"><a href="#cb84-555" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb84-556"><a href="#cb84-556" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-557"><a href="#cb84-557" aria-hidden="true" tabindex="-1"></a>p_uncommon</span>
-<span id="cb84-558"><a href="#cb84-558" aria-hidden="true" tabindex="-1"></a>p_common</span>
-<span id="cb84-559"><a href="#cb84-559" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-560"><a href="#cb84-560" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-561"><a href="#cb84-561" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fits</span></span>
-<span id="cb84-562"><a href="#cb84-562" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-563"><a href="#cb84-563" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-gof-plots}</span></span>
-<span id="cb84-564"><a href="#cb84-564" aria-hidden="true" tabindex="-1"></a>results_ind <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-565"><a href="#cb84-565" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-566"><a href="#cb84-566" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(slogk_ind[i]) <span class="sc">%&gt;%</span> </span>
-<span id="cb84-567"><a href="#cb84-567" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb84-568"><a href="#cb84-568" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID)<span class="sc">%&gt;%</span></span>
-<span id="cb84-569"><a href="#cb84-569" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">median_qi</span>(<span class="at">logkpred =</span> slogk_ind) <span class="sc">%&gt;%</span></span>
-<span id="cb84-570"><a href="#cb84-570" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ID)</span>
-<span id="cb84-571"><a href="#cb84-571" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-572"><a href="#cb84-572" aria-hidden="true" tabindex="-1"></a>results_pop <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-573"><a href="#cb84-573" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-574"><a href="#cb84-574" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(slogk_pop[i]) <span class="sc">%&gt;%</span> </span>
-<span id="cb84-575"><a href="#cb84-575" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb84-576"><a href="#cb84-576" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID)<span class="sc">%&gt;%</span></span>
-<span id="cb84-577"><a href="#cb84-577" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">median_qi</span>(<span class="at">logkpred =</span> slogk_pop) <span class="sc">%&gt;%</span></span>
-<span id="cb84-578"><a href="#cb84-578" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ID)</span>
-<span id="cb84-579"><a href="#cb84-579" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-580"><a href="#cb84-580" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> data<span class="sc">%&gt;%</span></span>
-<span id="cb84-581"><a href="#cb84-581" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(results_ind) <span class="sc">%&gt;%</span></span>
-<span id="cb84-582"><a href="#cb84-582" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkpred, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-583"><a href="#cb84-583" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb84-584"><a href="#cb84-584" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+</span></span>
-<span id="cb84-585"><a href="#cb84-585" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb84-586"><a href="#cb84-586" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"logk (individual)"</span>, <span class="at">y =</span> <span class="st">"logk (observed)"</span>) <span class="sc">+</span></span>
-<span id="cb84-587"><a href="#cb84-587" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
-<span id="cb84-588"><a href="#cb84-588" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
-<span id="cb84-589"><a href="#cb84-589" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-590"><a href="#cb84-590" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span> data<span class="sc">%&gt;%</span></span>
-<span id="cb84-591"><a href="#cb84-591" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(results_pop) <span class="sc">%&gt;%</span></span>
-<span id="cb84-592"><a href="#cb84-592" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkpred, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-593"><a href="#cb84-593" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb84-594"><a href="#cb84-594" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+</span></span>
-<span id="cb84-595"><a href="#cb84-595" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb84-596"><a href="#cb84-596" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"logk (population)"</span>, <span class="at">y =</span> <span class="st">"logk (observed)"</span>) <span class="sc">+</span> </span>
-<span id="cb84-597"><a href="#cb84-597" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
-<span id="cb84-598"><a href="#cb84-598" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
+<span id="cb84-557"><a href="#cb84-557" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fits</span></span>
+<span id="cb84-558"><a href="#cb84-558" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-559"><a href="#cb84-559" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-gof-plots}</span></span>
+<span id="cb84-560"><a href="#cb84-560" aria-hidden="true" tabindex="-1"></a>results_ind <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-561"><a href="#cb84-561" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-562"><a href="#cb84-562" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(slogk_ind[i]) <span class="sc">%&gt;%</span> </span>
+<span id="cb84-563"><a href="#cb84-563" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb84-564"><a href="#cb84-564" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID)<span class="sc">%&gt;%</span></span>
+<span id="cb84-565"><a href="#cb84-565" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">median_qi</span>(<span class="at">logkpred =</span> slogk_ind) <span class="sc">%&gt;%</span></span>
+<span id="cb84-566"><a href="#cb84-566" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ID)</span>
+<span id="cb84-567"><a href="#cb84-567" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-568"><a href="#cb84-568" aria-hidden="true" tabindex="-1"></a>results_pop <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-569"><a href="#cb84-569" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">200</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-570"><a href="#cb84-570" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(slogk_pop[i]) <span class="sc">%&gt;%</span> </span>
+<span id="cb84-571"><a href="#cb84-571" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb84-572"><a href="#cb84-572" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID)<span class="sc">%&gt;%</span></span>
+<span id="cb84-573"><a href="#cb84-573" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">median_qi</span>(<span class="at">logkpred =</span> slogk_pop) <span class="sc">%&gt;%</span></span>
+<span id="cb84-574"><a href="#cb84-574" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ID)</span>
+<span id="cb84-575"><a href="#cb84-575" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-576"><a href="#cb84-576" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span> data<span class="sc">%&gt;%</span></span>
+<span id="cb84-577"><a href="#cb84-577" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(results_ind) <span class="sc">%&gt;%</span></span>
+<span id="cb84-578"><a href="#cb84-578" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkpred, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-579"><a href="#cb84-579" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb84-580"><a href="#cb84-580" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+</span></span>
+<span id="cb84-581"><a href="#cb84-581" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb84-582"><a href="#cb84-582" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"logk (individual)"</span>, <span class="at">y =</span> <span class="st">"logk (observed)"</span>) <span class="sc">+</span></span>
+<span id="cb84-583"><a href="#cb84-583" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
+<span id="cb84-584"><a href="#cb84-584" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
+<span id="cb84-585"><a href="#cb84-585" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-586"><a href="#cb84-586" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span> data<span class="sc">%&gt;%</span></span>
+<span id="cb84-587"><a href="#cb84-587" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(results_pop) <span class="sc">%&gt;%</span></span>
+<span id="cb84-588"><a href="#cb84-588" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>logkpred, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-589"><a href="#cb84-589" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb84-590"><a href="#cb84-590" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_errorbar(aes(xmin = .lower, xmax = .upper), width=0.01)+</span></span>
+<span id="cb84-591"><a href="#cb84-591" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb84-592"><a href="#cb84-592" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"logk (population)"</span>, <span class="at">y =</span> <span class="st">"logk (observed)"</span>) <span class="sc">+</span> </span>
+<span id="cb84-593"><a href="#cb84-593" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> </span>
+<span id="cb84-594"><a href="#cb84-594" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position=</span><span class="st">"none"</span>)</span>
+<span id="cb84-595"><a href="#cb84-595" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-596"><a href="#cb84-596" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2</span>
+<span id="cb84-597"><a href="#cb84-597" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-598"><a href="#cb84-598" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb84-599"><a href="#cb84-599" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-600"><a href="#cb84-600" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">+</span>p2</span>
-<span id="cb84-601"><a href="#cb84-601" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-602"><a href="#cb84-602" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-600"><a href="#cb84-600" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-predictions}</span></span>
+<span id="cb84-601"><a href="#cb84-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-602"><a href="#cb84-602" aria-hidden="true" tabindex="-1"></a>analytes_idx <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">501</span>,<span class="dv">510</span>, <span class="dv">626</span>)</span>
 <span id="cb84-603"><a href="#cb84-603" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-604"><a href="#cb84-604" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-predictions}</span></span>
-<span id="cb84-605"><a href="#cb84-605" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-606"><a href="#cb84-606" aria-hidden="true" tabindex="-1"></a>analytes_idx <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">501</span>,<span class="dv">510</span>, <span class="dv">626</span>)</span>
-<span id="cb84-607"><a href="#cb84-607" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-608"><a href="#cb84-608" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-609"><a href="#cb84-609" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-610"><a href="#cb84-610" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
-<span id="cb84-611"><a href="#cb84-611" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb84-612"><a href="#cb84-612" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-613"><a href="#cb84-613" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> analytes_idx) <span class="sc">%&gt;%</span></span>
-<span id="cb84-614"><a href="#cb84-614" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-615"><a href="#cb84-615" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-616"><a href="#cb84-616" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logk)) <span class="sc">+</span></span>
-<span id="cb84-617"><a href="#cb84-617" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb84-618"><a href="#cb84-618" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-619"><a href="#cb84-619" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
-<span id="cb84-620"><a href="#cb84-620" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual)"</span>) <span class="sc">+</span></span>
-<span id="cb84-621"><a href="#cb84-621" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb84-622"><a href="#cb84-622" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb84-623"><a href="#cb84-623" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-624"><a href="#cb84-624" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
-<span id="cb84-625"><a href="#cb84-625" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-626"><a href="#cb84-626" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-627"><a href="#cb84-627" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pop-predictions}</span></span>
-<span id="cb84-628"><a href="#cb84-628" aria-hidden="true" tabindex="-1"></a>analytes_idx <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">501</span>,<span class="dv">510</span>, <span class="dv">626</span>)</span>
-<span id="cb84-629"><a href="#cb84-629" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-630"><a href="#cb84-630" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-631"><a href="#cb84-631" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-632"><a href="#cb84-632" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
-<span id="cb84-633"><a href="#cb84-633" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb84-634"><a href="#cb84-634" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-635"><a href="#cb84-635" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> analytes_idx) <span class="sc">%&gt;%</span></span>
-<span id="cb84-636"><a href="#cb84-636" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-637"><a href="#cb84-637" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-638"><a href="#cb84-638" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logk)) <span class="sc">+</span></span>
-<span id="cb84-639"><a href="#cb84-639" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb84-640"><a href="#cb84-640" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-641"><a href="#cb84-641" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
-<span id="cb84-642"><a href="#cb84-642" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (population)"</span>) <span class="sc">+</span></span>
-<span id="cb84-643"><a href="#cb84-643" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb84-644"><a href="#cb84-644" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb84-604"><a href="#cb84-604" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-605"><a href="#cb84-605" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-606"><a href="#cb84-606" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
+<span id="cb84-607"><a href="#cb84-607" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb84-608"><a href="#cb84-608" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-609"><a href="#cb84-609" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> analytes_idx) <span class="sc">%&gt;%</span></span>
+<span id="cb84-610"><a href="#cb84-610" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-611"><a href="#cb84-611" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-612"><a href="#cb84-612" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logk)) <span class="sc">+</span></span>
+<span id="cb84-613"><a href="#cb84-613" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb84-614"><a href="#cb84-614" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-615"><a href="#cb84-615" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
+<span id="cb84-616"><a href="#cb84-616" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual)"</span>) <span class="sc">+</span></span>
+<span id="cb84-617"><a href="#cb84-617" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb84-618"><a href="#cb84-618" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb84-619"><a href="#cb84-619" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-620"><a href="#cb84-620" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
+<span id="cb84-621"><a href="#cb84-621" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-622"><a href="#cb84-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-623"><a href="#cb84-623" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pop-predictions}</span></span>
+<span id="cb84-624"><a href="#cb84-624" aria-hidden="true" tabindex="-1"></a>analytes_idx <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">501</span>,<span class="dv">510</span>, <span class="dv">626</span>)</span>
+<span id="cb84-625"><a href="#cb84-625" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-626"><a href="#cb84-626" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-627"><a href="#cb84-627" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-628"><a href="#cb84-628" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
+<span id="cb84-629"><a href="#cb84-629" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb84-630"><a href="#cb84-630" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-631"><a href="#cb84-631" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> analytes_idx) <span class="sc">%&gt;%</span></span>
+<span id="cb84-632"><a href="#cb84-632" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-633"><a href="#cb84-633" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-634"><a href="#cb84-634" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logk)) <span class="sc">+</span></span>
+<span id="cb84-635"><a href="#cb84-635" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb84-636"><a href="#cb84-636" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-637"><a href="#cb84-637" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte)<span class="sc">+</span></span>
+<span id="cb84-638"><a href="#cb84-638" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (population)"</span>) <span class="sc">+</span></span>
+<span id="cb84-639"><a href="#cb84-639" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb84-640"><a href="#cb84-640" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb84-641"><a href="#cb84-641" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-642"><a href="#cb84-642" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
+<span id="cb84-643"><a href="#cb84-643" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-644"><a href="#cb84-644" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb84-645"><a href="#cb84-645" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-646"><a href="#cb84-646" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
-<span id="cb84-647"><a href="#cb84-647" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-648"><a href="#cb84-648" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-649"><a href="#cb84-649" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-650"><a href="#cb84-650" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pop-predictions-vpc}</span></span>
-<span id="cb84-651"><a href="#cb84-651" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-652"><a href="#cb84-652" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-653"><a href="#cb84-653" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
-<span id="cb84-654"><a href="#cb84-654" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb84-655"><a href="#cb84-655" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb84-656"><a href="#cb84-656" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-657"><a href="#cb84-657" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi))<span class="sc">%&gt;%</span></span>
-<span id="cb84-658"><a href="#cb84-658" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">draw=</span>.draw)<span class="sc">%&gt;%</span></span>
-<span id="cb84-659"><a href="#cb84-659" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(draw, fi)<span class="sc">%&gt;%</span></span>
-<span id="cb84-660"><a href="#cb84-660" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mlogk =</span> <span class="fu">mean</span>(logk),</span>
-<span id="cb84-661"><a href="#cb84-661" aria-hidden="true" tabindex="-1"></a>            <span class="at">llogk =</span> <span class="fu">quantile</span>(logk, <span class="at">prob=</span><span class="fl">0.05</span>),</span>
-<span id="cb84-662"><a href="#cb84-662" aria-hidden="true" tabindex="-1"></a>            <span class="at">ulogk =</span> <span class="fu">quantile</span>(logk, <span class="at">prob=</span><span class="fl">0.95</span>))<span class="sc">%&gt;%</span></span>
-<span id="cb84-663"><a href="#cb84-663" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fi)<span class="sc">%&gt;%</span></span>
-<span id="cb84-664"><a href="#cb84-664" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mmlogk =</span> <span class="fu">mean</span>(mlogk),</span>
-<span id="cb84-665"><a href="#cb84-665" aria-hidden="true" tabindex="-1"></a>            <span class="at">mllogk =</span> <span class="fu">quantile</span>(llogk, <span class="at">prob=</span><span class="fl">0.05</span>),</span>
-<span id="cb84-666"><a href="#cb84-666" aria-hidden="true" tabindex="-1"></a>            <span class="at">mulogk =</span> <span class="fu">quantile</span>(ulogk, <span class="at">prob=</span><span class="fl">0.95</span>))<span class="sc">%&gt;%</span></span>
-<span id="cb84-667"><a href="#cb84-667" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb84-668"><a href="#cb84-668" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mmlogk))<span class="sc">+</span></span>
-<span id="cb84-669"><a href="#cb84-669" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mllogk))<span class="sc">+</span></span>
-<span id="cb84-670"><a href="#cb84-670" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mulogk))<span class="sc">+</span></span>
-<span id="cb84-671"><a href="#cb84-671" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data=</span>data,<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
-<span id="cb84-672"><a href="#cb84-672" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (population)"</span>) <span class="sc">+</span></span>
-<span id="cb84-673"><a href="#cb84-673" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) </span>
+<span id="cb84-646"><a href="#cb84-646" aria-hidden="true" tabindex="-1"></a><span class="in">```{r pop-predictions-vpc}</span></span>
+<span id="cb84-647"><a href="#cb84-647" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-648"><a href="#cb84-648" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-649"><a href="#cb84-649" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
+<span id="cb84-650"><a href="#cb84-650" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb84-651"><a href="#cb84-651" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb84-652"><a href="#cb84-652" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-653"><a href="#cb84-653" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logk =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi))<span class="sc">%&gt;%</span></span>
+<span id="cb84-654"><a href="#cb84-654" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">draw=</span>.draw)<span class="sc">%&gt;%</span></span>
+<span id="cb84-655"><a href="#cb84-655" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(draw, fi)<span class="sc">%&gt;%</span></span>
+<span id="cb84-656"><a href="#cb84-656" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mlogk =</span> <span class="fu">mean</span>(logk),</span>
+<span id="cb84-657"><a href="#cb84-657" aria-hidden="true" tabindex="-1"></a>            <span class="at">llogk =</span> <span class="fu">quantile</span>(logk, <span class="at">prob=</span><span class="fl">0.05</span>),</span>
+<span id="cb84-658"><a href="#cb84-658" aria-hidden="true" tabindex="-1"></a>            <span class="at">ulogk =</span> <span class="fu">quantile</span>(logk, <span class="at">prob=</span><span class="fl">0.95</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb84-659"><a href="#cb84-659" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fi)<span class="sc">%&gt;%</span></span>
+<span id="cb84-660"><a href="#cb84-660" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mmlogk =</span> <span class="fu">mean</span>(mlogk),</span>
+<span id="cb84-661"><a href="#cb84-661" aria-hidden="true" tabindex="-1"></a>            <span class="at">mllogk =</span> <span class="fu">quantile</span>(llogk, <span class="at">prob=</span><span class="fl">0.05</span>),</span>
+<span id="cb84-662"><a href="#cb84-662" aria-hidden="true" tabindex="-1"></a>            <span class="at">mulogk =</span> <span class="fu">quantile</span>(ulogk, <span class="at">prob=</span><span class="fl">0.95</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb84-663"><a href="#cb84-663" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb84-664"><a href="#cb84-664" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mmlogk))<span class="sc">+</span></span>
+<span id="cb84-665"><a href="#cb84-665" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mllogk))<span class="sc">+</span></span>
+<span id="cb84-666"><a href="#cb84-666" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> mulogk))<span class="sc">+</span></span>
+<span id="cb84-667"><a href="#cb84-667" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data=</span>data,<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span> </span>
+<span id="cb84-668"><a href="#cb84-668" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (population)"</span>) <span class="sc">+</span></span>
+<span id="cb84-669"><a href="#cb84-669" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) </span>
+<span id="cb84-670"><a href="#cb84-670" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-671"><a href="#cb84-671" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
+<span id="cb84-672"><a href="#cb84-672" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-673"><a href="#cb84-673" aria-hidden="true" tabindex="-1"></a><span class="fu">## Individual Parameters and etaplots</span></span>
 <span id="cb84-674"><a href="#cb84-674" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-675"><a href="#cb84-675" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
-<span id="cb84-676"><a href="#cb84-676" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-677"><a href="#cb84-677" aria-hidden="true" tabindex="-1"></a><span class="fu">## Individual Parameters and etaplots</span></span>
+<span id="cb84-675"><a href="#cb84-675" aria-hidden="true" tabindex="-1"></a>Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.</span>
+<span id="cb84-676"><a href="#cb84-676" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-677"><a href="#cb84-677" aria-hidden="true" tabindex="-1"></a><span class="fu">### Individual parameters</span></span>
 <span id="cb84-678"><a href="#cb84-678" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-679"><a href="#cb84-679" aria-hidden="true" tabindex="-1"></a>Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.</span>
-<span id="cb84-680"><a href="#cb84-680" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-681"><a href="#cb84-681" aria-hidden="true" tabindex="-1"></a><span class="fu">### Individual parameters</span></span>
-<span id="cb84-682"><a href="#cb84-682" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-683"><a href="#cb84-683" aria-hidden="true" tabindex="-1"></a><span class="in">```{r iparam}</span></span>
-<span id="cb84-684"><a href="#cb84-684" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-685"><a href="#cb84-685" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"sparam_ind"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-686"><a href="#cb84-686" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="at">.fns =</span> mean)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-687"><a href="#cb84-687" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"variable"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span>
-<span id="cb84-688"><a href="#cb84-688" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-689"><a href="#cb84-689" aria-hidden="true" tabindex="-1"></a>param1 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[<span class="dv">1</span><span class="sc">:</span>nAnalytes]</span>
-<span id="cb84-690"><a href="#cb84-690" aria-hidden="true" tabindex="-1"></a>param2 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[(nAnalytes<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>nAnalytes)]</span>
-<span id="cb84-691"><a href="#cb84-691" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-692"><a href="#cb84-692" aria-hidden="true" tabindex="-1"></a>data_to_plot_param <span class="ot">&lt;-</span> <span class="fu">cbind</span>(param1,param2, param1<span class="sc">-</span>param2, datastruct<span class="sc">$</span>logPobs)</span>
-<span id="cb84-693"><a href="#cb84-693" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_to_plot_param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="st">'logkwN'</span>[i]),<span class="fu">expression</span>(<span class="st">'S1mN'</span>[i]),<span class="fu">expression</span>(<span class="st">'logka'</span>[i]), <span class="fu">expression</span>(<span class="st">'logP'</span>[i]))</span>
-<span id="cb84-694"><a href="#cb84-694" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-695"><a href="#cb84-695" aria-hidden="true" tabindex="-1"></a>p<span class="ot">&lt;-</span><span class="fu">ggpairs</span>(<span class="fu">as.data.frame</span>(data_to_plot_param), <span class="at">columnLabels =</span> <span class="fu">colnames</span>(data_to_plot_param) ,</span>
-<span id="cb84-696"><a href="#cb84-696" aria-hidden="true" tabindex="-1"></a>        <span class="at">labeller =</span> <span class="st">"label_parsed"</span>,<span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"points"</span>))</span>
-<span id="cb84-697"><a href="#cb84-697" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-698"><a href="#cb84-698" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
-<span id="cb84-699"><a href="#cb84-699" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-700"><a href="#cb84-700" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-701"><a href="#cb84-701" aria-hidden="true" tabindex="-1"></a><span class="fu">### Etas</span></span>
-<span id="cb84-702"><a href="#cb84-702" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ieta}</span></span>
-<span id="cb84-703"><a href="#cb84-703" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-704"><a href="#cb84-704" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"seta_ind"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-705"><a href="#cb84-705" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="at">.fns =</span> mean)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-706"><a href="#cb84-706" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"variable"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span>
-<span id="cb84-707"><a href="#cb84-707" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-708"><a href="#cb84-708" aria-hidden="true" tabindex="-1"></a>param1 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[<span class="dv">1</span><span class="sc">:</span>nAnalytes]</span>
-<span id="cb84-709"><a href="#cb84-709" aria-hidden="true" tabindex="-1"></a>param2 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[(nAnalytes<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>nAnalytes)]</span>
-<span id="cb84-710"><a href="#cb84-710" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-711"><a href="#cb84-711" aria-hidden="true" tabindex="-1"></a>data_to_plot_param <span class="ot">&lt;-</span> <span class="fu">cbind</span>(param1,param2,param1<span class="sc">-</span>param2,datastruct<span class="sc">$</span>logPobs)</span>
-<span id="cb84-712"><a href="#cb84-712" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_to_plot_param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="st">'etalogkwN'</span>[i]),<span class="fu">expression</span>(<span class="st">'etaS1mN'</span>[i]),<span class="fu">expression</span>(<span class="st">'etalogka'</span>[i]),<span class="fu">expression</span>(<span class="st">'logP'</span>[i]))</span>
-<span id="cb84-713"><a href="#cb84-713" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-714"><a href="#cb84-714" aria-hidden="true" tabindex="-1"></a>p<span class="ot">&lt;-</span><span class="fu">ggpairs</span>(<span class="fu">as.data.frame</span>(data_to_plot_param), <span class="at">columnLabels =</span> <span class="fu">colnames</span>(data_to_plot_param) ,</span>
-<span id="cb84-715"><a href="#cb84-715" aria-hidden="true" tabindex="-1"></a>        <span class="at">labeller =</span> <span class="st">"label_parsed"</span>,<span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"points"</span>))</span>
-<span id="cb84-716"><a href="#cb84-716" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-717"><a href="#cb84-717" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
-<span id="cb84-718"><a href="#cb84-718" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-719"><a href="#cb84-719" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-720"><a href="#cb84-720" aria-hidden="true" tabindex="-1"></a><span class="fu">### Effect of functional groups (screening)</span></span>
-<span id="cb84-721"><a href="#cb84-721" aria-hidden="true" tabindex="-1"></a><span class="in">```{r effect-fg-screening}</span></span>
-<span id="cb84-722"><a href="#cb84-722" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-723"><a href="#cb84-723" aria-hidden="true" tabindex="-1"></a>valid_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&gt;</span> <span class="dv">10</span>)</span>
-<span id="cb84-724"><a href="#cb84-724" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-725"><a href="#cb84-725" aria-hidden="true" tabindex="-1"></a>plots <span class="ot">&lt;-</span> <span class="fu">map</span>(valid_indices, <span class="cf">function</span>(i) {</span>
-<span id="cb84-726"><a href="#cb84-726" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract functional group as a factor</span></span>
-<span id="cb84-727"><a href="#cb84-727" aria-hidden="true" tabindex="-1"></a>  nrgroups <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(functional_groups[, i])</span>
-<span id="cb84-728"><a href="#cb84-728" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb84-729"><a href="#cb84-729" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create data frame for plotting</span></span>
-<span id="cb84-730"><a href="#cb84-730" aria-hidden="true" tabindex="-1"></a>  data_to_plot_fungr <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb84-731"><a href="#cb84-731" aria-hidden="true" tabindex="-1"></a>    <span class="at">param1 =</span> param1,</span>
-<span id="cb84-732"><a href="#cb84-732" aria-hidden="true" tabindex="-1"></a>    <span class="at">param2 =</span> param2,</span>
-<span id="cb84-733"><a href="#cb84-733" aria-hidden="true" tabindex="-1"></a>    <span class="at">param3=</span> param1<span class="sc">-</span>param2,</span>
-<span id="cb84-734"><a href="#cb84-734" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrgroups =</span> nrgroups</span>
-<span id="cb84-735"><a href="#cb84-735" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb84-736"><a href="#cb84-736" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb84-737"><a href="#cb84-737" aria-hidden="true" tabindex="-1"></a>  data_to_plot_fungr <span class="sc">%&gt;%</span></span>
-<span id="cb84-738"><a href="#cb84-738" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(param1, param2, param3), </span>
-<span id="cb84-739"><a href="#cb84-739" aria-hidden="true" tabindex="-1"></a>                 <span class="at">names_to =</span> <span class="st">"name"</span>, </span>
-<span id="cb84-740"><a href="#cb84-740" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb84-741"><a href="#cb84-741" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">etaname =</span> <span class="fu">recode</span>(name, </span>
-<span id="cb84-742"><a href="#cb84-742" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param1 =</span> <span class="st">"etalogkw"</span>, </span>
-<span id="cb84-743"><a href="#cb84-743" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param2 =</span> <span class="st">"etaS"</span>,</span>
-<span id="cb84-744"><a href="#cb84-744" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param3 =</span> <span class="st">"etalogka"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb84-745"><a href="#cb84-745" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> count, <span class="at">x =</span> nrgroups)) <span class="sc">+</span></span>
-<span id="cb84-746"><a href="#cb84-746" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb84-747"><a href="#cb84-747" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>etaname) <span class="sc">+</span></span>
-<span id="cb84-748"><a href="#cb84-748" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> functional_groups_names[i], </span>
-<span id="cb84-749"><a href="#cb84-749" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Nr of functional groups"</span>, </span>
-<span id="cb84-750"><a href="#cb84-750" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"eta"</span>)<span class="sc">+</span></span>
-<span id="cb84-751"><a href="#cb84-751" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">title=</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb84-752"><a href="#cb84-752" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb84-753"><a href="#cb84-753" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))</span>
-<span id="cb84-754"><a href="#cb84-754" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb84-755"><a href="#cb84-755" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-756"><a href="#cb84-756" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-757"><a href="#cb84-757" aria-hidden="true" tabindex="-1"></a>plot_groups <span class="ot">&lt;-</span> <span class="fu">split</span>(plots, <span class="fu">ceiling</span>(<span class="fu">seq_along</span>(plots) <span class="sc">/</span> <span class="dv">4</span>))</span>
-<span id="cb84-758"><a href="#cb84-758" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-759"><a href="#cb84-759" aria-hidden="true" tabindex="-1"></a><span class="co"># Print each group of up to four plots</span></span>
-<span id="cb84-760"><a href="#cb84-760" aria-hidden="true" tabindex="-1"></a><span class="fu">walk</span>(plot_groups, <span class="cf">function</span>(group) {</span>
-<span id="cb84-761"><a href="#cb84-761" aria-hidden="true" tabindex="-1"></a>  combined_plot <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(group, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">2</span>)</span>
-<span id="cb84-762"><a href="#cb84-762" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(combined_plot)</span>
-<span id="cb84-763"><a href="#cb84-763" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb84-764"><a href="#cb84-764" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-765"><a href="#cb84-765" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-766"><a href="#cb84-766" aria-hidden="true" tabindex="-1"></a><span class="fu">### Posterior correlations</span></span>
-<span id="cb84-767"><a href="#cb84-767" aria-hidden="true" tabindex="-1"></a><span class="in">```{r posterior-corelations}</span></span>
-<span id="cb84-768"><a href="#cb84-768" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-769"><a href="#cb84-769" aria-hidden="true" tabindex="-1"></a>similarity_matrix_corrected <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(Matrix<span class="sc">::</span><span class="fu">nearPD</span>(similarity_matrix, <span class="at">corr =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>mat)</span>
-<span id="cb84-770"><a href="#cb84-770" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_subset<span class="ot">&lt;-</span> <span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(row<span class="sc">!=</span>col)</span>
-<span id="cb84-771"><a href="#cb84-771" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-772"><a href="#cb84-772" aria-hidden="true" tabindex="-1"></a>etas <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb84-773"><a href="#cb84-773" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"seta_ind"</span>))</span>
-<span id="cb84-774"><a href="#cb84-774" aria-hidden="true" tabindex="-1"></a>etas_subset <span class="ot">&lt;-</span> etas[, <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">[</span><span class="sc">\\</span><span class="st">d+,1</span><span class="sc">\\</span><span class="st">]"</span>, <span class="fu">names</span>(etas))]</span>
-<span id="cb84-775"><a href="#cb84-775" aria-hidden="true" tabindex="-1"></a>cor_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(etas_subset, <span class="at">use =</span> <span class="st">"complete.obs"</span>)  <span class="co"># exclude .draw column</span></span>
-<span id="cb84-776"><a href="#cb84-776" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-777"><a href="#cb84-777" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cor_matrix) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1026</span></span>
-<span id="cb84-778"><a href="#cb84-778" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cor_matrix) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1026</span></span>
-<span id="cb84-779"><a href="#cb84-779" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix_corrected[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
-<span id="cb84-780"><a href="#cb84-780" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
-<span id="cb84-781"><a href="#cb84-781" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-782"><a href="#cb84-782" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-783"><a href="#cb84-783" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
-<span id="cb84-784"><a href="#cb84-784" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb84-785"><a href="#cb84-785" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
-<span id="cb84-786"><a href="#cb84-786" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
-<span id="cb84-787"><a href="#cb84-787" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
-<span id="cb84-788"><a href="#cb84-788" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
-<span id="cb84-789"><a href="#cb84-789" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb84-790"><a href="#cb84-790" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb84-791"><a href="#cb84-791" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb84-792"><a href="#cb84-792" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb84-793"><a href="#cb84-793" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb84-794"><a href="#cb84-794" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-795"><a href="#cb84-795" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
-<span id="cb84-796"><a href="#cb84-796" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb84-797"><a href="#cb84-797" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-798"><a href="#cb84-798" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
-<span id="cb84-799"><a href="#cb84-799" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-802"><a href="#cb84-802" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb84-803"><a href="#cb84-803" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb84-804"><a href="#cb84-804" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-679"><a href="#cb84-679" aria-hidden="true" tabindex="-1"></a><span class="in">```{r iparam}</span></span>
+<span id="cb84-680"><a href="#cb84-680" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-681"><a href="#cb84-681" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"sparam_ind"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-682"><a href="#cb84-682" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="at">.fns =</span> mean)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-683"><a href="#cb84-683" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"variable"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span>
+<span id="cb84-684"><a href="#cb84-684" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-685"><a href="#cb84-685" aria-hidden="true" tabindex="-1"></a>param1 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[<span class="dv">1</span><span class="sc">:</span>nAnalytes]</span>
+<span id="cb84-686"><a href="#cb84-686" aria-hidden="true" tabindex="-1"></a>param2 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[(nAnalytes<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>nAnalytes)]</span>
+<span id="cb84-687"><a href="#cb84-687" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-688"><a href="#cb84-688" aria-hidden="true" tabindex="-1"></a>data_to_plot_param <span class="ot">&lt;-</span> <span class="fu">cbind</span>(param1,param2, param1<span class="sc">-</span>param2, datastruct<span class="sc">$</span>logPobs)</span>
+<span id="cb84-689"><a href="#cb84-689" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_to_plot_param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="st">'logkwN'</span>[i]),<span class="fu">expression</span>(<span class="st">'S1mN'</span>[i]),<span class="fu">expression</span>(<span class="st">'logka'</span>[i]), <span class="fu">expression</span>(<span class="st">'logP'</span>[i]))</span>
+<span id="cb84-690"><a href="#cb84-690" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-691"><a href="#cb84-691" aria-hidden="true" tabindex="-1"></a>p<span class="ot">&lt;-</span><span class="fu">ggpairs</span>(<span class="fu">as.data.frame</span>(data_to_plot_param), <span class="at">columnLabels =</span> <span class="fu">colnames</span>(data_to_plot_param) ,</span>
+<span id="cb84-692"><a href="#cb84-692" aria-hidden="true" tabindex="-1"></a>        <span class="at">labeller =</span> <span class="st">"label_parsed"</span>,<span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"points"</span>))</span>
+<span id="cb84-693"><a href="#cb84-693" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-694"><a href="#cb84-694" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
+<span id="cb84-695"><a href="#cb84-695" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-696"><a href="#cb84-696" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-697"><a href="#cb84-697" aria-hidden="true" tabindex="-1"></a><span class="fu">### Etas</span></span>
+<span id="cb84-698"><a href="#cb84-698" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ieta}</span></span>
+<span id="cb84-699"><a href="#cb84-699" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-700"><a href="#cb84-700" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"seta_ind"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-701"><a href="#cb84-701" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="at">.fns =</span> mean)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-702"><a href="#cb84-702" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="st">"variable"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span>
+<span id="cb84-703"><a href="#cb84-703" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-704"><a href="#cb84-704" aria-hidden="true" tabindex="-1"></a>param1 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[<span class="dv">1</span><span class="sc">:</span>nAnalytes]</span>
+<span id="cb84-705"><a href="#cb84-705" aria-hidden="true" tabindex="-1"></a>param2 <span class="ot">&lt;-</span> param<span class="sc">$</span>value[(nAnalytes<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(<span class="dv">2</span><span class="sc">*</span>nAnalytes)]</span>
+<span id="cb84-706"><a href="#cb84-706" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-707"><a href="#cb84-707" aria-hidden="true" tabindex="-1"></a>data_to_plot_param <span class="ot">&lt;-</span> <span class="fu">cbind</span>(param1,param2,param1<span class="sc">-</span>param2,datastruct<span class="sc">$</span>logPobs)</span>
+<span id="cb84-708"><a href="#cb84-708" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data_to_plot_param) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(<span class="st">'etalogkwN'</span>[i]),<span class="fu">expression</span>(<span class="st">'etaS1mN'</span>[i]),<span class="fu">expression</span>(<span class="st">'etalogka'</span>[i]),<span class="fu">expression</span>(<span class="st">'logP'</span>[i]))</span>
+<span id="cb84-709"><a href="#cb84-709" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-710"><a href="#cb84-710" aria-hidden="true" tabindex="-1"></a>p<span class="ot">&lt;-</span><span class="fu">ggpairs</span>(<span class="fu">as.data.frame</span>(data_to_plot_param), <span class="at">columnLabels =</span> <span class="fu">colnames</span>(data_to_plot_param) ,</span>
+<span id="cb84-711"><a href="#cb84-711" aria-hidden="true" tabindex="-1"></a>        <span class="at">labeller =</span> <span class="st">"label_parsed"</span>,<span class="at">upper =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"points"</span>))</span>
+<span id="cb84-712"><a href="#cb84-712" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-713"><a href="#cb84-713" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p)</span>
+<span id="cb84-714"><a href="#cb84-714" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-715"><a href="#cb84-715" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-716"><a href="#cb84-716" aria-hidden="true" tabindex="-1"></a><span class="fu">### Effect of functional groups (screening)</span></span>
+<span id="cb84-717"><a href="#cb84-717" aria-hidden="true" tabindex="-1"></a><span class="in">```{r effect-fg-screening}</span></span>
+<span id="cb84-718"><a href="#cb84-718" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-719"><a href="#cb84-719" aria-hidden="true" tabindex="-1"></a>valid_indices <span class="ot">&lt;-</span> <span class="fu">which</span>(totalnrgroups <span class="sc">&gt;</span> <span class="dv">10</span>)</span>
+<span id="cb84-720"><a href="#cb84-720" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-721"><a href="#cb84-721" aria-hidden="true" tabindex="-1"></a>plots <span class="ot">&lt;-</span> <span class="fu">map</span>(valid_indices, <span class="cf">function</span>(i) {</span>
+<span id="cb84-722"><a href="#cb84-722" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract functional group as a factor</span></span>
+<span id="cb84-723"><a href="#cb84-723" aria-hidden="true" tabindex="-1"></a>  nrgroups <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(functional_groups[, i])</span>
+<span id="cb84-724"><a href="#cb84-724" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb84-725"><a href="#cb84-725" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create data frame for plotting</span></span>
+<span id="cb84-726"><a href="#cb84-726" aria-hidden="true" tabindex="-1"></a>  data_to_plot_fungr <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb84-727"><a href="#cb84-727" aria-hidden="true" tabindex="-1"></a>    <span class="at">param1 =</span> param1,</span>
+<span id="cb84-728"><a href="#cb84-728" aria-hidden="true" tabindex="-1"></a>    <span class="at">param2 =</span> param2,</span>
+<span id="cb84-729"><a href="#cb84-729" aria-hidden="true" tabindex="-1"></a>    <span class="at">param3=</span> param1<span class="sc">-</span>param2,</span>
+<span id="cb84-730"><a href="#cb84-730" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrgroups =</span> nrgroups</span>
+<span id="cb84-731"><a href="#cb84-731" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb84-732"><a href="#cb84-732" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb84-733"><a href="#cb84-733" aria-hidden="true" tabindex="-1"></a>  data_to_plot_fungr <span class="sc">%&gt;%</span></span>
+<span id="cb84-734"><a href="#cb84-734" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">c</span>(param1, param2, param3), </span>
+<span id="cb84-735"><a href="#cb84-735" aria-hidden="true" tabindex="-1"></a>                 <span class="at">names_to =</span> <span class="st">"name"</span>, </span>
+<span id="cb84-736"><a href="#cb84-736" aria-hidden="true" tabindex="-1"></a>                 <span class="at">values_to =</span> <span class="st">"count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-737"><a href="#cb84-737" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">etaname =</span> <span class="fu">recode</span>(name, </span>
+<span id="cb84-738"><a href="#cb84-738" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param1 =</span> <span class="st">"etalogkw"</span>, </span>
+<span id="cb84-739"><a href="#cb84-739" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param2 =</span> <span class="st">"etaS"</span>,</span>
+<span id="cb84-740"><a href="#cb84-740" aria-hidden="true" tabindex="-1"></a>                           <span class="at">param3 =</span> <span class="st">"etalogka"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-741"><a href="#cb84-741" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> count, <span class="at">x =</span> nrgroups)) <span class="sc">+</span></span>
+<span id="cb84-742"><a href="#cb84-742" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb84-743"><a href="#cb84-743" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>etaname) <span class="sc">+</span></span>
+<span id="cb84-744"><a href="#cb84-744" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> functional_groups_names[i], </span>
+<span id="cb84-745"><a href="#cb84-745" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Nr of functional groups"</span>, </span>
+<span id="cb84-746"><a href="#cb84-746" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"eta"</span>)<span class="sc">+</span></span>
+<span id="cb84-747"><a href="#cb84-747" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">title=</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb84-748"><a href="#cb84-748" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb84-749"><a href="#cb84-749" aria-hidden="true" tabindex="-1"></a>        <span class="at">strip.text =</span><span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))</span>
+<span id="cb84-750"><a href="#cb84-750" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb84-751"><a href="#cb84-751" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-752"><a href="#cb84-752" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-753"><a href="#cb84-753" aria-hidden="true" tabindex="-1"></a>plot_groups <span class="ot">&lt;-</span> <span class="fu">split</span>(plots, <span class="fu">ceiling</span>(<span class="fu">seq_along</span>(plots) <span class="sc">/</span> <span class="dv">4</span>))</span>
+<span id="cb84-754"><a href="#cb84-754" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-755"><a href="#cb84-755" aria-hidden="true" tabindex="-1"></a><span class="co"># Print each group of up to four plots</span></span>
+<span id="cb84-756"><a href="#cb84-756" aria-hidden="true" tabindex="-1"></a><span class="fu">walk</span>(plot_groups, <span class="cf">function</span>(group) {</span>
+<span id="cb84-757"><a href="#cb84-757" aria-hidden="true" tabindex="-1"></a>  combined_plot <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(group, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">2</span>)</span>
+<span id="cb84-758"><a href="#cb84-758" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(combined_plot)</span>
+<span id="cb84-759"><a href="#cb84-759" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb84-760"><a href="#cb84-760" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-761"><a href="#cb84-761" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-762"><a href="#cb84-762" aria-hidden="true" tabindex="-1"></a><span class="fu">### Posterior correlations</span></span>
+<span id="cb84-763"><a href="#cb84-763" aria-hidden="true" tabindex="-1"></a><span class="in">```{r posterior-corelations}</span></span>
+<span id="cb84-764"><a href="#cb84-764" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-765"><a href="#cb84-765" aria-hidden="true" tabindex="-1"></a>similarity_matrix_corrected <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(Matrix<span class="sc">::</span><span class="fu">nearPD</span>(similarity_matrix, <span class="at">corr =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>mat)</span>
+<span id="cb84-766"><a href="#cb84-766" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_subset<span class="ot">&lt;-</span> <span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(row<span class="sc">!=</span>col)</span>
+<span id="cb84-767"><a href="#cb84-767" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-768"><a href="#cb84-768" aria-hidden="true" tabindex="-1"></a>etas <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb84-769"><a href="#cb84-769" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"seta_ind"</span>))</span>
+<span id="cb84-770"><a href="#cb84-770" aria-hidden="true" tabindex="-1"></a>etas_subset <span class="ot">&lt;-</span> etas[, <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">[</span><span class="sc">\\</span><span class="st">d+,1</span><span class="sc">\\</span><span class="st">]"</span>, <span class="fu">names</span>(etas))]</span>
+<span id="cb84-771"><a href="#cb84-771" aria-hidden="true" tabindex="-1"></a>cor_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(etas_subset, <span class="at">use =</span> <span class="st">"complete.obs"</span>)  <span class="co"># exclude .draw column</span></span>
+<span id="cb84-772"><a href="#cb84-772" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-773"><a href="#cb84-773" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cor_matrix) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1026</span></span>
+<span id="cb84-774"><a href="#cb84-774" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(cor_matrix) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1026</span></span>
+<span id="cb84-775"><a href="#cb84-775" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix_corrected[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
+<span id="cb84-776"><a href="#cb84-776" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(cor_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
+<span id="cb84-777"><a href="#cb84-777" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-778"><a href="#cb84-778" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-779"><a href="#cb84-779" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
+<span id="cb84-780"><a href="#cb84-780" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb84-781"><a href="#cb84-781" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb84-782"><a href="#cb84-782" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb84-783"><a href="#cb84-783" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb84-784"><a href="#cb84-784" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb84-785"><a href="#cb84-785" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb84-786"><a href="#cb84-786" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb84-787"><a href="#cb84-787" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb84-788"><a href="#cb84-788" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb84-789"><a href="#cb84-789" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb84-790"><a href="#cb84-790" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-791"><a href="#cb84-791" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
+<span id="cb84-792"><a href="#cb84-792" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb84-793"><a href="#cb84-793" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-794"><a href="#cb84-794" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb84-795"><a href="#cb84-795" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-798"><a href="#cb84-798" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb84-799"><a href="#cb84-799" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb84-800"><a href="#cb84-800" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

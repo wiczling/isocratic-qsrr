@@ -47,7 +47,7 @@ library(mniw)
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 source("helper-functions.R")
 set.seed(123) 
-knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 ```
 
 ```{r settings}
@@ -164,9 +164,10 @@ ggplot(data, aes(x = x)) +
 # Define parameters
 N <- 5
 K <- 2
-nu <- 10
+nu <- 4
+ seed1 = 444
 mu <- matrix(rep(0,N*K), nrow=N)
-omega = c(1,4)
+omega = c(1,2)
 rho = matrix(c(1,0.75,0.75,1), nrow=2)
 Omega <-diag(omega) %*% rho %*% diag(omega)
 # Save Stan model to file
@@ -207,9 +208,9 @@ generated quantities {
   matrix[2,2] L_Omega_inv = cholesky_decompose(inverse_spd(Omega));
 
   for (n in 1:N)
-    x1[n] = multi_student_t_rng(nu, mu[n], Omega);
+    x1[n] = multi_student_t_rng((nu-K+1), mu[n], Omega/(nu-K+1));
 
-  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N)*nu);
+  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N));
   x2 =  generate_matrix_t_rng(mu, L_K, L_Omega, nu, N, K);
 
 }
@@ -224,9 +225,9 @@ stan_data <- list(N = N, K = K, nu = nu, mu = mu, omega = omega, rho = rho)
 # Sample with Fixed_param since we only want RNG draws
 fit <- mod$sample(
   data = stan_data,
-  seed = 12345,
+  seed = seed1,
   chains = 1,
-  iter_sampling = 1000,
+  iter_sampling = 10000,
   fixed_param = TRUE
 )
 
@@ -246,7 +247,7 @@ df2$source <- "matrix-t distribution"
 df_long <- bind_rows(df1, df2)
 
 # simulate n draws
-X <- rMNIW(n=1000, Lambda = mu, Sigma = diag(N)*nu, Psi = Omega, nu = nu)
+X <- rMNIW(n=1000, Lambda = mu, Sigma = diag(N), Psi = Omega, nu = nu)
 
 samples3 <-X$X
 
@@ -265,8 +266,15 @@ ggplot(df_long, aes(x = Value, fill = source)) +
   facet_wrap(~Variable, scales = "free_y", ncol = 1) +
   theme_minimal() +
   labs(title = "Marginal Distribution Comparison",
-       fill = "Sample Source")
+       fill = "Sample Source")+
+  coord_cartesian(xlim=c(-10,10))
 
+sd(df1$logkw)
+sd(df2$logkw)
+sd(df3$logkw)
+sd(df1$S)
+sd(df2$S)
+sd(df3$S)
 ```
 
  

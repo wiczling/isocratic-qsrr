@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-06-16">
+<meta name="dcterms.date" content="2025-06-17">
 
 <title>QSRR revisited. Hierarchical models</title>
 <style>
@@ -115,7 +115,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 16, 2025</p>
+      <p class="date">June 17, 2025</p>
     </div>
   </div>
   
@@ -248,10 +248,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set_cmdstan_path</span>(<span class="st">"C:/Users/GUMed/.cmdstan/cmdstan-2.36.0"</span>)</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"helper-functions.R"</span>)</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) </span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">TRUE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">FALSE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-hash="matrix-normal_cache/html/settings_c1586a9972b076e0a0644e972c91b075">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>data_deliv_dir <span class="ot">=</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>,<span class="st">"deliv"</span>)</span>
@@ -272,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(tables_dir)) <span class="fu">dir.create</span>(tables_dir, <span class="at">recursive =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-hash="matrix-normal_cache/html/data_793717541430b09b2f56040a0d52d256">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"similarity_ltri_rcdk.csv"</span>), <span class="at">header =</span> <span class="cn">TRUE</span>)</span>
@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="matri-normal-distribution" class="level1">
 <h1>Matri normal distribution</h1>
-<div class="cell" data-hash="matrix-normal_cache/html/simulate-from-normal-matrix-noncentered_09375e3d9e3b5d6f8c9ab2a1fd09ec49">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' non centered</span></span>
@@ -357,7 +357,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Plot the covariance:</p>
-<div class="cell" data-hash="matrix-normal_cache/html/correlation plot_ad576280d9440a642a09aa0e74b6e381">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data for the curve</span></span>
@@ -384,15 +384,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="matrix-t-distriution" class="level1">
 <h1>Matrix-t distriution</h1>
-<div class="cell" data-hash="matrix-normal_cache/html/mst_4baf0d9d716f72b5136e1a062e42f303">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define parameters</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">4</span></span>
 <span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="dv">0</span>,N<span class="sc">*</span>K), <span class="at">nrow=</span>N)</span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>omega <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">4</span>)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>omega <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)</span>
 <span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>)</span>
 <span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>Omega <span class="ot">&lt;-</span><span class="fu">diag</span>(omega) <span class="sc">%*%</span> rho <span class="sc">%*%</span> <span class="fu">diag</span>(omega)</span>
 <span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Save Stan model to file</span></span>
@@ -433,9 +433,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb39-44"><a href="#cb39-44" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[2,2] L_Omega_inv = cholesky_decompose(inverse_spd(Omega));</span></span>
 <span id="cb39-45"><a href="#cb39-45" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-46"><a href="#cb39-46" aria-hidden="true" tabindex="-1"></a><span class="st">  for (n in 1:N)</span></span>
-<span id="cb39-47"><a href="#cb39-47" aria-hidden="true" tabindex="-1"></a><span class="st">    x1[n] = multi_student_t_rng(nu, mu[n], Omega);</span></span>
+<span id="cb39-47"><a href="#cb39-47" aria-hidden="true" tabindex="-1"></a><span class="st">    x1[n] = multi_student_t_rng((nu-K+1), mu[n], Omega/(nu-K+1));</span></span>
 <span id="cb39-48"><a href="#cb39-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-49"><a href="#cb39-49" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N)*nu);</span></span>
+<span id="cb39-49"><a href="#cb39-49" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N));</span></span>
 <span id="cb39-50"><a href="#cb39-50" aria-hidden="true" tabindex="-1"></a><span class="st">  x2 =  generate_matrix_t_rng(mu, L_K, L_Omega, nu, N, K);</span></span>
 <span id="cb39-51"><a href="#cb39-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-52"><a href="#cb39-52" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
@@ -450,7 +450,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb39-61"><a href="#cb39-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample with Fixed_param since we only want RNG draws</span></span>
 <span id="cb39-62"><a href="#cb39-62" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">sample</span>(</span>
 <span id="cb39-63"><a href="#cb39-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> stan_data,</span>
-<span id="cb39-64"><a href="#cb39-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">12345</span>,</span>
+<span id="cb39-64"><a href="#cb39-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
 <span id="cb39-65"><a href="#cb39-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">1</span>,</span>
 <span id="cb39-66"><a href="#cb39-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter_sampling =</span> <span class="dv">1000</span>,</span>
 <span id="cb39-67"><a href="#cb39-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">fixed_param =</span> <span class="cn">TRUE</span></span>
@@ -489,7 +489,7 @@ Chain 1 finished in 0.1 seconds.</code></pre>
 <span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(df1, df2)</span>
 <span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate n draws</span></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rMNIW</span>(<span class="at">n=</span><span class="dv">1000</span>, <span class="at">Lambda =</span> mu, <span class="at">Sigma =</span> <span class="fu">diag</span>(N)<span class="sc">*</span>nu, <span class="at">Psi =</span> Omega, <span class="at">nu =</span> nu)</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rMNIW</span>(<span class="at">n=</span><span class="dv">1000</span>, <span class="at">Lambda =</span> mu, <span class="at">Sigma =</span> <span class="fu">diag</span>(N), <span class="at">Psi =</span> Omega, <span class="at">nu =</span> nu)</span>
 <span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>samples3 <span class="ot">&lt;-</span>X<span class="sc">$</span>X</span>
 <span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a></span>
@@ -508,13 +508,14 @@ Chain 1 finished in 0.1 seconds.</code></pre>
 <span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Marginal Distribution Comparison"</span>,</span>
-<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Sample Source"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Sample Source"</span>)<span class="sc">+</span></span>
+<span id="cb41-36"><a href="#cb41-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">10</span>,<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="matrix-normal_files/figure-html/mst-1.png" class="img-fluid" style="width:95.0%"></p>
 </div>
 </div>
-<div class="cell" data-hash="matrix-normal_cache/html/info_c137c6527a56edd891ada2d4d6548984">
+<div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -539,12 +540,12 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] tidybayes_3.0.7     Matrix_1.6-5        MASS_7.3-60        
- [4] here_1.0.1          pracma_2.4.4        reshape2_1.4.4     
- [7] GGally_2.2.1        bayesplot_1.11.1    posterior_1.6.0    
-[10] dplyr_1.1.4         tidyr_1.3.1         rstan_2.32.6       
-[13] StanHeaders_2.32.10 patchwork_1.2.0     gridExtra_2.3      
-[16] ggplot2_3.5.1       cmdstanr_0.8.0.9000
+ [1] mniw_1.0.2          tidybayes_3.0.7     Matrix_1.6-5       
+ [4] MASS_7.3-60         here_1.0.1          pracma_2.4.4       
+ [7] reshape2_1.4.4      GGally_2.2.1        bayesplot_1.11.1   
+[10] posterior_1.6.0     dplyr_1.1.4         tidyr_1.3.1        
+[13] rstan_2.32.6        StanHeaders_2.32.10 patchwork_1.2.0    
+[16] gridExtra_2.3       ggplot2_3.5.1       cmdstanr_0.8.0.9000
 
 loaded via a namespace (and not attached):
  [1] gtable_0.3.5         tensorA_0.36.2.1     xfun_0.44           
@@ -911,7 +912,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-47"><a href="#cb44-47" aria-hidden="true" tabindex="-1"></a><span class="fu">set_cmdstan_path</span>(<span class="st">"C:/Users/GUMed/.cmdstan/cmdstan-2.36.0"</span>)</span>
 <span id="cb44-48"><a href="#cb44-48" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"helper-functions.R"</span>)</span>
 <span id="cb44-49"><a href="#cb44-49" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) </span>
-<span id="cb44-50"><a href="#cb44-50" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">TRUE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span>
+<span id="cb44-50"><a href="#cb44-50" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">cache=</span><span class="cn">FALSE</span>, <span class="at">message=</span><span class="cn">FALSE</span>, <span class="at">error=</span><span class="cn">FALSE</span>, <span class="at">warning=</span><span class="cn">FALSE</span>, <span class="at">comment=</span><span class="cn">NA</span>, <span class="at">out.width=</span><span class="st">'95%'</span>)</span>
 <span id="cb44-51"><a href="#cb44-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb44-52"><a href="#cb44-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-53"><a href="#cb44-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{r settings}</span></span>
@@ -1028,9 +1029,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-164"><a href="#cb44-164" aria-hidden="true" tabindex="-1"></a><span class="co"># Define parameters</span></span>
 <span id="cb44-165"><a href="#cb44-165" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb44-166"><a href="#cb44-166" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb44-167"><a href="#cb44-167" aria-hidden="true" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb44-167"><a href="#cb44-167" aria-hidden="true" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">4</span></span>
 <span id="cb44-168"><a href="#cb44-168" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="dv">0</span>,N<span class="sc">*</span>K), <span class="at">nrow=</span>N)</span>
-<span id="cb44-169"><a href="#cb44-169" aria-hidden="true" tabindex="-1"></a>omega <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">4</span>)</span>
+<span id="cb44-169"><a href="#cb44-169" aria-hidden="true" tabindex="-1"></a>omega <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)</span>
 <span id="cb44-170"><a href="#cb44-170" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.75</span>,<span class="fl">0.75</span>,<span class="dv">1</span>), <span class="at">nrow=</span><span class="dv">2</span>)</span>
 <span id="cb44-171"><a href="#cb44-171" aria-hidden="true" tabindex="-1"></a>Omega <span class="ot">&lt;-</span><span class="fu">diag</span>(omega) <span class="sc">%*%</span> rho <span class="sc">%*%</span> <span class="fu">diag</span>(omega)</span>
 <span id="cb44-172"><a href="#cb44-172" aria-hidden="true" tabindex="-1"></a><span class="co"># Save Stan model to file</span></span>
@@ -1071,9 +1072,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-207"><a href="#cb44-207" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[2,2] L_Omega_inv = cholesky_decompose(inverse_spd(Omega));</span></span>
 <span id="cb44-208"><a href="#cb44-208" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-209"><a href="#cb44-209" aria-hidden="true" tabindex="-1"></a><span class="st">  for (n in 1:N)</span></span>
-<span id="cb44-210"><a href="#cb44-210" aria-hidden="true" tabindex="-1"></a><span class="st">    x1[n] = multi_student_t_rng(nu, mu[n], Omega);</span></span>
+<span id="cb44-210"><a href="#cb44-210" aria-hidden="true" tabindex="-1"></a><span class="st">    x1[n] = multi_student_t_rng((nu-K+1), mu[n], Omega/(nu-K+1));</span></span>
 <span id="cb44-211"><a href="#cb44-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-212"><a href="#cb44-212" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N)*nu);</span></span>
+<span id="cb44-212"><a href="#cb44-212" aria-hidden="true" tabindex="-1"></a><span class="st">  matrix[N, N] L_K = cholesky_decompose(identity_matrix(N));</span></span>
 <span id="cb44-213"><a href="#cb44-213" aria-hidden="true" tabindex="-1"></a><span class="st">  x2 =  generate_matrix_t_rng(mu, L_K, L_Omega, nu, N, K);</span></span>
 <span id="cb44-214"><a href="#cb44-214" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-215"><a href="#cb44-215" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
@@ -1088,7 +1089,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-224"><a href="#cb44-224" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample with Fixed_param since we only want RNG draws</span></span>
 <span id="cb44-225"><a href="#cb44-225" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> mod<span class="sc">$</span><span class="fu">sample</span>(</span>
 <span id="cb44-226"><a href="#cb44-226" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> stan_data,</span>
-<span id="cb44-227"><a href="#cb44-227" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">12345</span>,</span>
+<span id="cb44-227"><a href="#cb44-227" aria-hidden="true" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1234</span>,</span>
 <span id="cb44-228"><a href="#cb44-228" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">1</span>,</span>
 <span id="cb44-229"><a href="#cb44-229" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter_sampling =</span> <span class="dv">1000</span>,</span>
 <span id="cb44-230"><a href="#cb44-230" aria-hidden="true" tabindex="-1"></a>  <span class="at">fixed_param =</span> <span class="cn">TRUE</span></span>
@@ -1110,7 +1111,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-246"><a href="#cb44-246" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(df1, df2)</span>
 <span id="cb44-247"><a href="#cb44-247" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-248"><a href="#cb44-248" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate n draws</span></span>
-<span id="cb44-249"><a href="#cb44-249" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rMNIW</span>(<span class="at">n=</span><span class="dv">1000</span>, <span class="at">Lambda =</span> mu, <span class="at">Sigma =</span> <span class="fu">diag</span>(N)<span class="sc">*</span>nu, <span class="at">Psi =</span> Omega, <span class="at">nu =</span> nu)</span>
+<span id="cb44-249"><a href="#cb44-249" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rMNIW</span>(<span class="at">n=</span><span class="dv">1000</span>, <span class="at">Lambda =</span> mu, <span class="at">Sigma =</span> <span class="fu">diag</span>(N), <span class="at">Psi =</span> Omega, <span class="at">nu =</span> nu)</span>
 <span id="cb44-250"><a href="#cb44-250" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb44-251"><a href="#cb44-251" aria-hidden="true" tabindex="-1"></a>samples3 <span class="ot">&lt;-</span>X<span class="sc">$</span>X</span>
 <span id="cb44-252"><a href="#cb44-252" aria-hidden="true" tabindex="-1"></a></span>
@@ -1129,14 +1130,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb44-265"><a href="#cb44-265" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Variable, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb44-266"><a href="#cb44-266" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb44-267"><a href="#cb44-267" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Marginal Distribution Comparison"</span>,</span>
-<span id="cb44-268"><a href="#cb44-268" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Sample Source"</span>)</span>
-<span id="cb44-269"><a href="#cb44-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-270"><a href="#cb44-270" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb44-271"><a href="#cb44-271" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-272"><a href="#cb44-272" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb44-273"><a href="#cb44-273" aria-hidden="true" tabindex="-1"></a><span class="in">```{r info}</span></span>
-<span id="cb44-274"><a href="#cb44-274" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb44-275"><a href="#cb44-275" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-268"><a href="#cb44-268" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Sample Source"</span>)<span class="sc">+</span></span>
+<span id="cb44-269"><a href="#cb44-269" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">10</span>,<span class="dv">10</span>))</span>
+<span id="cb44-270"><a href="#cb44-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-271"><a href="#cb44-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb44-272"><a href="#cb44-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-273"><a href="#cb44-273" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb44-274"><a href="#cb44-274" aria-hidden="true" tabindex="-1"></a><span class="in">```{r info}</span></span>
+<span id="cb44-275"><a href="#cb44-275" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb44-276"><a href="#cb44-276" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
