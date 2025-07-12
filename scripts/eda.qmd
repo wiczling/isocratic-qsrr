@@ -24,7 +24,7 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 
 # Introductions
 
-...
+Exploratory data analysis
 
 # Setup
 ```{r message=FALSE}
@@ -35,6 +35,7 @@ library(patchwork)
 library(rstan)
 library(tidyr)
 library(dplyr)
+library(purrr)
 library(posterior)
 library(bayesplot)
 library(GGally)
@@ -74,15 +75,13 @@ if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
 
 # EDA
 
-We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set to 35 °C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
 
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
 data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
-# functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
-# functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
 data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 data_pH <- read.csv(here(data_deliv_dir,"pH.csv"),header = TRUE)
 
@@ -90,15 +89,10 @@ data_ACD$logP =data %>% distinct(ID, .keep_all = TRUE) %>% pull(logP_ACD)
 data_ACD$MW =data %>% distinct(ID, .keep_all = TRUE) %>% pull(MW_ACD)
 data_ACD$logP[526] = mean(data_ACD$logP, na.rm = TRUE)
 
-# results = read.csv(file = here(data_deliv_dir,"results_table_max_frag_size.csv"), header = TRUE)
-# comparison_table = read.csv(file = here(data_deliv_dir,"comparison_table.csv"), header = TRUE)
-# comparison_table_add = read.csv(file = here(data_deliv_dir,"comparison_table_add.csv"), header = TRUE)
-# comparison_table_remove = read.csv(file = here(data_deliv_dir,"comparison_table_remove.csv"), header = TRUE)
+similarity_ltri_rcdk_df <- read.csv(file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), header = TRUE)
+similarity_matrix <- make_similarity_matrix_fun(similarity_ltri_rcdk_df)
 
 fg_df = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE)
-fg_df_common1 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common1.csv"), header = TRUE)
-fg_df_common2 = read.csv(file = here(data_deliv_dir,"smarts_functional_groups_common2.csv"), header = TRUE)
-
 descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
 
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
@@ -111,11 +105,7 @@ smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
 
 analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
 
-# functional_groups_lf = functional_groups %>%
-#   mutate(ID = 1:n(), .before = "cation")%>%
-#   pivot_longer(cation:last_col(), values_to = "Ngroups", names_to = c("fgrp")) %>%
-#   filter(Ngroups>0)
-
+# dissociated groups at low pH
 dissociated_groups <- c(
   # Anions
   "Sulfonic_acid", "Sulfinic_acid", "Sulfenic_acid", "Sulfuric_acid", "Sulfuric_monoester",
@@ -126,11 +116,10 @@ dissociated_groups <- c(
   "Quaternary_aliph_ammonium", "Primary_arom_amine", "Secondary_arom_amine", 
   "Tertiary_arom_amine", "Quaternary_arom_ammonium", "Secondary_mixed_amine", 
   "Tertiary_mixed_amine", "Quaternary_mixed_ammonium", "Oxonium", 
-  "Immonium", "Sulfonium", "Phosphonium", "Hetero_N_basic_H", "Hetero_N_basic_no_H", "Guanidine", "Hydrazine", "Hydroxylamine", 
+  "Immonium", "Sulfonium", "Phosphonium", "Hetero_N_basic_H", "Hetero_N_basic_no_H", "Amidine", "Guanidine", "Hydrazine", "Hydroxylamine", 
   "Diazonium", "N-Oxide"
 )
 ```
-
 
 ## Prepare data
 ```{r prepare-data, message=FALSE, warning=FALSE}
@@ -199,31 +188,29 @@ ggplot(data=data_pH, aes(x=fi, y=pH)) + labs(x = "\u03C6", y = "pH") +
 
 ## logP and Moleculr mass distribution
 
-The values of molecular mass MM were added to the dataset. They were calculated using [ACD/Labs program](www.acdlabs.com) based on the provided structures of analytes. The MM ranged from 73.09 to 656.8.
-
 ```{r hist-MW-logP,message=FALSE, warning=FALSE}
 
 df <- data %>% distinct(ID, .keep_all = TRUE) 
 
-p1<-ggplot(data=data_ACD)+
-  geom_histogram(aes(x=MW))+
+p1<-ggplot(data=descriptor_df)+
+    geom_histogram(aes(x=MolWt))+
   xlab("molecular mass")+
   ylab("count")
 
-p2<-ggplot(data=data_ACD)+
-  geom_histogram(aes(x=logP))+
-  xlab("logP")+
+p2<-ggplot(data=descriptor_df)+
+  geom_histogram(aes(x=LogP))+
+  xlab("logP (rdkit)")+
   ylab("count")
 
 p1+p2
-
 ```
 
 ## Functional groups
 
-The functional groups present in the analyzed chemical compounds are presented below, along with their frequencies
+The summary of functional groups present in the analyzed compounds:
+
 ```{r fg, eval=TRUE}
-### 
+
 # Function to classify functional groups
 classify_dissociation <- function(key) {
   ifelse(key %in% dissociated_groups, "Dissociated", "Not Dissociated")
@@ -262,22 +249,16 @@ p3
 
 ## Initial estimates
 ```{r initial-estimates}
-nAnalytes <- length(unique(data$ID))
-initial_param <- matrix(NA,nAnalytes,3)
-
-for(i in 1:nAnalytes){
-  if(length(data$fi[data$ID==i])==1){
-    initial_param[i,2] <- polyfit(-16*data$fi[data$ID==i]/(1+2*data$fi[data$ID==i]), data$logk[data$ID==i],0)
-    initial_param[i,1] <- -16
-  }else{
-    initial_param[i,1:2] <- polyfit(data$fi[data$ID==i]/(1+2*data$fi[data$ID==i]), data$logk[data$ID==i],1)
-  }
-}
-
-initial_param[,3] <- rep(2,nAnalytes)
-init_aprox <-  data.frame(logkw = initial_param[,2])
-init_aprox$S2 <- rep(2,nAnalytes)
-init_aprox$S1 <- -initial_param[,1]/(1+2)
+init_aprox <- data %>%
+  group_by(ID) %>%
+  summarise(
+    S1 = if_else(n() == 1,-16,polyfit(fi / (1 + 2 * fi), logk, 1)[1]),
+    logkw = if_else(n() == 1,polyfit(-16 * fi / (1 + 2 * fi), logk, 0), 
+                             polyfit(fi / (1 + 2 * fi), logk, 1)[2]),
+    S2 = 2) %>%
+  ungroup() %>%
+  select(logkw, S2, S1) %>%
+  mutate(S1 = -S1 / (1 + 2))
 init_aprox$chargesB0 <-dissociation$chargesB0
 init_aprox$chargesA0 <-dissociation$chargesA0
 
@@ -289,21 +270,58 @@ colnames(functional_groups)[selected_columns]
 
 init_aprox$fngr <- values>0
 
-init_aprox$MW <-data_ACD$MW
-init_aprox$logPobs <- data_ACD$logP
+init_aprox$MW <-descriptor_df$MolWt
+init_aprox$logPobs <- descriptor_df$LogP
 ```
 
-### Plots
+### Visualize
 ```{r initial-estimates-plot}
-init_aprox %>%
+p1 <- init_aprox %>%
   ggplot(aes(x=logkw,y=S1,color=factor(chargesB0+chargesA0)))+
   geom_point()+
   labs(color="charges")
 
-init_aprox %>%
-  ggplot(aes(x=logkw,y=S1,color=factor(fngr)))+
+p2<-init_aprox %>%
+  ggplot(aes(x=logPobs,y=logkw,color=factor(chargesB0+chargesA0)))+
   geom_point()+
   labs(color="charges")
+
+p3<-init_aprox %>%
+  ggplot(aes(x=logPobs,y=S1,color=factor(chargesB0+chargesA0)))+
+  geom_point()+
+  labs(color="charges")
+
+p1
+p2+p3+ plot_layout(guides = "collect")
+```
+# Plot retention data for the most similar pairs of analytes
+```{r plot-retention-examples}
+
+plotting_i = function(i, .ilist) {
+  data %>% 
+    filter(ID %in% c(.ilist$row[i], .ilist$col[i])) %>%
+    ggplot(aes(x = fi, y = logk, group = ID)) + 
+    geom_line(aes(color = logP_ACD)) + 
+    labs(
+      title = paste(analytes_names$Analyte[.ilist$row[i]], "(", .ilist$col[i], ")", "\n",                                                      analytes_names$Analyte[.ilist$col[i]], "(", .ilist$row[i], ")"), 
+      x = "\u03C6", 
+      y = expression(log~k[obs])
+    ) + 
+    theme_gray(base_size = 10) + 
+    theme(legend.position = "none")+
+    theme(plot.title = element_text(size = 5), 
+          axis.title = element_text(size = 7),
+          axis.text = element_text(size = 5))
+}
+
+similarity_subset <- similarity_ltri_rcdk_df %>% filter(similarity>0.95, row!=col)
+
+map(0*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+map(1*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+map(2*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+map(3*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+map(4*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+map(5*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
 ```
 
 # Session info

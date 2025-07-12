@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-06-18">
+<meta name="dcterms.date" content="2025-07-10">
 
 <title>Model 029</title>
 <style>
@@ -160,7 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 18, 2025</p>
+      <p class="date">July 10, 2025</p>
     </div>
   </div>
   
@@ -832,28 +832,30 @@ K = S* \alpha + (1-\alpha)*I \\
 <section id="summary-of-model-parameters-table" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-model-parameters-table">Summary of model parameters (table):</h2>
 <p>The <a href="https://mc-stan.org/docs/cmdstan-guide/stansummary.html">stansummary</a> function was used to report summary and diagnostic statistics over model parameters.</p>
-<div class="cell" data-hash="model-development-029_cache/html/summary_755b5355e67364ea76766f812e420e6d">
+<div class="cell" data-hash="model-development-029_cache/html/summary_c463c18db0b42a76a4f0560455c6f8b5">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code> variable mean median   sd  mad   q5  q95 rhat ess_bulk ess_tail
- logkwHat 3.16   3.16 0.20 0.21 2.83 3.48 1.00     2302     3056
- S1Hat    3.80   3.80 0.17 0.17 3.53 4.08 1.00     2134     3259
- beta[1]  0.87   0.87 0.05 0.05 0.78 0.96 1.00     3022     3126
- beta[2]  0.61   0.61 0.05 0.05 0.53 0.69 1.00     3108     3580
- S2Hat    2.90   2.90 0.03 0.03 2.85 2.96 1.01      576     1129
- omega[1] 1.50   1.50 0.04 0.04 1.43 1.57 1.00     2266     3379
- omega[2] 1.20   1.20 0.04 0.04 1.14 1.26 1.00     2290     2876
- rho[1,2] 0.88   0.88 0.01 0.01 0.86 0.89 1.00     2408     3309
- sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     1945     2396
- alpha    0.70   0.70 0.04 0.04 0.64 0.76 1.00     4665     3802
- sdpi[1]  0.14   0.14 0.02 0.02 0.10 0.18 1.01      508     1068
- sdpi[2]  0.12   0.12 0.02 0.02 0.09 0.15 1.01      542     1359
- sdpi[3]  0.32   0.32 0.07 0.07 0.21 0.43 1.00     1271     2119
+<pre><code>  variable  mean median   sd  mad    q5   q95 rhat ess_bulk ess_tail
+ logkwHat   3.16   3.16 0.20 0.21  2.83  3.48 1.00     2302     3056
+ S1Hat      3.80   3.80 0.17 0.17  3.53  4.08 1.00     2134     3259
+ dlogkwHat -0.33  -0.33 0.12 0.12 -0.53 -0.13 1.00     3666     3765
+ dS1Hat     0.30   0.30 0.09 0.09  0.16  0.45 1.00     2752     2897
+ beta[1]    0.87   0.87 0.05 0.05  0.78  0.96 1.00     3022     3126
+ beta[2]    0.61   0.61 0.05 0.05  0.53  0.69 1.00     3108     3580
+ S2Hat      2.90   2.90 0.03 0.03  2.85  2.96 1.01      576     1129
+ omega[1]   1.50   1.50 0.04 0.04  1.43  1.57 1.00     2266     3379
+ omega[2]   1.20   1.20 0.04 0.04  1.14  1.26 1.00     2290     2876
+ rho[1,2]   0.88   0.88 0.01 0.01  0.86  0.89 1.00     2408     3309
+ sigma      0.05   0.05 0.00 0.00  0.05  0.05 1.00     1945     2396
+ alpha      0.70   0.70 0.04 0.04  0.64  0.76 1.00     4665     3802
+ sdpi[1]    0.14   0.14 0.02 0.02  0.10  0.18 1.01      508     1068
+ sdpi[2]    0.12   0.12 0.02 0.02  0.09  0.15 1.01      542     1359
+ sdpi[3]    0.32   0.32 0.07 0.07  0.21  0.43 1.00     1271     2119
 
- # showing 13 of 14 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
+ # showing 15 of 16 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
 </div>
 </section>
@@ -1305,7 +1307,7 @@ K = S* \alpha + (1-\alpha)*I \\
 </section>
 <section id="posterior-correlations" class="level3">
 <h3 class="anchored" data-anchor-id="posterior-correlations">Posterior correlations</h3>
-<div class="cell" data-hash="model-development-029_cache/html/posterior-corelations_041b749b704582403a23ce925bcda7e4">
+<div class="cell" data-hash="model-development-029_cache/html/posterior-corelations_46fcb04351f0e84fbdfc3fa3f9b23fc1">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_subset<span class="ot">&lt;-</span> <span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(row<span class="sc">!=</span>col)</span>
@@ -1352,24 +1354,26 @@ K = S* \alpha + (1-\alpha)*I \\
 <span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
 <span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
 <span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
 <span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
 <span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
-<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
-<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
-<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
-<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
-<span id="cb84-19"><a href="#cb84-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb84-20"><a href="#cb84-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb84-21"><a href="#cb84-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb84-22"><a href="#cb84-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb84-23"><a href="#cb84-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb84-24"><a href="#cb84-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-25"><a href="#cb84-25" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
+<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb84-19"><a href="#cb84-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb84-20"><a href="#cb84-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb84-21"><a href="#cb84-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb84-22"><a href="#cb84-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb84-23"><a href="#cb84-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb84-24"><a href="#cb84-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb84-25"><a href="#cb84-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb84-26"><a href="#cb84-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-27"><a href="#cb84-27" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="model-development-029_files/figure-html/posterior-corelations-4.png" class="img-fluid" style="width:95.0%"></p>
@@ -1541,28 +1545,30 @@ K = S* \alpha + (1-\alpha)*I \\
 <section id="summary-of-model-parameters-table-1" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-model-parameters-table-1">Summary of model parameters (table):</h2>
 <p>The <a href="https://mc-stan.org/docs/cmdstan-guide/stansummary.html">stansummary</a> function was used to report summary and diagnostic statistics over model parameters.</p>
-<div class="cell" data-hash="model-development-029_cache/html/summary-cv_c33e77f8cd723200ae9e12130966d07e">
+<div class="cell" data-hash="model-development-029_cache/html/summary-cv_775f097bd18e9d7e11e0289e04ea1c0a">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code> variable mean median   sd  mad   q5  q95 rhat ess_bulk ess_tail
- logkwHat 3.16   3.16 0.20 0.20 2.82 3.49 1.00     2394     3279
- S1Hat    3.82   3.82 0.17 0.17 3.53 4.10 1.00     2195     2841
- beta[1]  0.87   0.87 0.05 0.06 0.78 0.96 1.00     2954     3266
- beta[2]  0.61   0.61 0.05 0.05 0.53 0.69 1.00     2855     3143
- S2Hat    2.90   2.90 0.03 0.03 2.84 2.96 1.01      518     1059
- omega[1] 1.49   1.49 0.04 0.04 1.42 1.57 1.00     2730     3389
- omega[2] 1.21   1.20 0.04 0.04 1.15 1.27 1.00     2550     3216
- rho[1,2] 0.88   0.88 0.01 0.01 0.87 0.90 1.00     1998     2490
- sigma    0.05   0.05 0.00 0.00 0.05 0.05 1.00     1949     2644
- alpha    0.70   0.70 0.04 0.04 0.63 0.76 1.00     4445     3442
- sdpi[1]  0.14   0.14 0.02 0.02 0.11 0.18 1.01      582     1146
- sdpi[2]  0.12   0.12 0.02 0.02 0.09 0.16 1.01      588     1294
- sdpi[3]  0.32   0.32 0.07 0.07 0.21 0.43 1.01     1278     2246
+<pre><code>  variable  mean median   sd  mad    q5   q95 rhat ess_bulk ess_tail
+ logkwHat   3.16   3.16 0.20 0.20  2.82  3.49 1.00     2394     3279
+ S1Hat      3.82   3.82 0.17 0.17  3.53  4.10 1.00     2195     2841
+ dlogkwHat -0.32  -0.32 0.12 0.12 -0.51 -0.12 1.00     2959     3351
+ dS1Hat     0.31   0.31 0.09 0.08  0.16  0.45 1.00     2454     2659
+ beta[1]    0.87   0.87 0.05 0.06  0.78  0.96 1.00     2954     3266
+ beta[2]    0.61   0.61 0.05 0.05  0.53  0.69 1.00     2855     3143
+ S2Hat      2.90   2.90 0.03 0.03  2.84  2.96 1.01      518     1059
+ omega[1]   1.49   1.49 0.04 0.04  1.42  1.57 1.00     2730     3389
+ omega[2]   1.21   1.20 0.04 0.04  1.15  1.27 1.00     2550     3216
+ rho[1,2]   0.88   0.88 0.01 0.01  0.87  0.90 1.00     1998     2490
+ sigma      0.05   0.05 0.00 0.00  0.05  0.05 1.00     1949     2644
+ alpha      0.70   0.70 0.04 0.04  0.63  0.76 1.00     4445     3442
+ sdpi[1]    0.14   0.14 0.02 0.02  0.11  0.18 1.01      582     1146
+ sdpi[2]    0.12   0.12 0.02 0.02  0.09  0.16 1.01      588     1294
+ sdpi[3]    0.32   0.32 0.07 0.07  0.21  0.43 1.01     1278     2246
 
- # showing 13 of 14 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
+ # showing 15 of 16 rows (change via 'max_rows' argument or 'cmdstanr_max_rows' option)</code></pre>
 </div>
 </div>
 </section>
@@ -2573,7 +2579,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb110-498"><a href="#cb110-498" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters. </span>
 <span id="cb110-499"><a href="#cb110-499" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb110-500"><a href="#cb110-500" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary}</span></span>
-<span id="cb110-501"><a href="#cb110-501" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
+<span id="cb110-501"><a href="#cb110-501" aria-hidden="true" tabindex="-1"></a>fit<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
 <span id="cb110-502"><a href="#cb110-502" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-503"><a href="#cb110-503" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb110-504"><a href="#cb110-504" aria-hidden="true" tabindex="-1"></a></span>
@@ -2919,253 +2925,255 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb110-844"><a href="#cb110-844" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
 <span id="cb110-845"><a href="#cb110-845" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
 <span id="cb110-846"><a href="#cb110-846" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb110-847"><a href="#cb110-847" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb110-847"><a href="#cb110-847" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
 <span id="cb110-848"><a href="#cb110-848" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
 <span id="cb110-849"><a href="#cb110-849" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb110-850"><a href="#cb110-850" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb110-851"><a href="#cb110-851" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-852"><a href="#cb110-852" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
-<span id="cb110-853"><a href="#cb110-853" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb110-854"><a href="#cb110-854" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
-<span id="cb110-855"><a href="#cb110-855" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
-<span id="cb110-856"><a href="#cb110-856" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
-<span id="cb110-857"><a href="#cb110-857" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
-<span id="cb110-858"><a href="#cb110-858" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb110-859"><a href="#cb110-859" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb110-860"><a href="#cb110-860" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb110-861"><a href="#cb110-861" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb110-862"><a href="#cb110-862" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb110-863"><a href="#cb110-863" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-864"><a href="#cb110-864" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span>
+<span id="cb110-850"><a href="#cb110-850" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb110-851"><a href="#cb110-851" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb110-852"><a href="#cb110-852" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-853"><a href="#cb110-853" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
+<span id="cb110-854"><a href="#cb110-854" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb110-855"><a href="#cb110-855" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(similarity_ltri_rcdk_df) <span class="sc">%&gt;%</span></span>
+<span id="cb110-856"><a href="#cb110-856" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb110-857"><a href="#cb110-857" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb110-858"><a href="#cb110-858" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity)) <span class="sc">+</span></span>
+<span id="cb110-859"><a href="#cb110-859" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb110-860"><a href="#cb110-860" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb110-861"><a href="#cb110-861" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb110-862"><a href="#cb110-862" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb110-863"><a href="#cb110-863" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb110-864"><a href="#cb110-864" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
 <span id="cb110-865"><a href="#cb110-865" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-866"><a href="#cb110-866" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-867"><a href="#cb110-867" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
-<span id="cb110-868"><a href="#cb110-868" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb110-869"><a href="#cb110-869" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-870"><a href="#cb110-870" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
-<span id="cb110-871"><a href="#cb110-871" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(nodes<span class="sc">%&gt;%</span><span class="fu">rename</span>(<span class="at">row=</span>id)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-872"><a href="#cb110-872" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group_combined =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(group_combined),<span class="dv">0</span>,group_combined))<span class="sc">%&gt;%</span></span>
-<span id="cb110-873"><a href="#cb110-873" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group_combined) <span class="sc">%&gt;%</span></span>
-<span id="cb110-874"><a href="#cb110-874" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
-<span id="cb110-875"><a href="#cb110-875" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">groups_joined =</span> <span class="fu">case_when</span>( group_combined <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Uncorrelated"</span>,</span>
-<span id="cb110-876"><a href="#cb110-876" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Group 1"</span>,</span>
-<span id="cb110-877"><a href="#cb110-877" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Group 2"</span>,</span>
-<span id="cb110-878"><a href="#cb110-878" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Group 3"</span>,</span>
-<span id="cb110-879"><a href="#cb110-879" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"Group 4"</span>,</span>
-<span id="cb110-880"><a href="#cb110-880" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"Group 5"</span>,</span>
-<span id="cb110-881"><a href="#cb110-881" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">"Group 6"</span>,</span>
-<span id="cb110-882"><a href="#cb110-882" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">"Group 7"</span>,</span>
-<span id="cb110-883"><a href="#cb110-883" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">8</span> <span class="sc">~</span> <span class="st">"Group 8"</span>,</span>
-<span id="cb110-884"><a href="#cb110-884" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">9</span> <span class="sc">~</span> <span class="st">"Group 9"</span>,</span>
-<span id="cb110-885"><a href="#cb110-885" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Group 10"</span>,</span>
-<span id="cb110-886"><a href="#cb110-886" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">.default =</span> <span class="st">"other"</span></span>
-<span id="cb110-887"><a href="#cb110-887" aria-hidden="true" tabindex="-1"></a>                                    )) <span class="sc">%&gt;%</span></span>
-<span id="cb110-888"><a href="#cb110-888" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity, <span class="at">color =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
-<span id="cb110-889"><a href="#cb110-889" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb110-890"><a href="#cb110-890" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb110-891"><a href="#cb110-891" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
-<span id="cb110-892"><a href="#cb110-892" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb110-893"><a href="#cb110-893" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
-<span id="cb110-894"><a href="#cb110-894" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>groups_joined)</span>
-<span id="cb110-895"><a href="#cb110-895" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-896"><a href="#cb110-896" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
+<span id="cb110-866"><a href="#cb110-866" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1<span class="sc">+</span>p2)</span>
+<span id="cb110-867"><a href="#cb110-867" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-868"><a href="#cb110-868" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-869"><a href="#cb110-869" aria-hidden="true" tabindex="-1"></a>p1<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix)<span class="sc">%&gt;%</span></span>
+<span id="cb110-870"><a href="#cb110-870" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb110-871"><a href="#cb110-871" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-872"><a href="#cb110-872" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb110-873"><a href="#cb110-873" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(nodes<span class="sc">%&gt;%</span><span class="fu">rename</span>(<span class="at">row=</span>id)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-874"><a href="#cb110-874" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group_combined =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(group_combined),<span class="dv">0</span>,group_combined))<span class="sc">%&gt;%</span></span>
+<span id="cb110-875"><a href="#cb110-875" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group_combined) <span class="sc">%&gt;%</span></span>
+<span id="cb110-876"><a href="#cb110-876" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb110-877"><a href="#cb110-877" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">groups_joined =</span> <span class="fu">case_when</span>( group_combined <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Uncorrelated"</span>,</span>
+<span id="cb110-878"><a href="#cb110-878" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Group 1"</span>,</span>
+<span id="cb110-879"><a href="#cb110-879" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Group 2"</span>,</span>
+<span id="cb110-880"><a href="#cb110-880" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Group 3"</span>,</span>
+<span id="cb110-881"><a href="#cb110-881" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"Group 4"</span>,</span>
+<span id="cb110-882"><a href="#cb110-882" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"Group 5"</span>,</span>
+<span id="cb110-883"><a href="#cb110-883" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">"Group 6"</span>,</span>
+<span id="cb110-884"><a href="#cb110-884" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">"Group 7"</span>,</span>
+<span id="cb110-885"><a href="#cb110-885" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">8</span> <span class="sc">~</span> <span class="st">"Group 8"</span>,</span>
+<span id="cb110-886"><a href="#cb110-886" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">9</span> <span class="sc">~</span> <span class="st">"Group 9"</span>,</span>
+<span id="cb110-887"><a href="#cb110-887" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Group 10"</span>,</span>
+<span id="cb110-888"><a href="#cb110-888" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">.default =</span> <span class="st">"other"</span></span>
+<span id="cb110-889"><a href="#cb110-889" aria-hidden="true" tabindex="-1"></a>                                    )) <span class="sc">%&gt;%</span></span>
+<span id="cb110-890"><a href="#cb110-890" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity, <span class="at">color =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
+<span id="cb110-891"><a href="#cb110-891" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb110-892"><a href="#cb110-892" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb110-893"><a href="#cb110-893" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>( <span class="at">y =</span> <span class="st">"Correlation"</span>,</span>
+<span id="cb110-894"><a href="#cb110-894" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb110-895"><a href="#cb110-895" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb110-896"><a href="#cb110-896" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>groups_joined)</span>
 <span id="cb110-897"><a href="#cb110-897" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-898"><a href="#cb110-898" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-899"><a href="#cb110-899" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
-<span id="cb110-900"><a href="#cb110-900" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
-<span id="cb110-901"><a href="#cb110-901" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-902"><a href="#cb110-902" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
-<span id="cb110-903"><a href="#cb110-903" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(nodes<span class="sc">%&gt;%</span><span class="fu">rename</span>(<span class="at">row=</span>id)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-904"><a href="#cb110-904" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group_combined =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(group_combined),<span class="dv">0</span>,group_combined))<span class="sc">%&gt;%</span></span>
-<span id="cb110-905"><a href="#cb110-905" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group_combined) <span class="sc">%&gt;%</span></span>
-<span id="cb110-906"><a href="#cb110-906" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
-<span id="cb110-907"><a href="#cb110-907" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">groups_joined =</span> <span class="fu">case_when</span>( group_combined <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Uncorrelated"</span>,</span>
-<span id="cb110-908"><a href="#cb110-908" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Group 1"</span>,</span>
-<span id="cb110-909"><a href="#cb110-909" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Group 2"</span>,</span>
-<span id="cb110-910"><a href="#cb110-910" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Group 3"</span>,</span>
-<span id="cb110-911"><a href="#cb110-911" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"Group 4"</span>,</span>
-<span id="cb110-912"><a href="#cb110-912" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"Group 5"</span>,</span>
-<span id="cb110-913"><a href="#cb110-913" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">"Group 6"</span>,</span>
-<span id="cb110-914"><a href="#cb110-914" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">"Group 7"</span>,</span>
-<span id="cb110-915"><a href="#cb110-915" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">8</span> <span class="sc">~</span> <span class="st">"Group 8"</span>,</span>
-<span id="cb110-916"><a href="#cb110-916" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">9</span> <span class="sc">~</span> <span class="st">"Group 9"</span>,</span>
-<span id="cb110-917"><a href="#cb110-917" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Group 10"</span>,</span>
-<span id="cb110-918"><a href="#cb110-918" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">.default =</span> <span class="st">"other"</span></span>
-<span id="cb110-919"><a href="#cb110-919" aria-hidden="true" tabindex="-1"></a>                                    )) <span class="sc">%&gt;%</span></span>
-<span id="cb110-920"><a href="#cb110-920" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity, <span class="at">color =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
-<span id="cb110-921"><a href="#cb110-921" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb110-922"><a href="#cb110-922" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
-<span id="cb110-923"><a href="#cb110-923" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation (decorelated)"</span>,</span>
-<span id="cb110-924"><a href="#cb110-924" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
-<span id="cb110-925"><a href="#cb110-925" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
-<span id="cb110-926"><a href="#cb110-926" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>groups_joined)</span>
-<span id="cb110-927"><a href="#cb110-927" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-928"><a href="#cb110-928" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
+<span id="cb110-898"><a href="#cb110-898" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
+<span id="cb110-899"><a href="#cb110-899" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-900"><a href="#cb110-900" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-901"><a href="#cb110-901" aria-hidden="true" tabindex="-1"></a>p2<span class="ot">=</span><span class="fu">similarity_to_ltr_fun</span>(cor_matrix_decorrelated)<span class="sc">%&gt;%</span></span>
+<span id="cb110-902"><a href="#cb110-902" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">corr =</span> similarity) <span class="sc">%&gt;%</span></span>
+<span id="cb110-903"><a href="#cb110-903" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">similarity_to_ltr_fun</span>(similarity_matrix_corrected)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-904"><a href="#cb110-904" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(row<span class="sc">!=</span>col) <span class="sc">%&gt;%</span></span>
+<span id="cb110-905"><a href="#cb110-905" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(nodes<span class="sc">%&gt;%</span><span class="fu">rename</span>(<span class="at">row=</span>id)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-906"><a href="#cb110-906" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">group_combined =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(group_combined),<span class="dv">0</span>,group_combined))<span class="sc">%&gt;%</span></span>
+<span id="cb110-907"><a href="#cb110-907" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group_combined) <span class="sc">%&gt;%</span></span>
+<span id="cb110-908"><a href="#cb110-908" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(col <span class="sc">%in%</span> row) <span class="sc">%&gt;%</span></span>
+<span id="cb110-909"><a href="#cb110-909" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">groups_joined =</span> <span class="fu">case_when</span>( group_combined <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Uncorrelated"</span>,</span>
+<span id="cb110-910"><a href="#cb110-910" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Group 1"</span>,</span>
+<span id="cb110-911"><a href="#cb110-911" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Group 2"</span>,</span>
+<span id="cb110-912"><a href="#cb110-912" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Group 3"</span>,</span>
+<span id="cb110-913"><a href="#cb110-913" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">"Group 4"</span>,</span>
+<span id="cb110-914"><a href="#cb110-914" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">"Group 5"</span>,</span>
+<span id="cb110-915"><a href="#cb110-915" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">"Group 6"</span>,</span>
+<span id="cb110-916"><a href="#cb110-916" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">"Group 7"</span>,</span>
+<span id="cb110-917"><a href="#cb110-917" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">8</span> <span class="sc">~</span> <span class="st">"Group 8"</span>,</span>
+<span id="cb110-918"><a href="#cb110-918" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">9</span> <span class="sc">~</span> <span class="st">"Group 9"</span>,</span>
+<span id="cb110-919"><a href="#cb110-919" aria-hidden="true" tabindex="-1"></a>                                    group_combined <span class="sc">==</span> <span class="dv">10</span> <span class="sc">~</span> <span class="st">"Group 10"</span>,</span>
+<span id="cb110-920"><a href="#cb110-920" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">.default =</span> <span class="st">"other"</span></span>
+<span id="cb110-921"><a href="#cb110-921" aria-hidden="true" tabindex="-1"></a>                                    )) <span class="sc">%&gt;%</span></span>
+<span id="cb110-922"><a href="#cb110-922" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> corr, <span class="at">x =</span> similarity, <span class="at">color =</span> <span class="fu">factor</span>(group))) <span class="sc">+</span></span>
+<span id="cb110-923"><a href="#cb110-923" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb110-924"><a href="#cb110-924" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span>  <span class="co"># cleaner theme</span></span>
+<span id="cb110-925"><a href="#cb110-925" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Correlation (decorelated)"</span>,</span>
+<span id="cb110-926"><a href="#cb110-926" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Similarity"</span>) <span class="sc">+</span></span>
+<span id="cb110-927"><a href="#cb110-927" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)<span class="sc">+</span></span>
+<span id="cb110-928"><a href="#cb110-928" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>groups_joined)</span>
 <span id="cb110-929"><a href="#cb110-929" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-930"><a href="#cb110-930" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-930"><a href="#cb110-930" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
 <span id="cb110-931"><a href="#cb110-931" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-932"><a href="#cb110-932" aria-hidden="true" tabindex="-1"></a><span class="fu">#  Simulations (CV-based)</span></span>
+<span id="cb110-932"><a href="#cb110-932" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-933"><a href="#cb110-933" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-934"><a href="#cb110-934" aria-hidden="true" tabindex="-1"></a><span class="in">```{r datastruct-cv}</span></span>
-<span id="cb110-935"><a href="#cb110-935" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb110-936"><a href="#cb110-936" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> nodes</span>
-<span id="cb110-937"><a href="#cb110-937" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> foo <span class="sc">%&gt;%</span></span>
-<span id="cb110-938"><a href="#cb110-938" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group) <span class="sc">%&gt;%</span></span>
-<span id="cb110-939"><a href="#cb110-939" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb110-940"><a href="#cb110-940" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_frac</span>(<span class="fl">0.1</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(id)</span>
-<span id="cb110-941"><a href="#cb110-941" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-942"><a href="#cb110-942" aria-hidden="true" tabindex="-1"></a>datastructcv <span class="ot">=</span> datastruct;</span>
-<span id="cb110-943"><a href="#cb110-943" aria-hidden="true" tabindex="-1"></a>initcv<span class="ot">=</span>init;</span>
-<span id="cb110-944"><a href="#cb110-944" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-945"><a href="#cb110-945" aria-hidden="true" tabindex="-1"></a>idx_analytes_out <span class="ot">=</span> <span class="fu">sort</span>(idx)</span>
-<span id="cb110-946"><a href="#cb110-946" aria-hidden="true" tabindex="-1"></a>idx_analytes_in <span class="ot">=</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(datastructcv<span class="sc">$</span>analyte),idx_analytes_out)</span>
-<span id="cb110-947"><a href="#cb110-947" aria-hidden="true" tabindex="-1"></a>idxcv <span class="ot">=</span>  <span class="fu">which</span>(datastructcv<span class="sc">$</span>analyte <span class="sc">%in%</span> idx_analytes_in)</span>
-<span id="cb110-948"><a href="#cb110-948" aria-hidden="true" tabindex="-1"></a>nObscv <span class="ot">=</span> <span class="fu">length</span>(idxcv);</span>
-<span id="cb110-949"><a href="#cb110-949" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>idxcv <span class="ot">=</span> idxcv;</span>
-<span id="cb110-950"><a href="#cb110-950" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>nObscv <span class="ot">=</span> nObscv;</span>
-<span id="cb110-951"><a href="#cb110-951" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-952"><a href="#cb110-952" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-953"><a href="#cb110-953" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitting the model</span></span>
+<span id="cb110-934"><a href="#cb110-934" aria-hidden="true" tabindex="-1"></a><span class="fu">#  Simulations (CV-based)</span></span>
+<span id="cb110-935"><a href="#cb110-935" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-936"><a href="#cb110-936" aria-hidden="true" tabindex="-1"></a><span class="in">```{r datastruct-cv}</span></span>
+<span id="cb110-937"><a href="#cb110-937" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb110-938"><a href="#cb110-938" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> nodes</span>
+<span id="cb110-939"><a href="#cb110-939" aria-hidden="true" tabindex="-1"></a>idx <span class="ot">&lt;-</span> foo <span class="sc">%&gt;%</span></span>
+<span id="cb110-940"><a href="#cb110-940" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(group) <span class="sc">%&gt;%</span></span>
+<span id="cb110-941"><a href="#cb110-941" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N=</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb110-942"><a href="#cb110-942" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_frac</span>(<span class="fl">0.1</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(id)</span>
+<span id="cb110-943"><a href="#cb110-943" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-944"><a href="#cb110-944" aria-hidden="true" tabindex="-1"></a>datastructcv <span class="ot">=</span> datastruct;</span>
+<span id="cb110-945"><a href="#cb110-945" aria-hidden="true" tabindex="-1"></a>initcv<span class="ot">=</span>init;</span>
+<span id="cb110-946"><a href="#cb110-946" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-947"><a href="#cb110-947" aria-hidden="true" tabindex="-1"></a>idx_analytes_out <span class="ot">=</span> <span class="fu">sort</span>(idx)</span>
+<span id="cb110-948"><a href="#cb110-948" aria-hidden="true" tabindex="-1"></a>idx_analytes_in <span class="ot">=</span> <span class="fu">setdiff</span>(<span class="fu">unique</span>(datastructcv<span class="sc">$</span>analyte),idx_analytes_out)</span>
+<span id="cb110-949"><a href="#cb110-949" aria-hidden="true" tabindex="-1"></a>idxcv <span class="ot">=</span>  <span class="fu">which</span>(datastructcv<span class="sc">$</span>analyte <span class="sc">%in%</span> idx_analytes_in)</span>
+<span id="cb110-950"><a href="#cb110-950" aria-hidden="true" tabindex="-1"></a>nObscv <span class="ot">=</span> <span class="fu">length</span>(idxcv);</span>
+<span id="cb110-951"><a href="#cb110-951" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>idxcv <span class="ot">=</span> idxcv;</span>
+<span id="cb110-952"><a href="#cb110-952" aria-hidden="true" tabindex="-1"></a>datastructcv<span class="sc">$</span>nObscv <span class="ot">=</span> nObscv;</span>
+<span id="cb110-953"><a href="#cb110-953" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-954"><a href="#cb110-954" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-955"><a href="#cb110-955" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mod-settings-cv}</span></span>
-<span id="cb110-956"><a href="#cb110-956" aria-hidden="true" tabindex="-1"></a>model_name <span class="ot">&lt;-</span> <span class="st">"mod29cv"</span></span>
-<span id="cb110-957"><a href="#cb110-957" aria-hidden="true" tabindex="-1"></a>model_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">".stan"</span>)</span>
-<span id="cb110-958"><a href="#cb110-958" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-959"><a href="#cb110-959" aria-hidden="true" tabindex="-1"></a><span class="co">#' folder shortcuts:</span></span>
-<span id="cb110-960"><a href="#cb110-960" aria-hidden="true" tabindex="-1"></a>mod_figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"figures"</span>, model_name)</span>
-<span id="cb110-961"><a href="#cb110-961" aria-hidden="true" tabindex="-1"></a>mod_tabels_dir  <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"tables"</span>, model_name)</span>
-<span id="cb110-962"><a href="#cb110-962" aria-hidden="true" tabindex="-1"></a>mod_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name)</span>
-<span id="cb110-963"><a href="#cb110-963" aria-hidden="true" tabindex="-1"></a>mod_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name, <span class="st">"output"</span>)</span>
-<span id="cb110-964"><a href="#cb110-964" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-965"><a href="#cb110-965" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_figures_dir)) <span class="fu">dir.create</span>(mod_figures_dir)</span>
-<span id="cb110-966"><a href="#cb110-966" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_tabels_dir)) <span class="fu">dir.create</span>(mod_tabels_dir)</span>
-<span id="cb110-967"><a href="#cb110-967" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_model_dir)) <span class="fu">dir.create</span>(mod_model_dir)</span>
-<span id="cb110-968"><a href="#cb110-968" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_output_dir)) <span class="fu">dir.create</span>(mod_output_dir)</span>
-<span id="cb110-969"><a href="#cb110-969" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-970"><a href="#cb110-970" aria-hidden="true" tabindex="-1"></a>modelqg_name <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">"gq"</span>)</span>
-<span id="cb110-971"><a href="#cb110-971" aria-hidden="true" tabindex="-1"></a>modelqg_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(modelqg_name,<span class="st">".stan"</span>)</span>
-<span id="cb110-972"><a href="#cb110-972" aria-hidden="true" tabindex="-1"></a>modgq_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name)</span>
-<span id="cb110-973"><a href="#cb110-973" aria-hidden="true" tabindex="-1"></a>modgq_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name, <span class="st">"output"</span>)</span>
-<span id="cb110-974"><a href="#cb110-974" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-975"><a href="#cb110-975" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_model_dir)) <span class="fu">dir.create</span>(modgq_model_dir)</span>
-<span id="cb110-976"><a href="#cb110-976" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_output_dir)) <span class="fu">dir.create</span>(modgq_output_dir)</span>
-<span id="cb110-977"><a href="#cb110-977" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-978"><a href="#cb110-978" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-979"><a href="#cb110-979" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-compile-cv, eval = FALSE}</span></span>
-<span id="cb110-980"><a href="#cb110-980" aria-hidden="true" tabindex="-1"></a>mod29cv <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(here<span class="sc">::</span><span class="fu">here</span>(mod_model_dir, model_name_ext), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
-<span id="cb110-981"><a href="#cb110-981" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-982"><a href="#cb110-982" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-983"><a href="#cb110-983" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files-cv, eval = FALSE}</span></span>
-<span id="cb110-984"><a href="#cb110-984" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastructcv, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-985"><a href="#cb110-985" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-986"><a href="#cb110-986" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-987"><a href="#cb110-987" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-988"><a href="#cb110-988" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-989"><a href="#cb110-989" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-990"><a href="#cb110-990" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-991"><a href="#cb110-991" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-992"><a href="#cb110-992" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb110-993"><a href="#cb110-993" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-994"><a href="#cb110-994" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-995"><a href="#cb110-995" aria-hidden="true" tabindex="-1"></a>After calculations, we loaded the output files using cmdstanr.</span>
+<span id="cb110-955"><a href="#cb110-955" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fitting the model</span></span>
+<span id="cb110-956"><a href="#cb110-956" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-957"><a href="#cb110-957" aria-hidden="true" tabindex="-1"></a><span class="in">```{r mod-settings-cv}</span></span>
+<span id="cb110-958"><a href="#cb110-958" aria-hidden="true" tabindex="-1"></a>model_name <span class="ot">&lt;-</span> <span class="st">"mod29cv"</span></span>
+<span id="cb110-959"><a href="#cb110-959" aria-hidden="true" tabindex="-1"></a>model_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">".stan"</span>)</span>
+<span id="cb110-960"><a href="#cb110-960" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-961"><a href="#cb110-961" aria-hidden="true" tabindex="-1"></a><span class="co">#' folder shortcuts:</span></span>
+<span id="cb110-962"><a href="#cb110-962" aria-hidden="true" tabindex="-1"></a>mod_figures_dir <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"figures"</span>, model_name)</span>
+<span id="cb110-963"><a href="#cb110-963" aria-hidden="true" tabindex="-1"></a>mod_tabels_dir  <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"deliv"</span>, <span class="st">"tables"</span>, model_name)</span>
+<span id="cb110-964"><a href="#cb110-964" aria-hidden="true" tabindex="-1"></a>mod_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name)</span>
+<span id="cb110-965"><a href="#cb110-965" aria-hidden="true" tabindex="-1"></a>mod_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, model_name, <span class="st">"output"</span>)</span>
+<span id="cb110-966"><a href="#cb110-966" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-967"><a href="#cb110-967" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_figures_dir)) <span class="fu">dir.create</span>(mod_figures_dir)</span>
+<span id="cb110-968"><a href="#cb110-968" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_tabels_dir)) <span class="fu">dir.create</span>(mod_tabels_dir)</span>
+<span id="cb110-969"><a href="#cb110-969" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_model_dir)) <span class="fu">dir.create</span>(mod_model_dir)</span>
+<span id="cb110-970"><a href="#cb110-970" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(mod_output_dir)) <span class="fu">dir.create</span>(mod_output_dir)</span>
+<span id="cb110-971"><a href="#cb110-971" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-972"><a href="#cb110-972" aria-hidden="true" tabindex="-1"></a>modelqg_name <span class="ot">&lt;-</span> <span class="fu">paste0</span>(model_name,<span class="st">"gq"</span>)</span>
+<span id="cb110-973"><a href="#cb110-973" aria-hidden="true" tabindex="-1"></a>modelqg_name_ext <span class="ot">&lt;-</span> <span class="fu">paste0</span>(modelqg_name,<span class="st">".stan"</span>)</span>
+<span id="cb110-974"><a href="#cb110-974" aria-hidden="true" tabindex="-1"></a>modgq_model_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name)</span>
+<span id="cb110-975"><a href="#cb110-975" aria-hidden="true" tabindex="-1"></a>modgq_output_dir   <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"model"</span>, <span class="st">"stan"</span>, modelqg_name, <span class="st">"output"</span>)</span>
+<span id="cb110-976"><a href="#cb110-976" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-977"><a href="#cb110-977" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_model_dir)) <span class="fu">dir.create</span>(modgq_model_dir)</span>
+<span id="cb110-978"><a href="#cb110-978" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(modgq_output_dir)) <span class="fu">dir.create</span>(modgq_output_dir)</span>
+<span id="cb110-979"><a href="#cb110-979" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-980"><a href="#cb110-980" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-981"><a href="#cb110-981" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-compile-cv, eval = FALSE}</span></span>
+<span id="cb110-982"><a href="#cb110-982" aria-hidden="true" tabindex="-1"></a>mod29cv <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(here<span class="sc">::</span><span class="fu">here</span>(mod_model_dir, model_name_ext), <span class="at">stanc_options =</span> <span class="fu">list</span>(<span class="st">"O1"</span>))</span>
+<span id="cb110-983"><a href="#cb110-983" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-984"><a href="#cb110-984" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-985"><a href="#cb110-985" aria-hidden="true" tabindex="-1"></a><span class="in">```{r dump-files-cv, eval = FALSE}</span></span>
+<span id="cb110-986"><a href="#cb110-986" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(datastructcv, <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/standata.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-987"><a href="#cb110-987" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-1.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-988"><a href="#cb110-988" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-2.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-989"><a href="#cb110-989" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-3.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-990"><a href="#cb110-990" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-4.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-991"><a href="#cb110-991" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-5.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-992"><a href="#cb110-992" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-6.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-993"><a href="#cb110-993" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-7.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-994"><a href="#cb110-994" aria-hidden="true" tabindex="-1"></a><span class="fu">write_stan_json</span>(<span class="fu">initcv</span>(), <span class="fu">paste0</span>(mod_model_dir,<span class="st">"/init-8.json"</span>), <span class="at">always_decimal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb110-995"><a href="#cb110-995" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-996"><a href="#cb110-996" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-997"><a href="#cb110-997" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load-cv}</span></span>
-<span id="cb110-998"><a href="#cb110-998" aria-hidden="true" tabindex="-1"></a>fitcv <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
-<span id="cb110-999"><a href="#cb110-999" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb110-1000"><a href="#cb110-1000" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb110-1001"><a href="#cb110-1001" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb110-1002"><a href="#cb110-1002" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb110-1003"><a href="#cb110-1003" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb110-1004"><a href="#cb110-1004" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb110-1005"><a href="#cb110-1005" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb110-1006"><a href="#cb110-1006" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb110-1007"><a href="#cb110-1007" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb110-1008"><a href="#cb110-1008" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-1009"><a href="#cb110-1009" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1010"><a href="#cb110-1010" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
+<span id="cb110-997"><a href="#cb110-997" aria-hidden="true" tabindex="-1"></a>After calculations, we loaded the output files using cmdstanr.</span>
+<span id="cb110-998"><a href="#cb110-998" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-999"><a href="#cb110-999" aria-hidden="true" tabindex="-1"></a><span class="in">```{r stan-load-cv}</span></span>
+<span id="cb110-1000"><a href="#cb110-1000" aria-hidden="true" tabindex="-1"></a>fitcv <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">as_cmdstan_fit</span>(<span class="fu">c</span>(</span>
+<span id="cb110-1001"><a href="#cb110-1001" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb110-1002"><a href="#cb110-1002" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb110-1003"><a href="#cb110-1003" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb110-1004"><a href="#cb110-1004" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb110-1005"><a href="#cb110-1005" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb110-1006"><a href="#cb110-1006" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb110-1007"><a href="#cb110-1007" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb110-1008"><a href="#cb110-1008" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(mod_output_dir,<span class="st">"/"</span>,  model_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb110-1009"><a href="#cb110-1009" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb110-1010"><a href="#cb110-1010" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-1011"><a href="#cb110-1011" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1012"><a href="#cb110-1012" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters.</span>
+<span id="cb110-1012"><a href="#cb110-1012" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary of model parameters (table):</span></span>
 <span id="cb110-1013"><a href="#cb110-1013" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1014"><a href="#cb110-1014" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary-cv}</span></span>
-<span id="cb110-1015"><a href="#cb110-1015" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">13</span>)</span>
-<span id="cb110-1016"><a href="#cb110-1016" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-1017"><a href="#cb110-1017" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1018"><a href="#cb110-1018" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1019"><a href="#cb110-1019" aria-hidden="true" tabindex="-1"></a><span class="fu">## Genereted quantitites</span></span>
+<span id="cb110-1014"><a href="#cb110-1014" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">stansummary</span><span class="co">](https://mc-stan.org/docs/cmdstan-guide/stansummary.html)</span> function was used to report summary and diagnostic statistics over model parameters.</span>
+<span id="cb110-1015"><a href="#cb110-1015" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1016"><a href="#cb110-1016" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary-cv}</span></span>
+<span id="cb110-1017"><a href="#cb110-1017" aria-hidden="true" tabindex="-1"></a>fitcv<span class="sc">$</span><span class="fu">print</span>(<span class="at">variables =</span> <span class="fu">c</span>(<span class="st">"logkwHat"</span>,<span class="st">"S1Hat"</span>,<span class="st">"dlogkwHat"</span>,<span class="st">"dS1Hat"</span>,<span class="st">"beta"</span>,<span class="st">"S2Hat"</span>,<span class="st">"omega"</span>,<span class="st">"rho[1,2]"</span>,<span class="st">"sigma"</span>,<span class="st">"alpha"</span>,<span class="st">"sdpi"</span>), <span class="at">max_rows=</span><span class="dv">15</span>)</span>
+<span id="cb110-1018"><a href="#cb110-1018" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-1019"><a href="#cb110-1019" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb110-1020"><a href="#cb110-1020" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1021"><a href="#cb110-1021" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities-cv, eval=FALSE}</span></span>
-<span id="cb110-1022"><a href="#cb110-1022" aria-hidden="true" tabindex="-1"></a>mod29cvgq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
-<span id="cb110-1023"><a href="#cb110-1023" aria-hidden="true" tabindex="-1"></a>fitcvgq  <span class="ot">&lt;-</span> mod29cvgq<span class="sc">$</span><span class="fu">generate_quantities</span>(fitcv,</span>
-<span id="cb110-1024"><a href="#cb110-1024" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastructcv,</span>
-<span id="cb110-1025"><a href="#cb110-1025" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
-<span id="cb110-1026"><a href="#cb110-1026" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
-<span id="cb110-1027"><a href="#cb110-1027" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
-<span id="cb110-1028"><a href="#cb110-1028" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
-<span id="cb110-1029"><a href="#cb110-1029" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-1030"><a href="#cb110-1030" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1031"><a href="#cb110-1031" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
-<span id="cb110-1032"><a href="#cb110-1032" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load</span></span>
-<span id="cb110-1033"><a href="#cb110-1033" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load-cv}</span></span>
-<span id="cb110-1034"><a href="#cb110-1034" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
-<span id="cb110-1035"><a href="#cb110-1035" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
-<span id="cb110-1036"><a href="#cb110-1036" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
-<span id="cb110-1037"><a href="#cb110-1037" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
-<span id="cb110-1038"><a href="#cb110-1038" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
-<span id="cb110-1039"><a href="#cb110-1039" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
-<span id="cb110-1040"><a href="#cb110-1040" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
-<span id="cb110-1041"><a href="#cb110-1041" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
-<span id="cb110-1042"><a href="#cb110-1042" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
-<span id="cb110-1043"><a href="#cb110-1043" aria-hidden="true" tabindex="-1"></a>                                ))</span>
-<span id="cb110-1044"><a href="#cb110-1044" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
-<span id="cb110-1045"><a href="#cb110-1045" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb110-1046"><a href="#cb110-1046" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1047"><a href="#cb110-1047" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fits</span></span>
+<span id="cb110-1021"><a href="#cb110-1021" aria-hidden="true" tabindex="-1"></a><span class="fu">## Genereted quantitites</span></span>
+<span id="cb110-1022"><a href="#cb110-1022" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1023"><a href="#cb110-1023" aria-hidden="true" tabindex="-1"></a><span class="in">```{r generete-quntities-cv, eval=FALSE}</span></span>
+<span id="cb110-1024"><a href="#cb110-1024" aria-hidden="true" tabindex="-1"></a>mod29cvgq <span class="ot">&lt;-</span> <span class="fu">cmdstan_model</span>(<span class="fu">here</span>(modgq_model_dir,modelqg_name_ext))</span>
+<span id="cb110-1025"><a href="#cb110-1025" aria-hidden="true" tabindex="-1"></a>fitcvgq  <span class="ot">&lt;-</span> mod29cvgq<span class="sc">$</span><span class="fu">generate_quantities</span>(fitcv,</span>
+<span id="cb110-1026"><a href="#cb110-1026" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">data =</span> datastructcv,</span>
+<span id="cb110-1027"><a href="#cb110-1027" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">seed =</span> <span class="dv">123</span>,</span>
+<span id="cb110-1028"><a href="#cb110-1028" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">parallel_chains =</span> <span class="dv">8</span>,</span>
+<span id="cb110-1029"><a href="#cb110-1029" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_dir =</span> modgq_output_dir,</span>
+<span id="cb110-1030"><a href="#cb110-1030" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">output_basename =</span> modelqg_name)</span>
+<span id="cb110-1031"><a href="#cb110-1031" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-1032"><a href="#cb110-1032" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1033"><a href="#cb110-1033" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb110-1034"><a href="#cb110-1034" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load</span></span>
+<span id="cb110-1035"><a href="#cb110-1035" aria-hidden="true" tabindex="-1"></a><span class="in">```{r eta-load-cv}</span></span>
+<span id="cb110-1036"><a href="#cb110-1036" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> cmdstanr<span class="sc">::</span><span class="fu">read_cmdstan_csv</span>(<span class="fu">c</span>(</span>
+<span id="cb110-1037"><a href="#cb110-1037" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-1.csv"</span>),</span>
+<span id="cb110-1038"><a href="#cb110-1038" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-2.csv"</span>),</span>
+<span id="cb110-1039"><a href="#cb110-1039" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-3.csv"</span>),</span>
+<span id="cb110-1040"><a href="#cb110-1040" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-4.csv"</span>),</span>
+<span id="cb110-1041"><a href="#cb110-1041" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-5.csv"</span>),</span>
+<span id="cb110-1042"><a href="#cb110-1042" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-6.csv"</span>),</span>
+<span id="cb110-1043"><a href="#cb110-1043" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-7.csv"</span>),</span>
+<span id="cb110-1044"><a href="#cb110-1044" aria-hidden="true" tabindex="-1"></a>                                  <span class="fu">paste0</span>(modgq_output_dir, <span class="st">"/"</span>,  modelqg_name, <span class="st">"-8.csv"</span>)</span>
+<span id="cb110-1045"><a href="#cb110-1045" aria-hidden="true" tabindex="-1"></a>                                ))</span>
+<span id="cb110-1046"><a href="#cb110-1046" aria-hidden="true" tabindex="-1"></a>draws_gen_df <span class="ot">&lt;-</span> <span class="fu">as_draws_df</span>(x<span class="sc">$</span>generated_quantities)</span>
+<span id="cb110-1047"><a href="#cb110-1047" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-1048"><a href="#cb110-1048" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1049"><a href="#cb110-1049" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-predictions-cv}</span></span>
-<span id="cb110-1050"><a href="#cb110-1050" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb110-1051"><a href="#cb110-1051" aria-hidden="true" tabindex="-1"></a>fun_plot_ind_pop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">.analytes_idx=</span>analytes_idx){</span>
-<span id="cb110-1052"><a href="#cb110-1052" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1053"><a href="#cb110-1053" aria-hidden="true" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
-<span id="cb110-1054"><a href="#cb110-1054" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1055"><a href="#cb110-1055" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1056"><a href="#cb110-1056" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1057"><a href="#cb110-1057" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1058"><a href="#cb110-1058" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> .analytes_idx) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1059"><a href="#cb110-1059" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1060"><a href="#cb110-1060" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkind =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1061"><a href="#cb110-1061" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkpop =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
-<span id="cb110-1062"><a href="#cb110-1062" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb110-1063"><a href="#cb110-1063" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkind), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb110-1064"><a href="#cb110-1064" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkpop), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb110-1065"><a href="#cb110-1065" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> .analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span></span>
-<span id="cb110-1066"><a href="#cb110-1066" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte, <span class="at">ncol=</span><span class="dv">2</span>)<span class="sc">+</span></span>
-<span id="cb110-1067"><a href="#cb110-1067" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual and population)"</span>) <span class="sc">+</span></span>
-<span id="cb110-1068"><a href="#cb110-1068" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb110-1069"><a href="#cb110-1069" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb110-1070"><a href="#cb110-1070" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(p1)</span>
-<span id="cb110-1071"><a href="#cb110-1071" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb110-1072"><a href="#cb110-1072" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1073"><a href="#cb110-1073" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span>
-<span id="cb110-1074"><a href="#cb110-1074" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>])</span>
-<span id="cb110-1075"><a href="#cb110-1075" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">21</span><span class="sc">:</span><span class="dv">30</span>])</span>
-<span id="cb110-1076"><a href="#cb110-1076" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">31</span><span class="sc">:</span><span class="dv">40</span>])</span>
-<span id="cb110-1077"><a href="#cb110-1077" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">41</span><span class="sc">:</span><span class="dv">50</span>])</span>
-<span id="cb110-1078"><a href="#cb110-1078" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span>
-<span id="cb110-1079"><a href="#cb110-1079" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>])</span>
-<span id="cb110-1080"><a href="#cb110-1080" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">21</span><span class="sc">:</span><span class="dv">30</span>])</span>
-<span id="cb110-1081"><a href="#cb110-1081" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">31</span><span class="sc">:</span><span class="dv">40</span>])</span>
-<span id="cb110-1082"><a href="#cb110-1082" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">41</span><span class="sc">:</span><span class="dv">50</span>])</span>
-<span id="cb110-1083"><a href="#cb110-1083" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1084"><a href="#cb110-1084" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
-<span id="cb110-1085"><a href="#cb110-1085" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
-<span id="cb110-1086"><a href="#cb110-1086" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1087"><a href="#cb110-1087" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-1049"><a href="#cb110-1049" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fits</span></span>
+<span id="cb110-1050"><a href="#cb110-1050" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1051"><a href="#cb110-1051" aria-hidden="true" tabindex="-1"></a><span class="in">```{r ind-pop-predictions-cv}</span></span>
+<span id="cb110-1052"><a href="#cb110-1052" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb110-1053"><a href="#cb110-1053" aria-hidden="true" tabindex="-1"></a>fun_plot_ind_pop <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">.analytes_idx=</span>analytes_idx){</span>
+<span id="cb110-1054"><a href="#cb110-1054" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1055"><a href="#cb110-1055" aria-hidden="true" tabindex="-1"></a>  p1 <span class="ot">&lt;-</span> draws_gen_df <span class="sc">%&gt;%</span></span>
+<span id="cb110-1056"><a href="#cb110-1056" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1057"><a href="#cb110-1057" aria-hidden="true" tabindex="-1"></a>  tidybayes<span class="sc">::</span><span class="fu">spread_draws</span>(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1058"><a href="#cb110-1058" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">ID=</span>i) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1059"><a href="#cb110-1059" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(analytes_names) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1060"><a href="#cb110-1060" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ID <span class="sc">%in%</span> .analytes_idx) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1061"><a href="#cb110-1061" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">expand_grid</span>(<span class="at">fi =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1062"><a href="#cb110-1062" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkind =</span> sparam_ind<span class="fl">.1</span><span class="sc">-</span>sparam_ind<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1063"><a href="#cb110-1063" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logkpop =</span> sparam_pop<span class="fl">.1</span><span class="sc">-</span>sparam_pop<span class="fl">.2</span><span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat)<span class="sc">*</span>fi<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>sS2Hat<span class="sc">*</span>fi)) <span class="sc">%&gt;%</span></span>
+<span id="cb110-1064"><a href="#cb110-1064" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb110-1065"><a href="#cb110-1065" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkind), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb110-1066"><a href="#cb110-1066" aria-hidden="true" tabindex="-1"></a>  ggdist<span class="sc">::</span><span class="fu">stat_lineribbon</span>(<span class="fu">aes</span>(<span class="at">x =</span> fi, <span class="at">y =</span> logkpop), <span class="at">.width =</span> <span class="fu">c</span>(.<span class="dv">90</span>), <span class="at">alpha =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb110-1067"><a href="#cb110-1067" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">filter</span>(data,ID <span class="sc">%in%</span> .analytes_idx),<span class="fu">aes</span>(<span class="at">x=</span>fi, <span class="at">y=</span>logk)) <span class="sc">+</span></span>
+<span id="cb110-1068"><a href="#cb110-1068" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Analyte, <span class="at">ncol=</span><span class="dv">2</span>)<span class="sc">+</span></span>
+<span id="cb110-1069"><a href="#cb110-1069" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"\u03C6"</span>, <span class="at">y=</span><span class="st">"logk (individual and population)"</span>) <span class="sc">+</span></span>
+<span id="cb110-1070"><a href="#cb110-1070" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb110-1071"><a href="#cb110-1071" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb110-1072"><a href="#cb110-1072" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(p1)</span>
+<span id="cb110-1073"><a href="#cb110-1073" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb110-1074"><a href="#cb110-1074" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1075"><a href="#cb110-1075" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span>
+<span id="cb110-1076"><a href="#cb110-1076" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>])</span>
+<span id="cb110-1077"><a href="#cb110-1077" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">21</span><span class="sc">:</span><span class="dv">30</span>])</span>
+<span id="cb110-1078"><a href="#cb110-1078" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">31</span><span class="sc">:</span><span class="dv">40</span>])</span>
+<span id="cb110-1079"><a href="#cb110-1079" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_out[<span class="dv">41</span><span class="sc">:</span><span class="dv">50</span>])</span>
+<span id="cb110-1080"><a href="#cb110-1080" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>])</span>
+<span id="cb110-1081"><a href="#cb110-1081" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">11</span><span class="sc">:</span><span class="dv">20</span>])</span>
+<span id="cb110-1082"><a href="#cb110-1082" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">21</span><span class="sc">:</span><span class="dv">30</span>])</span>
+<span id="cb110-1083"><a href="#cb110-1083" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">31</span><span class="sc">:</span><span class="dv">40</span>])</span>
+<span id="cb110-1084"><a href="#cb110-1084" aria-hidden="true" tabindex="-1"></a><span class="fu">fun_plot_ind_pop</span>(idx_analytes_in[<span class="dv">41</span><span class="sc">:</span><span class="dv">50</span>])</span>
+<span id="cb110-1085"><a href="#cb110-1085" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1086"><a href="#cb110-1086" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1)</span>
+<span id="cb110-1087"><a href="#cb110-1087" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2)</span>
 <span id="cb110-1088"><a href="#cb110-1088" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1089"><a href="#cb110-1089" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb110-1089"><a href="#cb110-1089" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb110-1090"><a href="#cb110-1090" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb110-1093"><a href="#cb110-1093" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb110-1094"><a href="#cb110-1094" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb110-1095"><a href="#cb110-1095" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb110-1091"><a href="#cb110-1091" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb110-1092"><a href="#cb110-1092" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb110-1095"><a href="#cb110-1095" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb110-1096"><a href="#cb110-1096" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb110-1097"><a href="#cb110-1097" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

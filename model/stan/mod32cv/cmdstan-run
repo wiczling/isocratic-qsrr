@@ -1,0 +1,38 @@
+#!/bin/bash -l
+
+#SBATCH --job-name=cmdstan_conda
+#SBATCH -N 1
+#SBATCH -n 8
+#SBATCH -p batch
+#SBATCH --time=12:00:00
+#SBATCH --mem=2gb 
+
+# load
+module load trytonp/cmdstan/2.34.1
+
+export STAN_THREADS=false
+
+# model name
+export CMDSTAN_MODEL_NAME="mod32cv"
+
+# paths
+export MODEL_SRC_DIR="/users/project1/pt01268/mod32cv"
+cd ${CMDSTAN_DIR}
+
+# build/compile
+[ -f ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} ] && echo "Model " ${CMDSTAN_MODEL_NAME} " exists." || make STANCFLAGS=--O1 ${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME}
+
+wait
+
+cd ${MODEL_SRC_DIR}
+
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-1.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-1.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-2.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-2.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-3.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-3.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-4.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-4.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-5.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-5.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-6.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-6.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-7.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-7.csv &
+${MODEL_SRC_DIR}/${CMDSTAN_MODEL_NAME} sample num_samples=250 num_warmup=500 algorithm=hmc engine=nuts max_depth=10 stepsize=0.01 adapt delta=0.9 data file=$MODEL_SRC_DIR/standata.json init=$MODEL_SRC_DIR/init-8.json  output file=$MODEL_SRC_DIR/${CMDSTAN_MODEL_NAME}-8.csv &
+
+wait

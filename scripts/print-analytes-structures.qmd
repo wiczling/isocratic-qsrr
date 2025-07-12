@@ -1,5 +1,5 @@
 ---
-title: "Structures"
+title: "Print analyte structures"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -24,10 +24,10 @@ knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, co
 
 # Introductions
 
-Print 2D structures of analytes
+Render two-dimensional molecular structures for all analytes present in the dataset.
 
 # Setup
-```{r message=FALSE}
+```{r setup-packages, message=FALSE}
 library(ggplot2)
 library(gridExtra)
 library(patchwork)
@@ -40,11 +40,7 @@ library(here)
 library(magick)
 library(reticulate)
 library(kableExtra)
-set.seed(10271998) ## not required but assures repeatable results
-
 source("helper-functions.R")
-
-#py_install(c("matplotlib", "pillow"))
 ```
 
 ```{r settings}
@@ -58,20 +54,14 @@ tables_structure_dir <- here::here("deliv","tables", "structures")
 if(!file.exists(figures_structure_dir)) dir.create(figures_structure_dir, recursive = T)
 if(!file.exists(tables_structure_dir)) dir.create(tables_structure_dir, recursive = T)
 
-
 figures_structure_html_dir <- here::here("scripts","print-analytes-structures_files", "structures")
 if(!file.exists(figures_structure_html_dir)) dir.create(figures_structure_html_dir, recursive = T)
-
 ```
 
 ```{r load-data, message=FALSE, warning=FALSE}
 # load data
-data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
-functional_groups = read.csv(here(data_deliv_dir, 'checkmol_functional_groups.csv'))
-functional_groups_names = read.csv(here(data_deliv_dir,'checkmol_functional_group_names.csv'))
-data_ACD = read.csv(here(data_deliv_dir,'ACD_pKas.csv'))
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
 smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
 smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
@@ -85,21 +75,14 @@ analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8",
 
 # Python
 
-```{r load-conda-environment-old, eval = FALSE}
+```{r python-setup}
 # use_condaenv("rdkit-env", conda = "C:/Users/GUMed/anaconda3/Scripts/conda.exe", required = TRUE)
-#.Renviron
-```
-
-```{r load-conda-environment}
+# here: .Renviron: "RETICULATE_PYTHON="C:/Users/GUMed/anaconda3/envs/rdkit-ertl/python.exe"
 # Import RDKit modules
 rdkit <- import("rdkit")
 Chem <- import("rdkit.Chem")
 Draw <- import("rdkit.Chem.Draw")
 AllChem <- import("rdkit.Chem.AllChem")
-
-# # test 
-# mol <- rdkit$Chem$MolFromSmiles("CC(=O)O")
-# rdkit$Chem$rdMolDescriptors$CalcExactMolWt(mol)
 ```
 
 ## Save 2D structures to png
@@ -119,7 +102,6 @@ save_png_fun <- function(i) {
                          paste0(make_filename_safe(analyte_name), "_", i, ".png"))
   img$save(filename)
   
-  # Return a data frame with analyte name and HTML image tag
   data.frame(
     ID = analytes_names[i, 1],
     Analyte_Name = analyte_name,
@@ -129,11 +111,9 @@ save_png_fun <- function(i) {
   )
 }
 
-# Apply the function and collect results into a data frame
 results <- lapply(seq_along(smiles$smiles), save_png_fun)
 results_df <- bind_rows(results)
 
-# Create and print a kable table with images
 kableExtra::kbl(results_df, 
                 caption = "Analyte Names and Corresponding Structure Images",
                 col.names = c("ID", "Analyte Name", "Structure"),
@@ -144,9 +124,8 @@ kableExtra::kbl(results_df,
                           extra_css = "word-wrap: break-word; white-space: normal;") %>%
   print()
 
-# Optionally save the table as HTML for inclusion in reports
+# save as html
 # kableExtra::save_kable(kable_table, file = here::here(figures_structure_dir, "analyte_table.html"))
-
 ```
 
 # Session info

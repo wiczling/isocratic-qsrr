@@ -15,22 +15,36 @@ editor:
     wrap: 72
 ---
 
-# EDA
+# Exploratory Data Analysis
 
-## Exploratory plots:
-
-[EDA](eda.html "EDA")
-
-## Analytes:
+## Structures
 
 [Structures](print-analytes-structures.html "Structures")
 
 ## Functional Groups
 
-[Functional groups](functional-groups-rdkit.html "Functional groups")
+[Functional Groups](functional-groups-rdkit.html "Functional groups")
+
+## Exploratory plots
+
+[Exploratory Plots](eda.html "EDA")
+
+## Matrix normal distribution
+
+[Matrix normal distribution](matrix-normal.html "Matrix normal distribution")
 
 # Results
 
+## normal distribution
+
+-   logR \~ logP + fungr (dissociatted vs. nondissociatted), multivariate normal distribution: [Model
+    005](model-development-005.html "Model 005") 
+   
+## matrix normal distribution 
+
+-   logR \~ logP (rdkit) + fungr (dissociatted vs. nondissociatted), a multivariate matrix normal distribution, with a correlation matrix (similarity matrix) scaled by an alpha parameter. Variables were grouped into 10 correlated blocks (inter-block correlation < 0.5): [Model 029](model-development-029.html "Model 029")  
+
+# All tested models
 ## Initial models
 
 -   logR \~ logP, multivariate normal distribution: [Model
@@ -84,7 +98,8 @@ editor:
     
 -   Precision matrix (after glasso) splited into 10 blocks: [Model
     019](model-development-019.html "Model 019")
-
+-   Precision matrix (after glasso) splited into 10 blocks. Partial correlation scaled by alpha: [Model
+    032](model-development-032.html "Model 032")
  
 ## GP 
 ```         
@@ -108,5 +123,5 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
      covariance matrix with rhop estimated: [Model
     026](model-development-026.html "Model 026")      
 
-## Appendix
+## OPENCL
 OPENCL attempt (doesn't help) [Model009](model-development-009.qmd "Model 009")

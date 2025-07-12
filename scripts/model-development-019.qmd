@@ -780,6 +780,7 @@ p <-draws_gen_df %>%
 
 print(p)
 ```
+
 ## Individual Parameters and etaplots
 
 Individual parameter are the analyte-specific parameters estimated by the model. The following plots allow to assess the correlations between these parameters.
@@ -1004,6 +1005,28 @@ foo=similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
                                     )) %>%
   filter(group_combined == 0)%>%
   filter(similarity>0.95)
+```
+
+### Posterior correlations v2
+```{r posterior-corelations-v2}
+
+df <- draws_gen_df %>% select(starts_with("rho2")) %>% summarise_all(mean, na.rm = TRUE)
+
+df_long <- df %>%
+  pivot_longer(cols = everything(), names_to = "rho_index", values_to = "rho") %>%
+  mutate(
+    i = str_extract(rho_index, "(?<=\\[)\\d+"),
+    j = str_extract(rho_index, "(?<=,)\\d+(?=\\])"),
+    i = as.integer(i),
+    j = as.integer(j)
+  )%>%
+  filter(i > j) %>%
+  mutate(rho_similarity = datastruct$point_mu_lower_2)
+
+p1 = df_long %>% ggplot(aes(x=rho_similarity, y= rho))+
+  geom_point()
+
+p1
 ```
 
 #  Simulations (CV-based)

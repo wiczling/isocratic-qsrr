@@ -1,5 +1,5 @@
 ---
-title: "QSRR revisited. Hierarchical models"
+title: "Matrix normal distribuiton"
 author:
   - name: "Paweł Wiczling*"
     affiliations:
@@ -19,8 +19,6 @@ knitr:
 ---
 
 # Setup
-
-The packages we will use are listed below.
 
 ```{r setup, message=FALSE}
 library(cmdstanr)
@@ -75,7 +73,6 @@ similarity_matrix <- make_similarity_matrix_fun(similarity_ltri_rcdk_df)
 ```
 
 # Matri normal distribution
-
 ```{r simulate-from-normal-matrix-noncentered}
 #' non centered
 # Set parameters
@@ -136,31 +133,8 @@ plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
 print(plot1+plot2)
 ```
 
-
-Plot the covariance:
-```{r correlation plot}
-
-# Create data for the curve
-rho1=0.07;
-rho2=0.1;
-x <- seq(0, 1, length.out = 100)
-y1 <- exp(-1/2/rho1^2*x^2)
-y2 <- exp(-1/2/rho2*x)
-data <- data.frame(x = x, y1 = y1, y2 = y2)
-
-# Plot using ggplot2
-ggplot(data, aes(x = x)) +
-  geom_line(aes(y = y1), linetype = "dashed") +
-  geom_line(aes(y = y2), linetype = "dotted") +
-  theme_minimal() +
-  ylim(0,1)+
-  labs(x = "distance", 
-       y = "correlation")
-```
-
 # Matrix-t distriution 
-
-```{r mst}
+```{r matrix-t-distribution}
 # Define parameters
 N <- 5
 K <- 2
