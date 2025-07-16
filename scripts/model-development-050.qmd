@@ -623,7 +623,8 @@ p_uncommon <- param %>%
   facet_wrap(.~param) +
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
 
-p_uncommon + p_common
+p_uncommon 
+p_common
 ```
 
 # Fits
@@ -850,7 +851,7 @@ rownames(cor_matrix) <- 1:1026
 colnames(cor_matrix) <- 1:1026
 rownames(cor_matrix_decorrelated) <- 1:1026
 colnames(cor_matrix_decorrelated) <- 1:1026
-ggcorrplot(similarity_matrix_corrected[001:100,001:100])
+ggcorrplot(similarity_matrix[001:100,001:100])
 ggcorrplot(cor_matrix[001:100,001:100])
 ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
 
