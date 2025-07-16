@@ -23,7 +23,7 @@ csl: analytical-chemistry.csl
 
 # Introductions
 
-This work focuses on multilevel modeling of isocratic HPLC retention data [@kamedulska_toward_2022,] [@kamedulska_statistical_2022,] [@wiczling_application_2021,] [@kubik_analysis_2018], incorporating structural similarity between analytes. Structural similarity was quantified using molecular fingerprints and the Tanimoto similarity metric calculated from SMILES representations.
+This work focuses on multilevel modeling of isocratic HPLC retention data [@kamedulska_toward_2022,] [@kamedulska_statistical_2022,] [@wiczling_application_2021,] [@kubik_analysis_2018], incorporating structural similarity between analytes. Structural similarity (such as Taniomoto similairty metric) can be easily calculated from SMILES representations and help predicting analyte retention if experimental data of structurally similar analytes is available.
 
 # Setup
 ```{r setup, message=FALSE}
@@ -78,14 +78,18 @@ if(!file.exists(figures_eda_dir)) dir.create(figures_eda_dir, recursive = T)
 if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
 ```
 
+# Data
 
-We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35 °C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient [@BOSWELL20116732, @BOSWELL20116742].
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35°C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient [@BOSWELL20116732, @BOSWELL20116742].
 
-The 2D structures of analytes, similarity matrix, log P and the number of functional groups were calculated using RDkit toolkit [@greg_landrum_2025_15773589]:
+The 2D structures of analytes, Tanimoto similarity matrix, log P and the number of functional groups were calculated using RDkit toolkit [@greg_landrum_2025_15773589]:
 
 [RDKit-based predcitors](functional-groups-rdkit.html "rdkit")
 
 [2D-structures](print-analytes-structures.html "Structures")
+
+
+The Tanimoto coefficient is a common metric used to assess the structural similarity between molecules in cheminformatics. It quantifies the overlap of structural features, represented as binary fingerprints, between two molecules, with a higher coefficient indicating greater similarity (0 indicates no similarity and 1 indicates identical structures). 
 
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
@@ -156,6 +160,7 @@ init_aprox <- data %>%
 # Exploratory data analysis
 
 A series of plots to better understand our data can be found here:
+
 [Exploratory Plots](eda.html "EDA")
 
 # Data analysis
@@ -176,11 +181,12 @@ The statistical model has the following hierarchical structure:
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu_{obs},logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MN}(\theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i , K, \Omega) \\
-& \pi_{R,k} \sim N(0,\kappa_R)
+& R_{i} \sim \text{MN}(\theta_R  + \beta \cdot log P_i +\pi_{R1} \cdot X_{1i}  +\pi_{R2} \cdot X_{2i}, K, \Omega) \\
+& \pi_{R1,k} \sim N(0,\kappa_{R1}) \\
+& \pi_{R2,k} \sim N(0,\kappa_{R2})
 \end{aligned}
 $$
-where $R_i=(logkw_{i}, S_{1,i})$ is a vector of analyte-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MN$ is a matrix normal distribution, $\theta_R$ is a vector of typical values of $R_i$, $\beta_R$ is a vector of slopes between $R_i$ and $logP_i$, and $\pi_R$ is a vector of slopes between $R_i$ and functional group vector $Xi$. In turn, $\nu_{obs}$ and $\sigma$ is the normality parameters and scale of the residuals, $K$ and $\Omega$ are the scale matrices for the row and column covariace structures. $\Omega$ and $K$ were decomposed to:
+where $\small R_i=(logkw_{i}, S_{1,i})$ is a vector of analyte-specific parameters, $\small logk_{i,j}$ corresponds to the above Neue equation, $\small MN$ is a matrix normal distribution, $\small \theta_R$ is a vector of typical values of $\small R_i$, $\small \beta_R$ is a vector of slopes between $\small R_i$ and $\small logP_i$,  $\small \pi_{R,1}$ and  $\small \pi_{R,2}$ is a vector of slopes between $\small R_i$ and functional groups: non-dissociated forms $\small X_{1i}$ and dissociated forms $\small X_{2i}$. In turn, $\small \nu_{obs}$ and $\small \sigma$ is the normality parameters and scale of the residuals, $\small K$ and $\small \Omega$ are the scale matrices for the row and column covariance structures. $\small \Omega$ and $\small K$ were decomposed to:
 
 $$
 \begin{aligned}
@@ -189,7 +195,9 @@ K = 2*\alpha* (S-0.5)+ (1-\alpha)*I \\
 \end{aligned}
 $$
 
-where $LL'$ denotes correlation a correlation matrix, $\omega$ denotes standard deviation for between analyte variability, S is a similarity matrix and I is an Identify matrix. In this work the similarity matrix was simplified assuming that $S<0.5$ are 0 (essentially uncorrelated) and the values with $S \geq 0.5$ were scaled by alpha.
+where $\small LL'$ denotes correlation a correlation matrix, $\small \omega$ denotes standard deviation for between analyte variability, S is a similarity matrix and I is an Identify matrix. In this work the similarity matrix was simplified assuming S=0 for $\small S<0.5$ (analytes are essentially uncorrelated) and the values of S for $\small S \geq 0.5$ were scaled by alpha using the above equation.
+
+A matrix normal distribution models random matrices, with parameters including a mean matrix and two covariance matrices, one for rows (analytes) and one for columns ($\small logkw$ and $\small S$ parameters). These covariance matrices, denoted here as $\small K$ and $\Omega$, capture the dependencies between rows and columns of the random matrix, respectively. The row covariance can be naturally related to similarity matrix approximating its structure.
 
 ## Priors
 
@@ -248,7 +256,6 @@ idx_corelatted = unique(nodes$id)
 idx_uncorelatted <- setdiff(unique(similarity_ltri_rcdk_df$row), idx_corelatted)
 group = nodes$group
 
-# Convert to data frame for manipulation
 df <- nodes
 repeat {
   group_sizes <- df %>% dplyr::count(group, name = "size")
@@ -338,7 +345,7 @@ if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
 
 #### Optimization
 
-We compiled the model using cmdstanr and used optimization for initial testing.
+I've compiled the model using cmdstanr and used optimization for initial testing of the code.
 
 ```{r stan-compile, eval = FALSE}
 mod50 <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
@@ -398,9 +405,9 @@ p1
 
 #### Tryton
 
-We performed computations at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/). In this case:
+Computations were carried out at the Academic Computer Center in Gdańsk, [Tryton Cluster](https://docs.task.gda.pl/kdm/zasoby-sprzetowe/tryton/).
 
-1.  we dumped the necessary data to .json format
+1. dump the necessary data to .json format
 
 ```{r dump-files, eval = FALSE}
 write_stan_json(datastruct, paste0(mod_model_dir,"/standata.json"), always_decimal = FALSE)
@@ -414,7 +421,7 @@ write_stan_json(init(), paste0(mod_model_dir,"/init-7.json"), always_decimal = F
 write_stan_json(init(), paste0(mod_model_dir,"/init-8.json"), always_decimal = FALSE)
 ```
 
-2.  we run the model using the batch file:
+2.  run the model using the batch file:
 
 ```{=html}
 <pre> 
@@ -458,7 +465,7 @@ wait
 </pre>
 ```
 
-3.  we loaded the output files using cmdstanr::as_cmdstan_fit: 
+3.  loaded the output files using cmdstanr::as_cmdstan_fit: 
 
 ```{r stan-load}
 fit <- cmdstanr::as_cmdstan_fit(c(
@@ -473,7 +480,7 @@ fit <- cmdstanr::as_cmdstan_fit(c(
                                 ))
 ```
 
-4.  finally we checked the diagnostics of Monte Carlo inferences based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
+4.  check the diagnostics of samples based on the Stan documentation described herein [diagnose](https://mc-stan.org/docs/cmdstan-guide/diagnose.html)
 
 ```{r stan-diagnose, eval = FALSE}
  #fit$cmdstan_diagnose()
@@ -498,7 +505,6 @@ Output is copied here to save time.
 [15] "You should consider regularizating your model with additional prior information or a more effective parameterization."
 </pre>
 ```
-
 
 ### Genereted quantitites
 
@@ -551,8 +557,10 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 # Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
-mcmc_intervals(fit$draws(c("omega","sigma","sdpi")))
+p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
+p2 <- mcmc_intervals(fit$draws(c("omega","sigma","sdpi", "alpha")))
+
+p1+p2
 ```
 
 # Summary of functional groups effects (figures)
@@ -615,8 +623,7 @@ p_uncommon <- param %>%
   facet_wrap(.~param) +
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
 
-p_uncommon
-p_common
+p_uncommon + p_common
 ```
 
 # Fits
