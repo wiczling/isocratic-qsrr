@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Pawel Wiczling">
-<meta name="dcterms.date" content="2025-07-10">
+<meta name="author" content="Paweł Wiczling">
+<meta name="dcterms.date" content="2025-07-16">
 
-<title>QSRR Bayesian-based Multilevel Modeling of Izocratic Data</title>
+<title>Bayesian Multilevel Modeling of Retention Data Informed by Structural Similarity of Analytes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -47,19 +47,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link active" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a>
-  <ul class="collapse">
-  <li><a href="#structures" id="toc-structures" class="nav-link" data-scroll-target="#structures">Structures</a></li>
-  <li><a href="#functional-groups" id="toc-functional-groups" class="nav-link" data-scroll-target="#functional-groups">Functional Groups</a></li>
-  <li><a href="#exploratory-plots" id="toc-exploratory-plots" class="nav-link" data-scroll-target="#exploratory-plots">Exploratory plots</a></li>
-  <li><a href="#matrix-normal-distribution" id="toc-matrix-normal-distribution" class="nav-link" data-scroll-target="#matrix-normal-distribution">Matrix normal distribution</a></li>
-  </ul></li>
-  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
-  <ul class="collapse">
-  <li><a href="#normal-distribution" id="toc-normal-distribution" class="nav-link" data-scroll-target="#normal-distribution">normal distribution</a></li>
-  <li><a href="#matrix-normal-distribution-1" id="toc-matrix-normal-distribution-1" class="nav-link" data-scroll-target="#matrix-normal-distribution-1">matrix normal distribution</a></li>
-  </ul></li>
-  <li><a href="#all-tested-models" id="toc-all-tested-models" class="nav-link" data-scroll-target="#all-tested-models">All tested models</a>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link active" data-scroll-target="#exploratory-data-analysis">Exploratory Data Analysis</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#other-tested-models" id="toc-other-tested-models" class="nav-link" data-scroll-target="#other-tested-models">Other tested models</a>
   <ul class="collapse">
   <li><a href="#initial-models" id="toc-initial-models" class="nav-link" data-scroll-target="#initial-models">Initial models</a></li>
   <li><a href="#scaled-correlations-matrix" id="toc-scaled-correlations-matrix" class="nav-link" data-scroll-target="#scaled-correlations-matrix">Scaled correlations matrix:</a></li>
@@ -67,6 +57,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#gp" id="toc-gp" class="nav-link" data-scroll-target="#gp">GP</a></li>
   <li><a href="#opencl" id="toc-opencl" class="nav-link" data-scroll-target="#opencl">OPENCL</a></li>
   </ul></li>
+  <li><a href="#licenses" id="toc-licenses" class="nav-link" data-scroll-target="#licenses">Licenses</a></li>
   </ul>
 </nav>
 </div>
@@ -74,24 +65,31 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">QSRR Bayesian-based Multilevel Modeling of Izocratic Data</h1>
+<h1 class="title">Bayesian Multilevel Modeling of Retention Data Informed by Structural Similarity of Analytes</h1>
 </div>
 
 
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Paweł Wiczling </p>
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen.&nbsp;J. Hallera 107, 80-416 Gdańsk, Poland
+          </p>
+      </div>
+    </div>
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Pawel Wiczling </p>
-          </div>
-  </div>
-    
+      
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 10, 2025</p>
+      <p class="date">July 16, 2025</p>
     </div>
   </div>
   
@@ -103,40 +101,22 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="exploratory-data-analysis" class="level1">
 <h1>Exploratory Data Analysis</h1>
-<section id="structures" class="level2">
-<h2 class="anchored" data-anchor-id="structures">Structures</h2>
-<p><a href="print-analytes-structures.html" title="Structures">Structures</a></p>
-</section>
-<section id="functional-groups" class="level2">
-<h2 class="anchored" data-anchor-id="functional-groups">Functional Groups</h2>
-<p><a href="functional-groups-rdkit.html" title="Functional groups">Functional Groups</a></p>
-</section>
-<section id="exploratory-plots" class="level2">
-<h2 class="anchored" data-anchor-id="exploratory-plots">Exploratory plots</h2>
-<p><a href="eda.html" title="EDA">Exploratory Plots</a></p>
-</section>
-<section id="matrix-normal-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="matrix-normal-distribution">Matrix normal distribution</h2>
-<p><a href="matrix-normal.html" title="Matrix normal distribution">Matrix normal distribution</a></p>
-</section>
+<ol type="1">
+<li><p><a href="print-analytes-structures.html" title="Structures">Structures</a></p></li>
+<li><p><a href="functional-groups-rdkit.html" title="Functional groups">Functional Groups</a></p></li>
+<li><p><a href="eda.html" title="EDA">Exploratory Plots</a></p></li>
+<li><p><a href="matrix-normal.html" title="Matrix normal distribution">Matrix normal distribution</a></p></li>
+</ol>
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<section id="normal-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="normal-distribution">normal distribution</h2>
-<ul>
-<li>logR ~ logP + fungr (dissociatted vs.&nbsp;nondissociatted), multivariate normal distribution: <a href="model-development-005.html" title="Model 005">Model 005</a></li>
-</ul>
+<ol type="1">
+<li><p>multivariate matrix normal distribution model, predictors: scaled similarity matrix, log P and functional groups (dissociated vs.&nbsp;non-dissociated), analytes were grouped into 10 correlated blocks (inter-block correlation &lt; 0.5): <a href="model-development-050.html" title="Model 050">Model 050</a></p></li>
+<li><p>For comparison a model treating analytes as independent: multivariate normal distribution, predictors: log P and functional groups (dissociated vs.&nbsp;non-dissociated): <a href="model-development-005.html" title="Model 005">Model 005</a></p></li>
+</ol>
 </section>
-<section id="matrix-normal-distribution-1" class="level2">
-<h2 class="anchored" data-anchor-id="matrix-normal-distribution-1">matrix normal distribution</h2>
-<ul>
-<li>logR ~ logP (rdkit) + fungr (dissociatted vs.&nbsp;nondissociatted), a multivariate matrix normal distribution, with a correlation matrix (similarity matrix) scaled by an alpha parameter. Variables were grouped into 10 correlated blocks (inter-block correlation &lt; 0.5): <a href="model-development-029.html" title="Model 029">Model 029</a></li>
-</ul>
-</section>
-</section>
-<section id="all-tested-models" class="level1">
-<h1>All tested models</h1>
+<section id="other-tested-models" class="level1">
+<h1>Other tested models</h1>
 <section id="initial-models" class="level2">
 <h2 class="anchored" data-anchor-id="initial-models">Initial models</h2>
 <ul>
@@ -188,6 +168,13 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);</code></pre>
 <h2 class="anchored" data-anchor-id="opencl">OPENCL</h2>
 <p>OPENCL attempt (doesn’t help) <a href="model-development-009.qmd" title="Model 009">Model009</a></p>
 </section>
+</section>
+<section id="licenses" class="level1 unnumbered">
+<h1 class="unnumbered">Licenses</h1>
+<ul>
+<li>Code &amp; copy; 2025, Paweł Wiczling, licensed under BSD-3.</li>
+<li>Text &amp; copy; 2025, Paweł Wiczling, licensed under CC-BY-NC 4.0.</li>
+</ul>
 </section>
 
 </main>

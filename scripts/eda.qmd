@@ -73,10 +73,6 @@ if(!file.exists(model_dir)) dir.create(model_dir, recursive = T)
 if(!file.exists(tables_dir)) dir.create(tables_dir, recursive = T)
 ```
 
-# EDA
-
-We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set to 35 °C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
-
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
 data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)

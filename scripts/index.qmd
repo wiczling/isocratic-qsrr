@@ -1,7 +1,9 @@
 ---
-title: "QSRR Bayesian-based Multilevel Modeling of Izocratic Data"
-author:   
-  - Pawel Wiczling
+title: "Bayesian Multilevel Modeling of Retention Data Informed by Structural Similarity of Analytes"
+author:
+  - name: "Paweł Wiczling"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
 date: today
 date-format: long
 format:
@@ -17,34 +19,22 @@ editor:
 
 # Exploratory Data Analysis
 
-## Structures
+1.  [Structures](print-analytes-structures.html "Structures")
 
-[Structures](print-analytes-structures.html "Structures")
+2.  [Functional Groups](functional-groups-rdkit.html "Functional groups")
 
-## Functional Groups
+3.  [Exploratory Plots](eda.html "EDA")
 
-[Functional Groups](functional-groups-rdkit.html "Functional groups")
-
-## Exploratory plots
-
-[Exploratory Plots](eda.html "EDA")
-
-## Matrix normal distribution
-
-[Matrix normal distribution](matrix-normal.html "Matrix normal distribution")
+4.  [Matrix normal distribution](matrix-normal.html "Matrix normal distribution")
 
 # Results
 
-## normal distribution
+1.    multivariate matrix normal distribution model, predictors: scaled similarity matrix, log P and functional groups (dissociated vs. non-dissociated), analytes were grouped into 10 correlated blocks (inter-block correlation \< 0.5): [Model 050](model-development-050.html "Model 050")
 
--   logR \~ logP + fungr (dissociatted vs. nondissociatted), multivariate normal distribution: [Model
-    005](model-development-005.html "Model 005") 
-   
-## matrix normal distribution 
+2. For comparison a model treating analytes as independent: multivariate normal distribution, predictors: log P and functional groups (dissociated vs. non-dissociated): [Model 005](model-development-005.html "Model 005")
 
--   logR \~ logP (rdkit) + fungr (dissociatted vs. nondissociatted), a multivariate matrix normal distribution, with a correlation matrix (similarity matrix) scaled by an alpha parameter. Variables were grouped into 10 correlated blocks (inter-block correlation < 0.5): [Model 029](model-development-029.html "Model 029")  
+# Other tested models
 
-# All tested models
 ## Initial models
 
 -   logR \~ logP, multivariate normal distribution: [Model
@@ -56,52 +46,70 @@ editor:
 -   logR \~ logP + fungr, multivariate student t-distribution: [Model
     003](model-development-003.html "Model 003")
 
--   logR \~ logP + fungr(diss + nondiss), multivariate student t-distribution: [Model
-    004](model-development-004.html "Model 004") 
+-   logR \~ logP + fungr(diss + nondiss), multivariate student
+    t-distribution: [Model 004](model-development-004.html "Model 004")
 
--   logR \~ logP + fungr(diss + nondiss), multivariate normal distribution: [Model
-    005](model-development-005.html "Model 005") 
-    
+-   logR \~ logP + fungr(diss + nondiss), multivariate normal
+    distribution: [Model 005](model-development-005.html "Model 005")
+
 ## Scaled correlations matrix:
 
+-   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
+    identity matrix: [Model 015](model-development-015.html "Model 015")
+
+    The identity row covariance matrix should yield identical results
+    with Model 002. It works!!!
+
+-   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
+    correlation matrix: [Model
+    016](model-development-016.html "Model 016")
+
 -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    fixed identity matrix: [Model 015](model-development-015.html "Model 015")
-    
-    The identity row covariance matrix should yield identical results with Model 002. It works!!!
- 
- -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    fixed correlation matrix: [Model 016](model-development-016.html "Model 016")
-    
+    scaled correlation matrix using alpha: [Model
+    017](model-development-017.html "Model 017")
+
 -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    scaled correlation matrix using alpha: [Model 017](model-development-017.html "Model 017") 
-    
- -   logR \~ logP + fungr, multivariate matrix normal distribution,
-    scaled correlation matrix using alpha (correlated and uncorrelated): [Model 018](model-development-018.html "Model 018")     
-    
- -   logR \~ logP + fungr, multivariate matrix student-t distribution,
-    scaled correlation matrix using alpha (correlated and uncorrelated): [Model 021](model-development-021.html "Model 021") 
-    
- -   logR \~ logP + fungr, multivariate matrix student-t distribution,
-    scaled correlation matrix using alpha and tau (correlated and uncorrelated): [Model 024](model-development-024.html "Model 024") 
-    
-  -   logR \~ logP + fungr, multivariate matrix student-t distribution,
-    scaled correlation matrix using alpha and tau (correlated (splited into 10 blocks) and uncorrelated): [Model 027](model-development-027.html "Model 027")    
+    scaled correlation matrix using alpha (correlated and uncorrelated):
+    [Model 018](model-development-018.html "Model 018")
 
-  -   logR \~ logP (rdkit) + fungr, multivariate matrix student-t distribution,
-    scaled correlation matrix using alpha (correlated (splited into 10 blocks) and uncorrelated): [Model 028](model-development-028.html "Model 028")     
+-   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha (correlated and uncorrelated):
+    [Model 021](model-development-021.html "Model 021")
 
-  -   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix normal distribution, scaled correlation matrix using alpha (correlated (splited into 10 blocks, cor<0.5) and uncorrelated): [Model 029](model-development-029.html "Model 029")  
+-   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha and tau (correlated and
+    uncorrelated): [Model 024](model-development-024.html "Model 024")
 
-  -   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix normal distribution, scaled correlation matrix using alpha (correlated (splited into 6 blocks, corr<1/3) and uncorrelated): [Model 030](model-development-030.html "Model 030")  
-  
-## SEM 
-    
+-   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    scaled correlation matrix using alpha and tau (correlated (splited
+    into 10 blocks) and uncorrelated): [Model
+    027](model-development-027.html "Model 027")
+
+-   logR \~ logP (rdkit) + fungr, multivariate matrix student-t
+    distribution, scaled correlation matrix using alpha (correlated
+    (splited into 10 blocks) and uncorrelated): [Model
+    028](model-development-028.html "Model 028")
+
+-   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix
+    normal distribution, scaled correlation matrix using alpha
+    (correlated (splited into 10 blocks, cor\<0.5) and uncorrelated):
+    [Model 029](model-development-029.html "Model 029")
+
+-   logR \~ logP (rdkit) + fungr (diss vs nondiss), multivariate matrix
+    normal distribution, scaled correlation matrix using alpha
+    (correlated (splited into 6 blocks, corr\<1/3) and uncorrelated):
+    [Model 030](model-development-030.html "Model 030")
+
+## SEM
+
 -   Precision matrix (after glasso) splited into 10 blocks: [Model
     019](model-development-019.html "Model 019")
--   Precision matrix (after glasso) splited into 10 blocks. Partial correlation scaled by alpha: [Model
+-   Precision matrix (after glasso) splited into 10 blocks. Partial
+    correlation scaled by alpha: [Model
     032](model-development-032.html "Model 032")
- 
-## GP 
+
+## GP
+
 ```         
 matrix[nAnalytes, nAnalytes] K = gp_exp_quad_cov(distance_x, 1.0, 0.3);
 matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
@@ -111,17 +119,24 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
     full covariance matrix: [Model
     020](model-development-020.html "Model 020")
 -   logR \~ logP + fungr, multivariate matrix normal distribution, block
-     covariance matrix with rhop estimated: [Model
-    022](model-development-022.html "Model 022") 
+    covariance matrix with rhop estimated: [Model
+    022](model-development-022.html "Model 022")
 -   logR \~ logP + fungr, multivariate matrix normal distribution, full
-     covariance matrix with rhop estimated: [Model
-    023](model-development-023.html "Model 023")  
+    covariance matrix with rhop estimated: [Model
+    023](model-development-023.html "Model 023")\
 -   logR \~ logP + fungr, multivariate matrix normal distribution, block
-     covariance matrix with rhop and tau estimated: [Model
-    025](model-development-025.html "Model 025")      
--   logR \~ logP + fungr, multivariate matrix student-t distribution, block
-     covariance matrix with rhop estimated: [Model
-    026](model-development-026.html "Model 026")      
+    covariance matrix with rhop and tau estimated: [Model
+    025](model-development-025.html "Model 025")\
+-   logR \~ logP + fungr, multivariate matrix student-t distribution,
+    block covariance matrix with rhop estimated: [Model
+    026](model-development-026.html "Model 026")
 
 ## OPENCL
-OPENCL attempt (doesn't help) [Model009](model-development-009.qmd "Model 009")
+
+OPENCL attempt (doesn't help)
+[Model009](model-development-009.qmd "Model 009")
+
+# Licenses {.unnumbered}
+
+-   Code & copy; 2025, Paweł Wiczling, licensed under BSD-3.
+-   Text & copy; 2025, Paweł Wiczling, licensed under CC-BY-NC 4.0.
