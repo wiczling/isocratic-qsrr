@@ -1,0 +1,95 @@
+---
+title: |
+  | Supporting Information for:
+  | Comparison of chromatographic stationary phases using a Bayesian-based multilevel model
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+  - name: "Agnieszka Kamedulska"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+    fig-width: 7
+    fig-height: 7
+    keep-tex: true
+    template-partials: 
+      - title.tex
+    include-in-header:
+      text: |
+        \usepackage[noblocks]{authblk}
+        \renewcommand*{\Authsep}{, }
+        \renewcommand*{\Authand}{, }
+        \renewcommand*{\Authands}{, }
+        \renewcommand\Affilfont{\small}    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, echo=FALSE, comment=NA, out.width='95%')
+```
+
+```{r, include=FALSE}
+library(dplyr)
+library(kableExtra)
+library(cmdstanr)
+```
+
+
+{{< pagebreak >}}
+
+# Table S1. Summary of the MCMC simulations of the marginal posterior distributions of population-level model parameters. 
+
+Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error, StdDev denotes sample standard deviation, 5%, 50%, 95% denote corresponding quantiles, N_Eff denotes effective sample size, R_Hat denotes a measure of chain equilibrium must be within 0.05 of 1.0.
+
+```{r}
+fit <- cmdstanr::as_cmdstan_fit(c(
+                                  '../stanfiles/output_1.csv',
+                                  '../stanfiles/output_2.csv',
+                                  '../stanfiles/output_3.csv',
+                                  '../stanfiles/output_4.csv',
+                                  '../stanfiles/output_5.csv',
+                                  '../stanfiles/output_6.csv',
+                                  '../stanfiles/output_7.csv',
+                                  '../stanfiles/output_8.csv'
+                                ))
+fit$print(c("logkwHat"), max_rows = 26)
+```
+
+{{< pagebreak >}}
+
+# Figure S1. Raw data for 6 selected analytes.
+
+![](../figures/rawdata/Acridine.pdf)
+{{< pagebreak >}}
+![](../figures/rawdata/Baclofen.pdf)
+
+{{< pagebreak >}}
+![](../figures/rawdata/Hydrocortisone.pdf)
+
+{{< pagebreak >}}
+![](../figures/rawdata/Pioglitazone.pdf)
+{{< pagebreak >}}
+![](../figures/rawdata/Quinine.pdf)
+
+{{< pagebreak >}}
+![](../figures/rawdata/Tolbutamide.pdf)
+
+{{< pagebreak >}}
+
+
+
+# Licenses {.unnumbered}
+
+-   Code & copy; 2023, Paweł Wiczling, licensed under BSD-3.
+-   Text & copy; 2023, Paweł Wiczling, licensed under CC-BY-NC 4.0.
+
+# Original Computing Environment {.unnumbered}
+
+```{r}
+sessionInfo()
+```
