@@ -519,52 +519,62 @@ write.csv(similarity_to_ltr_fun(similarity_matrix), file = here(data_deliv_dir,"
 
 ## Part 1
 ```{r part1}
-ggcorrplot(similarity_matrix[001:100,001:100])
+ggcorrplot(similarity_matrix[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 2
 ```{r part2}
-ggcorrplot(similarity_matrix[101:200,101:200])
+ggcorrplot(similarity_matrix[101:200,101:200])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 3
 ```{r part3}
-ggcorrplot(similarity_matrix[201:300,201:300])
+ggcorrplot(similarity_matrix[201:300,201:300])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 4
 ```{r part4}
-ggcorrplot(similarity_matrix[301:400,301:400])
+ggcorrplot(similarity_matrix[301:400,301:400])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 5
 ```{r part5}
-ggcorrplot(similarity_matrix[401:500,401:500])
+ggcorrplot(similarity_matrix[401:500,401:500])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 6
 ```{r part6}
-ggcorrplot(similarity_matrix[501:600,501:600])
+ggcorrplot(similarity_matrix[501:600,501:600])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 7
 ```{r part7}
-ggcorrplot(similarity_matrix[601:700,601:700])
+ggcorrplot(similarity_matrix[601:700,601:700])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 8
 ```{r part8}
-ggcorrplot(similarity_matrix[701:800,701:800])
+ggcorrplot(similarity_matrix[701:800,701:800])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 9
 ```{r part9}
-ggcorrplot(similarity_matrix[801:900,801:900])
+ggcorrplot(similarity_matrix[801:900,801:900])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 ## Part 10
 ```{r part10}
-ggcorrplot(similarity_matrix[901:1026,901:1026])
+ggcorrplot(similarity_matrix[901:1026,901:1026])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
 ```
 
 :::

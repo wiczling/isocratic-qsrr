@@ -97,6 +97,7 @@ data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
 
 analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
 analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
+analytes_names$Analyte <- str_wrap(analytes_names$Analyte, width = 20)
 
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
@@ -557,10 +558,39 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 # Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat")))
-p2 <- mcmc_intervals(fit$draws(c("omega","sigma","sdpi", "alpha")))
+p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1]","beta[2]","S2Hat")))+ scale_y_discrete(labels = c( "logkwHat"= expression(theta[logkw]),
+                              "S1Hat"= expression(theta[S1]),
+                              "dlogkwHat"=expression(theta[dlogkw]),
+                              "dS1Hat"=expression(theta[dS1]),
+                              "beta[1]"= expression(beta[logkw]),
+                              "beta[2]"= expression(beta[S1]),
+                              "S2Hat"=expression(theta[S2])),
+                   limits = t(rev(c("logkwHat",
+                               "S1Hat",
+                               "dlogkwHat",                    
+                               "dS1Hat",
+                               "beta[1]",
+                               "beta[2]",
+                               "S2Hat"))))
+p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]","sigma","sdpi[1]","sdpi[2]","sdpi[3]","sdpi[4]", "alpha")))+ scale_y_discrete(labels = c(  "omega[1]"=expression(omega[logkw]),
+                              "omega[2]"=expression(omega[S1]),
+                              "sigma"= expression(sigma),
+                              "sdpi[1]"= expression(kappa[1][logkw]), 
+                              "sdpi[2]"= expression(kappa[1][S1]),
+                              "sdpi[3]"= expression(kappa[2][logkw]),
+                              "sdpi[4]"= expression(kappa[2][S1]),
+                              "alpha"=expression(alpha)),
+                   limits = t(rev(c("omega[1]",
+                               "omega[2]",
+                               "sigma",                    
+                               "sdpi[1]",
+                               "sdpi[2]",
+                               "sdpi[3]",
+                               "sdpi[4]",
+                               "alpha"))))
 
-p1+p2
+print(p1+p2)
+figure_1 = p1+p2
 ```
 
 # Summary of functional groups effects (figures)
@@ -625,6 +655,10 @@ p_uncommon <- param %>%
 
 p_uncommon 
 p_common
+
+figure_2<-p_common
+figure_S2<-p_uncommon
+
 ```
 
 # Fits
@@ -834,7 +868,7 @@ walk(plot_groups, function(group) {
 ```
 
 # Posterior correlations
-```{r posterior-corelations}
+```{r posterior-correlations}
 similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
 
 etas <- draws_gen_df %>%
@@ -851,9 +885,6 @@ rownames(cor_matrix) <- 1:1026
 colnames(cor_matrix) <- 1:1026
 rownames(cor_matrix_decorrelated) <- 1:1026
 colnames(cor_matrix_decorrelated) <- 1:1026
-ggcorrplot(similarity_matrix[001:100,001:100])
-ggcorrplot(cor_matrix[001:100,001:100])
-ggcorrplot(cor_matrix_decorrelated[001:100,001:100])
 
 p1 =similarity_to_ltr_fun(cor_matrix)%>%
   rename(corr = similarity) %>%
@@ -863,7 +894,7 @@ p1 =similarity_to_ltr_fun(cor_matrix)%>%
   ggplot(aes(y = corr, x = similarity)) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() + 
-  labs(y = "Correlation",
+  labs(y = "Correlations",
        x = "Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
@@ -876,13 +907,14 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
   ggplot(aes(y = corr, x = similarity)) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() +  # cleaner theme
-  labs(y = "Correlation",
+  labs(y = "Correlations (decorelated)",
        x = "Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
 
 print(p1+p2)
 
+figure_3 = p1+p2;
 
 p1=similarity_to_ltr_fun(cor_matrix)%>%
   rename(corr = similarity) %>%
@@ -908,7 +940,7 @@ p1=similarity_to_ltr_fun(cor_matrix)%>%
   ggplot(aes(y = corr, x = similarity, color = factor(group))) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() +  # cleaner theme
-  labs( y = "Correlation",
+  labs( y = "Correlations",
        x = "Similarity") +
   theme(legend.position = "none")+
   facet_wrap(~groups_joined)
@@ -940,7 +972,7 @@ p2=similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
   ggplot(aes(y = corr, x = similarity, color = factor(group))) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() +  # cleaner theme
-  labs(y = "Correlation (decorelated)",
+  labs(y = "Correlations (decorelated)",
        x = "Similarity") +
   theme(legend.position = "none")+
   facet_wrap(~groups_joined)
@@ -949,6 +981,110 @@ print(p2)
 
 ```
 
+
+::: {.panel-tabset}
+
+## Part 1
+```{r part1}
+ggcorrplot(similarity_matrix[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 2
+```{r part2}
+ggcorrplot(similarity_matrix[101:200,101:200])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[001:100,001:100])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 3
+```{r part3}
+ggcorrplot(similarity_matrix[201:300,201:300])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[201:300,201:300])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[201:300,201:300])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 4
+```{r part4}
+ggcorrplot(similarity_matrix[301:400,301:400])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[301:400,301:400])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[301:400,301:400])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 5
+```{r part5}
+ggcorrplot(similarity_matrix[401:500,401:500])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[401:500,401:500])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[401:500,401:500])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 6
+```{r part6}
+ggcorrplot(similarity_matrix[501:600,501:600])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[501:600,501:600])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[501:600,501:600])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 7
+```{r part7}
+ggcorrplot(similarity_matrix[601:700,601:700])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[601:700,601:700])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[601:700,601:700])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 8
+```{r part8}
+ggcorrplot(similarity_matrix[701:800,701:800])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[701:800,701:800])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[701:800,701:800])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 9
+```{r part9}
+ggcorrplot(similarity_matrix[801:900,801:900])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[801:900,801:900])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[801:900,801:900])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+## Part 10
+```{r part10}
+ggcorrplot(similarity_matrix[901:1026,901:1026])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix[901:1026,901:1026])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+ggcorrplot(cor_matrix_decorrelated[901:1026,901:1026])+
+  scale_fill_gradientn(colors = c("white", "gray", "red"), limits = c(0, 1))
+```
+
+:::
 # Effect of similairty
 
 Predict retention times for a set of analytes based on their similarity to other analytes and studied descriptors.
@@ -1056,7 +1192,7 @@ x <- cmdstanr::read_cmdstan_csv(c(
                                   paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
                                   paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
                                 ))
-draws_gen_df <- as_draws_df(x$generated_quantities)
+draws_gen_cv_df <- as_draws_df(x$generated_quantities)
 ```
 
 ## Summary of model parameters (table):
@@ -1070,9 +1206,8 @@ fitcv$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat"
 ## Predictions
 ```{r ind-pop-predictions-cv}
 # 
-fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
-
-  p1 <- draws_gen_df %>%
+fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
+  p1 <- draws %>%
   slice_sample(n=1000) %>%
   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
   rename(ID=i) %>%
@@ -1086,27 +1221,65 @@ fun_plot_ind_pop <- function(.analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
   facet_wrap(~Analyte, ncol=2)+
+  theme(strip.text = element_text(size = 6)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
   coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
   print(p1)
+  return(p1)
 }
 
-fun_plot_ind_pop(idx_analytes_out[1:10])
-fun_plot_ind_pop(idx_analytes_out[11:20])
-fun_plot_ind_pop(idx_analytes_out[21:30])
-fun_plot_ind_pop(idx_analytes_out[31:40])
-fun_plot_ind_pop(idx_analytes_out[41:50])
-fun_plot_ind_pop(idx_analytes_in[1:10])
-fun_plot_ind_pop(idx_analytes_in[11:20])
-fun_plot_ind_pop(idx_analytes_in[21:30])
-fun_plot_ind_pop(idx_analytes_in[31:40])
-fun_plot_ind_pop(idx_analytes_in[41:50])
+p1<-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[41:50])
+
+p2<-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[41:50])
+
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[1:10])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[11:20])
+
+figure_4 <- (p2 + ggtitle("all individual data")) + 
+(p1 + ggtitle("no individual data")) +
+  plot_annotation(tag_levels = 'A')
 ```
 
 # Conclusions
 
 The work demonstrates a general framework for integrating molecular similarity into the retention modeling workflow.
+
+# Manuscript figures
+```{r manuscript-figures}
+ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates.png"),
+       plot=figure_1, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates.pdf"),
+       plot=figure_1, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg1.png"),
+       plot=figure_2, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg1.pdf"),
+       plot=figure_2, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","main", "correlations.png"),
+       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
+       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
+       plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "predictions.pdf"),
+       plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.png"),
+       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.pdf"),
+       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+```
 
 # References {.unnumbered}
 

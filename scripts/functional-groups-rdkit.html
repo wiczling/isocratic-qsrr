@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Paweł Wiczling*">
-<meta name="dcterms.date" content="2025-07-11">
+<meta name="dcterms.date" content="2025-07-17">
 
 <title>Rdkit-based data preparation</title>
 <style>
@@ -131,7 +131,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 11, 2025</p>
+      <p class="date">July 17, 2025</p>
     </div>
   </div>
   
@@ -661,7 +661,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])<span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part1-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -672,7 +673,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>,<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>,<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>])<span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part2-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -683,7 +685,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>,<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>,<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>])<span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part3-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -694,7 +697,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>,<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>,<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>])<span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part4-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -705,7 +709,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>,<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>,<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>])<span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part5-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -716,7 +721,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>,<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>,<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>])<span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part6-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -727,7 +733,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>,<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>,<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>])<span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part7-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -738,7 +745,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>,<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>,<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>])<span class="sc">+</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part8-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -749,7 +757,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>,<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>,<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>])<span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part9-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -760,7 +769,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>,<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>,<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>])<span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <p><img src="functional-groups-rdkit_files/figure-html/part10-1.png" class="img-fluid" style="width:95.0%"></p>
@@ -1718,122 +1728,132 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb23-519"><a href="#cb23-519" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-520"><a href="#cb23-520" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 1</span></span>
 <span id="cb23-521"><a href="#cb23-521" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part1}</span></span>
-<span id="cb23-522"><a href="#cb23-522" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])</span>
-<span id="cb23-523"><a href="#cb23-523" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-524"><a href="#cb23-524" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-525"><a href="#cb23-525" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 2</span></span>
-<span id="cb23-526"><a href="#cb23-526" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part2}</span></span>
-<span id="cb23-527"><a href="#cb23-527" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>,<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>])</span>
-<span id="cb23-528"><a href="#cb23-528" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-529"><a href="#cb23-529" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-530"><a href="#cb23-530" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 3</span></span>
-<span id="cb23-531"><a href="#cb23-531" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part3}</span></span>
-<span id="cb23-532"><a href="#cb23-532" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>,<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>])</span>
-<span id="cb23-533"><a href="#cb23-533" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-534"><a href="#cb23-534" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-535"><a href="#cb23-535" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 4</span></span>
-<span id="cb23-536"><a href="#cb23-536" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part4}</span></span>
-<span id="cb23-537"><a href="#cb23-537" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>,<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>])</span>
-<span id="cb23-538"><a href="#cb23-538" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-539"><a href="#cb23-539" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-540"><a href="#cb23-540" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 5</span></span>
-<span id="cb23-541"><a href="#cb23-541" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part5}</span></span>
-<span id="cb23-542"><a href="#cb23-542" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>,<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>])</span>
-<span id="cb23-543"><a href="#cb23-543" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-544"><a href="#cb23-544" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-545"><a href="#cb23-545" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 6</span></span>
-<span id="cb23-546"><a href="#cb23-546" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part6}</span></span>
-<span id="cb23-547"><a href="#cb23-547" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>,<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>])</span>
+<span id="cb23-522"><a href="#cb23-522" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>,<span class="dv">001</span><span class="sc">:</span><span class="dv">100</span>])<span class="sc">+</span></span>
+<span id="cb23-523"><a href="#cb23-523" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-524"><a href="#cb23-524" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-525"><a href="#cb23-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-526"><a href="#cb23-526" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 2</span></span>
+<span id="cb23-527"><a href="#cb23-527" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part2}</span></span>
+<span id="cb23-528"><a href="#cb23-528" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>,<span class="dv">101</span><span class="sc">:</span><span class="dv">200</span>])<span class="sc">+</span></span>
+<span id="cb23-529"><a href="#cb23-529" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-530"><a href="#cb23-530" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-531"><a href="#cb23-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-532"><a href="#cb23-532" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 3</span></span>
+<span id="cb23-533"><a href="#cb23-533" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part3}</span></span>
+<span id="cb23-534"><a href="#cb23-534" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>,<span class="dv">201</span><span class="sc">:</span><span class="dv">300</span>])<span class="sc">+</span></span>
+<span id="cb23-535"><a href="#cb23-535" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-536"><a href="#cb23-536" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-537"><a href="#cb23-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-538"><a href="#cb23-538" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 4</span></span>
+<span id="cb23-539"><a href="#cb23-539" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part4}</span></span>
+<span id="cb23-540"><a href="#cb23-540" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>,<span class="dv">301</span><span class="sc">:</span><span class="dv">400</span>])<span class="sc">+</span></span>
+<span id="cb23-541"><a href="#cb23-541" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-542"><a href="#cb23-542" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-543"><a href="#cb23-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-544"><a href="#cb23-544" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 5</span></span>
+<span id="cb23-545"><a href="#cb23-545" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part5}</span></span>
+<span id="cb23-546"><a href="#cb23-546" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>,<span class="dv">401</span><span class="sc">:</span><span class="dv">500</span>])<span class="sc">+</span></span>
+<span id="cb23-547"><a href="#cb23-547" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
 <span id="cb23-548"><a href="#cb23-548" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-549"><a href="#cb23-549" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-550"><a href="#cb23-550" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 7</span></span>
-<span id="cb23-551"><a href="#cb23-551" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part7}</span></span>
-<span id="cb23-552"><a href="#cb23-552" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>,<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>])</span>
-<span id="cb23-553"><a href="#cb23-553" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-554"><a href="#cb23-554" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-555"><a href="#cb23-555" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 8</span></span>
-<span id="cb23-556"><a href="#cb23-556" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part8}</span></span>
-<span id="cb23-557"><a href="#cb23-557" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>,<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>])</span>
-<span id="cb23-558"><a href="#cb23-558" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-559"><a href="#cb23-559" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-560"><a href="#cb23-560" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 9</span></span>
-<span id="cb23-561"><a href="#cb23-561" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part9}</span></span>
-<span id="cb23-562"><a href="#cb23-562" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>,<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>])</span>
-<span id="cb23-563"><a href="#cb23-563" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-564"><a href="#cb23-564" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-565"><a href="#cb23-565" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 10</span></span>
-<span id="cb23-566"><a href="#cb23-566" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part10}</span></span>
-<span id="cb23-567"><a href="#cb23-567" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>,<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>])</span>
-<span id="cb23-568"><a href="#cb23-568" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-569"><a href="#cb23-569" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-570"><a href="#cb23-570" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb23-571"><a href="#cb23-571" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-572"><a href="#cb23-572" aria-hidden="true" tabindex="-1"></a><span class="fu"># Network visualization</span></span>
-<span id="cb23-573"><a href="#cb23-573" aria-hidden="true" tabindex="-1"></a><span class="in">```{r add-membership-groups}</span></span>
-<span id="cb23-574"><a href="#cb23-574" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_subset<span class="ot">&lt;-</span>similarity_ltri_rcdk_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(similarity<span class="sc">&gt;</span><span class="fl">0.5</span>, row<span class="sc">!=</span>col)</span>
-<span id="cb23-575"><a href="#cb23-575" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-576"><a href="#cb23-576" aria-hidden="true" tabindex="-1"></a>uid <span class="ot">=</span> <span class="fu">unique</span>(<span class="fu">c</span>(similarity_ltri_rcdk_subset<span class="sc">$</span>row,similarity_ltri_rcdk_subset<span class="sc">$</span>col))</span>
-<span id="cb23-577"><a href="#cb23-577" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> uid,<span class="at">label =</span> <span class="fu">paste</span>(uid))</span>
-<span id="cb23-578"><a href="#cb23-578" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">from =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>row,</span>
-<span id="cb23-579"><a href="#cb23-579" aria-hidden="true" tabindex="-1"></a>                    <span class="at">to =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>col, </span>
-<span id="cb23-580"><a href="#cb23-580" aria-hidden="true" tabindex="-1"></a>                    <span class="at">width =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>similarity,</span>
-<span id="cb23-581"><a href="#cb23-581" aria-hidden="true" tabindex="-1"></a>                    <span class="at">label =</span> <span class="fu">paste</span>(<span class="fu">round</span>(similarity_ltri_rcdk_subset<span class="sc">$</span>similarity,<span class="dv">2</span>)))</span>
-<span id="cb23-582"><a href="#cb23-582" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">graph_from_data_frame</span>(<span class="at">d =</span> edges, <span class="at">vertices =</span> nodes, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb23-583"><a href="#cb23-583" aria-hidden="true" tabindex="-1"></a>components <span class="ot">&lt;-</span> <span class="fu">components</span>(g, <span class="at">mode =</span> <span class="st">"weak"</span>)</span>
-<span id="cb23-584"><a href="#cb23-584" aria-hidden="true" tabindex="-1"></a>nodes<span class="sc">$</span>group <span class="ot">&lt;-</span> components<span class="sc">$</span>membership</span>
+<span id="cb23-550"><a href="#cb23-550" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 6</span></span>
+<span id="cb23-551"><a href="#cb23-551" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part6}</span></span>
+<span id="cb23-552"><a href="#cb23-552" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>,<span class="dv">501</span><span class="sc">:</span><span class="dv">600</span>])<span class="sc">+</span></span>
+<span id="cb23-553"><a href="#cb23-553" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-554"><a href="#cb23-554" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-555"><a href="#cb23-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-556"><a href="#cb23-556" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 7</span></span>
+<span id="cb23-557"><a href="#cb23-557" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part7}</span></span>
+<span id="cb23-558"><a href="#cb23-558" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>,<span class="dv">601</span><span class="sc">:</span><span class="dv">700</span>])<span class="sc">+</span></span>
+<span id="cb23-559"><a href="#cb23-559" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-560"><a href="#cb23-560" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-561"><a href="#cb23-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-562"><a href="#cb23-562" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 8</span></span>
+<span id="cb23-563"><a href="#cb23-563" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part8}</span></span>
+<span id="cb23-564"><a href="#cb23-564" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>,<span class="dv">701</span><span class="sc">:</span><span class="dv">800</span>])<span class="sc">+</span></span>
+<span id="cb23-565"><a href="#cb23-565" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-566"><a href="#cb23-566" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-567"><a href="#cb23-567" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-568"><a href="#cb23-568" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 9</span></span>
+<span id="cb23-569"><a href="#cb23-569" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part9}</span></span>
+<span id="cb23-570"><a href="#cb23-570" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>,<span class="dv">801</span><span class="sc">:</span><span class="dv">900</span>])<span class="sc">+</span></span>
+<span id="cb23-571"><a href="#cb23-571" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-572"><a href="#cb23-572" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-573"><a href="#cb23-573" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-574"><a href="#cb23-574" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 10</span></span>
+<span id="cb23-575"><a href="#cb23-575" aria-hidden="true" tabindex="-1"></a><span class="in">```{r part10}</span></span>
+<span id="cb23-576"><a href="#cb23-576" aria-hidden="true" tabindex="-1"></a><span class="fu">ggcorrplot</span>(similarity_matrix[<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>,<span class="dv">901</span><span class="sc">:</span><span class="dv">1026</span>])<span class="sc">+</span></span>
+<span id="cb23-577"><a href="#cb23-577" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradientn</span>(<span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"gray"</span>, <span class="st">"red"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb23-578"><a href="#cb23-578" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-579"><a href="#cb23-579" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-580"><a href="#cb23-580" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb23-581"><a href="#cb23-581" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-582"><a href="#cb23-582" aria-hidden="true" tabindex="-1"></a><span class="fu"># Network visualization</span></span>
+<span id="cb23-583"><a href="#cb23-583" aria-hidden="true" tabindex="-1"></a><span class="in">```{r add-membership-groups}</span></span>
+<span id="cb23-584"><a href="#cb23-584" aria-hidden="true" tabindex="-1"></a>similarity_ltri_rcdk_subset<span class="ot">&lt;-</span>similarity_ltri_rcdk_df <span class="sc">%&gt;%</span> <span class="fu">filter</span>(similarity<span class="sc">&gt;</span><span class="fl">0.5</span>, row<span class="sc">!=</span>col)</span>
 <span id="cb23-585"><a href="#cb23-585" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-586"><a href="#cb23-586" aria-hidden="true" tabindex="-1"></a><span class="fu">tabulate</span>(nodes<span class="sc">$</span>group)</span>
-<span id="cb23-587"><a href="#cb23-587" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-588"><a href="#cb23-588" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-589"><a href="#cb23-589" aria-hidden="true" tabindex="-1"></a><span class="fu">## Graph</span></span>
-<span id="cb23-590"><a href="#cb23-590" aria-hidden="true" tabindex="-1"></a><span class="in">```{r vis-network}</span></span>
-<span id="cb23-591"><a href="#cb23-591" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, edges, <span class="at">width =</span> <span class="st">"100%"</span>)</span>
-<span id="cb23-592"><a href="#cb23-592" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-593"><a href="#cb23-593" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-594"><a href="#cb23-594" aria-hidden="true" tabindex="-1"></a><span class="fu"># Descriptors</span></span>
-<span id="cb23-595"><a href="#cb23-595" aria-hidden="true" tabindex="-1"></a><span class="in">```{r descriptors, eval=FALSE}</span></span>
-<span id="cb23-596"><a href="#cb23-596" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate descriptors based on SMILES</span></span>
-<span id="cb23-597"><a href="#cb23-597" aria-hidden="true" tabindex="-1"></a>calc_descriptor_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(smiles_vector) {</span>
-<span id="cb23-598"><a href="#cb23-598" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(smiles_vector, <span class="cf">function</span>(smiles) {</span>
-<span id="cb23-599"><a href="#cb23-599" aria-hidden="true" tabindex="-1"></a>    mol <span class="ot">&lt;-</span> Chem<span class="sc">$</span><span class="fu">MolFromSmiles</span>(smiles)</span>
-<span id="cb23-600"><a href="#cb23-600" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(mol)) {</span>
-<span id="cb23-601"><a href="#cb23-601" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">10</span>))</span>
-<span id="cb23-602"><a href="#cb23-602" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-586"><a href="#cb23-586" aria-hidden="true" tabindex="-1"></a>uid <span class="ot">=</span> <span class="fu">unique</span>(<span class="fu">c</span>(similarity_ltri_rcdk_subset<span class="sc">$</span>row,similarity_ltri_rcdk_subset<span class="sc">$</span>col))</span>
+<span id="cb23-587"><a href="#cb23-587" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> uid,<span class="at">label =</span> <span class="fu">paste</span>(uid))</span>
+<span id="cb23-588"><a href="#cb23-588" aria-hidden="true" tabindex="-1"></a>edges <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">from =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>row,</span>
+<span id="cb23-589"><a href="#cb23-589" aria-hidden="true" tabindex="-1"></a>                    <span class="at">to =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>col, </span>
+<span id="cb23-590"><a href="#cb23-590" aria-hidden="true" tabindex="-1"></a>                    <span class="at">width =</span> similarity_ltri_rcdk_subset<span class="sc">$</span>similarity,</span>
+<span id="cb23-591"><a href="#cb23-591" aria-hidden="true" tabindex="-1"></a>                    <span class="at">label =</span> <span class="fu">paste</span>(<span class="fu">round</span>(similarity_ltri_rcdk_subset<span class="sc">$</span>similarity,<span class="dv">2</span>)))</span>
+<span id="cb23-592"><a href="#cb23-592" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">graph_from_data_frame</span>(<span class="at">d =</span> edges, <span class="at">vertices =</span> nodes, <span class="at">directed =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb23-593"><a href="#cb23-593" aria-hidden="true" tabindex="-1"></a>components <span class="ot">&lt;-</span> <span class="fu">components</span>(g, <span class="at">mode =</span> <span class="st">"weak"</span>)</span>
+<span id="cb23-594"><a href="#cb23-594" aria-hidden="true" tabindex="-1"></a>nodes<span class="sc">$</span>group <span class="ot">&lt;-</span> components<span class="sc">$</span>membership</span>
+<span id="cb23-595"><a href="#cb23-595" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-596"><a href="#cb23-596" aria-hidden="true" tabindex="-1"></a><span class="fu">tabulate</span>(nodes<span class="sc">$</span>group)</span>
+<span id="cb23-597"><a href="#cb23-597" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-598"><a href="#cb23-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-599"><a href="#cb23-599" aria-hidden="true" tabindex="-1"></a><span class="fu">## Graph</span></span>
+<span id="cb23-600"><a href="#cb23-600" aria-hidden="true" tabindex="-1"></a><span class="in">```{r vis-network}</span></span>
+<span id="cb23-601"><a href="#cb23-601" aria-hidden="true" tabindex="-1"></a><span class="fu">visNetwork</span>(nodes, edges, <span class="at">width =</span> <span class="st">"100%"</span>)</span>
+<span id="cb23-602"><a href="#cb23-602" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb23-603"><a href="#cb23-603" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-604"><a href="#cb23-604" aria-hidden="true" tabindex="-1"></a>    mol_h <span class="ot">&lt;-</span> Chem<span class="sc">$</span><span class="fu">AddHs</span>(mol)</span>
-<span id="cb23-605"><a href="#cb23-605" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>({</span>
-<span id="cb23-606"><a href="#cb23-606" aria-hidden="true" tabindex="-1"></a>      AllChem<span class="sc">$</span><span class="fu">EmbedMolecule</span>(mol_h)</span>
-<span id="cb23-607"><a href="#cb23-607" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) {})</span>
-<span id="cb23-608"><a href="#cb23-608" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-609"><a href="#cb23-609" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
-<span id="cb23-610"><a href="#cb23-610" aria-hidden="true" tabindex="-1"></a>      <span class="at">MolWt =</span> Descriptors<span class="sc">$</span><span class="fu">MolWt</span>(mol),</span>
-<span id="cb23-611"><a href="#cb23-611" aria-hidden="true" tabindex="-1"></a>      <span class="at">LogP =</span> Descriptors<span class="sc">$</span><span class="fu">MolLogP</span>(mol),</span>
-<span id="cb23-612"><a href="#cb23-612" aria-hidden="true" tabindex="-1"></a>      <span class="at">TPSA =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcTPSA</span>(mol),</span>
-<span id="cb23-613"><a href="#cb23-613" aria-hidden="true" tabindex="-1"></a>      <span class="at">LabuteASA =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcLabuteASA</span>(mol_h),</span>
-<span id="cb23-614"><a href="#cb23-614" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumHAcceptors =</span> Descriptors<span class="sc">$</span><span class="fu">NumHAcceptors</span>(mol),</span>
-<span id="cb23-615"><a href="#cb23-615" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumHDonors =</span> Descriptors<span class="sc">$</span><span class="fu">NumHDonors</span>(mol),</span>
-<span id="cb23-616"><a href="#cb23-616" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumRotatableBonds =</span> Descriptors<span class="sc">$</span><span class="fu">NumRotatableBonds</span>(mol),</span>
-<span id="cb23-617"><a href="#cb23-617" aria-hidden="true" tabindex="-1"></a>      <span class="at">RingCount =</span> Descriptors<span class="sc">$</span><span class="fu">RingCount</span>(mol),</span>
-<span id="cb23-618"><a href="#cb23-618" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumAromaticRings =</span> Descriptors<span class="sc">$</span><span class="fu">NumAromaticRings</span>(mol),</span>
-<span id="cb23-619"><a href="#cb23-619" aria-hidden="true" tabindex="-1"></a>      <span class="at">ExactMolWt =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcExactMolWt</span>(mol)</span>
-<span id="cb23-620"><a href="#cb23-620" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb23-621"><a href="#cb23-621" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb23-622"><a href="#cb23-622" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-623"><a href="#cb23-623" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert list to data frame</span></span>
-<span id="cb23-624"><a href="#cb23-624" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">do.call</span>(rbind, results))</span>
-<span id="cb23-625"><a href="#cb23-625" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>SMILES <span class="ot">&lt;-</span> smiles_vector</span>
-<span id="cb23-626"><a href="#cb23-626" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">relocate</span>(SMILES)</span>
-<span id="cb23-627"><a href="#cb23-627" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
-<span id="cb23-628"><a href="#cb23-628" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-629"><a href="#cb23-629" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-630"><a href="#cb23-630" aria-hidden="true" tabindex="-1"></a>descriptor_df <span class="ot">&lt;-</span> <span class="fu">calc_descriptor_panel</span>(smiles<span class="sc">$</span>smiles)</span>
-<span id="cb23-631"><a href="#cb23-631" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(descriptor_df, <span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"descriptor_df.csv"</span>), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb23-632"><a href="#cb23-632" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb23-633"><a href="#cb23-633" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-634"><a href="#cb23-634" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
-<span id="cb23-637"><a href="#cb23-637" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb23-638"><a href="#cb23-638" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb23-639"><a href="#cb23-639" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-604"><a href="#cb23-604" aria-hidden="true" tabindex="-1"></a><span class="fu"># Descriptors</span></span>
+<span id="cb23-605"><a href="#cb23-605" aria-hidden="true" tabindex="-1"></a><span class="in">```{r descriptors, eval=FALSE}</span></span>
+<span id="cb23-606"><a href="#cb23-606" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate descriptors based on SMILES</span></span>
+<span id="cb23-607"><a href="#cb23-607" aria-hidden="true" tabindex="-1"></a>calc_descriptor_panel <span class="ot">&lt;-</span> <span class="cf">function</span>(smiles_vector) {</span>
+<span id="cb23-608"><a href="#cb23-608" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(smiles_vector, <span class="cf">function</span>(smiles) {</span>
+<span id="cb23-609"><a href="#cb23-609" aria-hidden="true" tabindex="-1"></a>    mol <span class="ot">&lt;-</span> Chem<span class="sc">$</span><span class="fu">MolFromSmiles</span>(smiles)</span>
+<span id="cb23-610"><a href="#cb23-610" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(mol)) {</span>
+<span id="cb23-611"><a href="#cb23-611" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">10</span>))</span>
+<span id="cb23-612"><a href="#cb23-612" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-613"><a href="#cb23-613" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-614"><a href="#cb23-614" aria-hidden="true" tabindex="-1"></a>    mol_h <span class="ot">&lt;-</span> Chem<span class="sc">$</span><span class="fu">AddHs</span>(mol)</span>
+<span id="cb23-615"><a href="#cb23-615" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>({</span>
+<span id="cb23-616"><a href="#cb23-616" aria-hidden="true" tabindex="-1"></a>      AllChem<span class="sc">$</span><span class="fu">EmbedMolecule</span>(mol_h)</span>
+<span id="cb23-617"><a href="#cb23-617" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) {})</span>
+<span id="cb23-618"><a href="#cb23-618" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-619"><a href="#cb23-619" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(</span>
+<span id="cb23-620"><a href="#cb23-620" aria-hidden="true" tabindex="-1"></a>      <span class="at">MolWt =</span> Descriptors<span class="sc">$</span><span class="fu">MolWt</span>(mol),</span>
+<span id="cb23-621"><a href="#cb23-621" aria-hidden="true" tabindex="-1"></a>      <span class="at">LogP =</span> Descriptors<span class="sc">$</span><span class="fu">MolLogP</span>(mol),</span>
+<span id="cb23-622"><a href="#cb23-622" aria-hidden="true" tabindex="-1"></a>      <span class="at">TPSA =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcTPSA</span>(mol),</span>
+<span id="cb23-623"><a href="#cb23-623" aria-hidden="true" tabindex="-1"></a>      <span class="at">LabuteASA =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcLabuteASA</span>(mol_h),</span>
+<span id="cb23-624"><a href="#cb23-624" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumHAcceptors =</span> Descriptors<span class="sc">$</span><span class="fu">NumHAcceptors</span>(mol),</span>
+<span id="cb23-625"><a href="#cb23-625" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumHDonors =</span> Descriptors<span class="sc">$</span><span class="fu">NumHDonors</span>(mol),</span>
+<span id="cb23-626"><a href="#cb23-626" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumRotatableBonds =</span> Descriptors<span class="sc">$</span><span class="fu">NumRotatableBonds</span>(mol),</span>
+<span id="cb23-627"><a href="#cb23-627" aria-hidden="true" tabindex="-1"></a>      <span class="at">RingCount =</span> Descriptors<span class="sc">$</span><span class="fu">RingCount</span>(mol),</span>
+<span id="cb23-628"><a href="#cb23-628" aria-hidden="true" tabindex="-1"></a>      <span class="at">NumAromaticRings =</span> Descriptors<span class="sc">$</span><span class="fu">NumAromaticRings</span>(mol),</span>
+<span id="cb23-629"><a href="#cb23-629" aria-hidden="true" tabindex="-1"></a>      <span class="at">ExactMolWt =</span> rdMolDescriptors<span class="sc">$</span><span class="fu">CalcExactMolWt</span>(mol)</span>
+<span id="cb23-630"><a href="#cb23-630" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb23-631"><a href="#cb23-631" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb23-632"><a href="#cb23-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-633"><a href="#cb23-633" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert list to data frame</span></span>
+<span id="cb23-634"><a href="#cb23-634" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">do.call</span>(rbind, results))</span>
+<span id="cb23-635"><a href="#cb23-635" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>SMILES <span class="ot">&lt;-</span> smiles_vector</span>
+<span id="cb23-636"><a href="#cb23-636" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">relocate</span>(SMILES)</span>
+<span id="cb23-637"><a href="#cb23-637" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb23-638"><a href="#cb23-638" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-639"><a href="#cb23-639" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-640"><a href="#cb23-640" aria-hidden="true" tabindex="-1"></a>descriptor_df <span class="ot">&lt;-</span> <span class="fu">calc_descriptor_panel</span>(smiles<span class="sc">$</span>smiles)</span>
+<span id="cb23-641"><a href="#cb23-641" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(descriptor_df, <span class="at">file =</span> <span class="fu">here</span>(data_deliv_dir,<span class="st">"descriptor_df.csv"</span>), <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb23-642"><a href="#cb23-642" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-643"><a href="#cb23-643" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-644"><a href="#cb23-644" aria-hidden="true" tabindex="-1"></a><span class="fu"># Session info</span></span>
+<span id="cb23-647"><a href="#cb23-647" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb23-648"><a href="#cb23-648" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb23-649"><a href="#cb23-649" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

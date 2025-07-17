@@ -17,7 +17,7 @@ ID,Analyte
 16,Thymidine
 17,Coumaric acid
 18,Indole
-19,_-Phenylacetic acid
+19,Phenylacetic acid
 20,1-Naphthaleneacetamide
 21,Stearic acid
 22,"(2S)-2-[2-(2,4-dichlorophenoxy)acetamido]-3-methylbutanoic acid"
@@ -56,7 +56,7 @@ ID,Analyte
 55,5-Hydroxyindolacetic acid
 56,(5-methoxy-2-methyl-1H-indol-3-yl)acetic acid
 57,N-(3-methylbut-2-en-1-yl)-7H-purin-6-amine
-58,_-indole-3-acetic acid
+58,Indole-3-acetic acid
 59,3-(3H-imidazol-4-yl)-2-[2-(1H-indol-3-yl)acetamido]propanoic acid
 60,(2S)-2-[2-(1H-indol-3-yl)acetamido]propanoic acid
 61,(2S)-2-[2-(1H-indol-3-yl)acetamido]-4-(methylsulfanyl)butanoic acid
@@ -386,14 +386,14 @@ ID,Analyte
 385,2-Hydroxysaclofen
 386,Altretamine
 387,"Adenosine 3,5-cyclic monophosphate"
-388,(±)-AMT hydrochloride
+388,AMT hydrochloride
 389,"1-Allyl-3,7-dimethyl-8-p-sulfophenylxanthine"
 390,Acetohexamide
 391,3-Methyl-2-phenyl-N-[(1S)-1-phenylpropyl]-4-quinolinecarboxamide
 392,"1-Aminoindan-1,5-dicarboxylic acid"
-393,(±)-Atenolol
+393,Atenolol
 394,Adenosine
-395,(±)-p-Aminoglutethimide
+395,p-Aminoglutethimide
 396,Aminobenztropine
 397,A-77636 hydrochloride
 398,4-(2-Aminoethyl)benzenesulfonyl fluoride hydrochloride
@@ -410,7 +410,7 @@ ID,Analyte
 409,Beclomethasone
 410,Benzamide
 411,Bumetanide
-412,(±)-Baclofen
+412,Baclofen
 413,Brefeldin A from Penicillium brefeldianum
 414,Naphthalene-2-carboxylic acid {4-[4-(2-methoxy-phenyl)-piperazin-1-yl]-butyl}-amide
 415,Bupropion hydrochloride
@@ -419,8 +419,8 @@ ID,Analyte
 418,Budesonide
 419,O6-benzylguanine
 420,(E)-3-(4-tert-butylphenylsulfonyl)acrylonitrile
-421,(±)-Bay K 8644
-422,(±)-Butaclamol hydrochloride
+421,Bay K 8644
+422,Butaclamol hydrochloride
 423,Betaxolol hydrochloride
 424,Benztropine mesylate
 425,BRL 37344 sodium
@@ -456,7 +456,7 @@ ID,Analyte
 455,Cefaclor
 456,Citalopram hydrobromide
 457,Clemastine fumarate
-458,(±)-Chlorpheniramine maleate
+458,Chlorpheniramine maleate
 459,(+)-Chlorpheniramine maleate
 460,Clonidine hydrochloride
 461,Caffeic acid phenethyl ester
@@ -470,7 +470,7 @@ ID,Analyte
 469,(1-{2-[(Methylsulfonyl)amino]ethyl}-4-piperidinyl)methyl 1-methyl-1H-indole-3-carboxylate
 470,Clemizole hydrochloride
 471,(-)-Cotinine
-472,(±)-p-Chlorophenylalanine
+472,p-Chlorophenylalanine
 473,N-(2-[4-(4-Chlorophenyl)piperazin-1-yl]ethyl)-3-methoxybenzamide
 474,Cilostamide
 475,Cephradine
@@ -495,7 +495,7 @@ ID,Analyte
 494,Cinnarizine
 495,Calcimycin
 496,Cantharidic Acid
-497,(±)-CPP
+497,CPP
 498,CGS-21680 hydrochloride
 499,"9-Chloro-2-(2-furyl)[1,2,4]triazolo[1,5-c]quinazolin-5-amine"
 500,Diltiazem hydrochloride
@@ -526,7 +526,7 @@ ID,Analyte
 525,Dobutamine hydrochloride
 526,Diphenyleneiodonium chloride
 527,Diacylglycerol Kinase Inhibitor II
-528,(±)-CGP-12177A hydrochloride
+528,CGP-12177A hydrochloride
 529,Capsazepine
 530,Diphenhydramine hydrochloride
 531,"5,5-Diphenylhydantoin"
@@ -554,7 +554,7 @@ ID,Analyte
 553,"1,9-Pyrazoloanthrone"
 554,Doxazosin mesylate
 555,(+)-Butaclamol hydrochloride
-556,"(±)-2,3-Dichloro-alpha-methylbenzylamine hydrochloride"
+556,"2,3-Dichloro-alpha-methylbenzylamine hydrochloride"
 557,Etodolac
 558,"(2R,3R)-3-[[(2S)-1-[4-(diaminomethylideneazaniumyl)butylamino]-4-methyl-1-oxopentan-2-yl]carbamoyl]oxirane-2-carboxylate"
 559,(-)-Physostigmine
@@ -601,7 +601,7 @@ ID,Analyte
 600,2-Iodomelatonin
 601,6-Hydroxymelatonin
 602,Hydrochlorothiazide
-603,(±)-7-Hydroxy-DPAT hydrobromide
+603,7-Hydroxy-DPAT hydrobromide
 604,2-(4-(3-(4-acetyl-3-hydroxy-2-propylphenoxy)propoxy)phenoxy)acetic acid
 605,3-Isobutyl-1-methylxanthine
 606,Iproniazid phosphate
@@ -701,12 +701,12 @@ ID,Analyte
 700,Phenylbutazone
 701,6(5H)-Phenanthridinone
 702,Procainamide hydrochloride
-703,R/S(±)-3PPP hydrochloride
+703,R/S3PPP hydrochloride
 704,Phenamil methanesulfonate
 705,Quercetin dihydrate
 706,Picotamide
 707,Prilocaine hydrochloride
-708,(±)-PPHT hydrochloride
+708,PPHT hydrochloride
 709,Pirenperone
 710,Quinidine sulfate
 711,"Quipazine, 6-nitro-, maleate"
@@ -718,18 +718,18 @@ ID,Analyte
 717,(S)-Propranolol hydrochloride
 718,2-(2-Amino-3-methoxyphenyl)-4H-1-benzopyran-4-one
 719,Quinine sulfate
-720,(±)-threo-1-Phenyl-2-decanoylamino-3-morpholino-1-propanol hydrochloride
+720,threo-1-Phenyl-2-decanoylamino-3-morpholino-1-propanol hydrochloride
 721,Prochlorperazine dimaleate
 722,Pinacidil
 723,Cortexolone
 724,"4-[3-[4-(4-fluorophenyl)-3,6-dihydro-2H-pyridin-1-yl]-2-hydroxypropoxy]benzamide"
 725,"2-fluoro-3,4-dihydroxy-5-nitrobenzophenone"
 726,Ro 04-6790 dihydrochloride
-727,(±)-Sulpiride
+727,Sulpiride
 728,Raloxifene hydrochloride
 729,Rottlerin
 730,RX 821002 hydrochloride
-731,(±)-Sotalol hydrochloride
+731,Sotalol hydrochloride
 732,"4-[(R)-[(2S,5R)-2,5-dimethyl-4-prop-2-enylpiperazin-1-yl]-(3-methoxyphenyl)methyl]-N,N-diethylbenzamide"
 733,N-Oleoyldopamine
 734,SB 269970 hydrochloride
@@ -765,7 +765,7 @@ ID,Analyte
 764,p-NH2-PE-Tfmpp
 765,R(-)-SCH-12679 maleate
 766,Tetrahydrozoline hydrochloride
-767,"(±)-SKF 38393, N-allyl-, hydrobromide"
+767,"SKF 38393, N-allyl-, hydrobromide"
 768,Triflupromazine hydrochloride
 769,Tulobuterol hydrochloride
 770,6-amino-1-(3-carboxypropyl)-3-(4-methoxyphenyl)pyridazin-1-ium
@@ -774,7 +774,7 @@ ID,Analyte
 773,Trimipramine maleate
 774,N-p-Tosyl-L-phenylalanine chloromethyl ketone
 775,Trazodone hydrochloride
-776,(±)-6-Chloro-PB hydrobromide
+776,6-Chloro-PB hydrobromide
 777,SB 206553 hydrochloride
 778,Tetraethylthiuram disulfide
 779,Trequinsin hydrochloride
@@ -806,9 +806,9 @@ ID,Analyte
 805,Tyrphostin 47
 806,"3-Tropanyl-3,5-dichlorobenzoate"
 807,Tropicamide
-808,(±)-Thalidomide
+808,Thalidomide
 809,Spiradoline
-810,(±)-Vesamicol hydrochloride
+810,Vesamicol hydrochloride
 811,WAY-100635 maleate
 812,3-(5-Hydroxymethyl-2-furyl)-1-benzylindazole
 813,Trifluoperazine dihydrochloride
@@ -846,7 +846,7 @@ ID,Analyte
 845,N-[3-(cyclohexylidene(1H-imidazol-4-ylmethyl)phenyl]ethanesulfonamide
 846,Chlormezanone
 847,D-ribofuranosylbenzimidazole
-848,(±)-Chloro-APB hydrobromide
+848,Chloro-APB hydrobromide
 849,8-(3-Chlorostyryl)caffeine
 850,"2,3-dihydro-1,4-benzodioxin-7-yl-piperidin-1-ylmethanone"
 851,"2,3-Dimethoxy-1,4-naphthoquinone"
@@ -868,7 +868,7 @@ ID,Analyte
 867,(Z)-Gugglesterone
 868,"5,6-Dichloro-1-ethyl-1H-benzo[d]imidazol-2(3H)-one"
 869,R(-)-Propylnorapomorphine hydrochloride
-870,(±)-SKF-38393 hydrochloride
+870,SKF-38393 hydrochloride
 871,Etazolate hydrochloride
 872,Retinoic acid p-hydroxyanilide
 873,1-(5-Isoquinolinylsulfonyl)-2-methylpiperazine dihydrochloride
@@ -892,7 +892,7 @@ ID,Analyte
 891,Loperamide hydrochloride
 892,Lansoprazole
 893,"LY-294,002 hydrochloride"
-894,(±)-Isoproterenol hydrochloride
+894,Isoproterenol hydrochloride
 895,(2-methyl-1-propylindol-3-yl)-naphthalen-2-ylmethanone
 896,Kynurenic acid
 897,beta-Lapachone
@@ -901,7 +901,7 @@ ID,Analyte
 900,Loxapine succinate
 901,Molsidomine
 902,Metergoline
-903,(±)-Metoprolol (+)-tartrate
+903,Metoprolol (+)-tartrate
 904,Linopirdine
 905,"(-)-cis-(1S,2R)-U-50488 tartrate"
 906,Milrinone
@@ -925,7 +925,7 @@ ID,Analyte
 924,"Magniferitin 3,6,7-Trimethyl Ether"
 925,Kinetin
 926,Merogedunin
-927,S-Isocorydine (+)
+927,S-Isocorydine
 928,"Cholic Acid, Methyl Ester"
 929,Isoflavone
 930,7-Deacetylkhivorin
@@ -968,7 +968,7 @@ ID,Analyte
 967,Solasodine
 968,Homopterocarpin
 969,Xanthoxylin
-970,Deguelin(-)
+970,Deguelin
 971,16(17)-Epoxy-5-Pregnenolone
 972,Aleuretic Acid
 973,Laccaic Acid A

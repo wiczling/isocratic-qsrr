@@ -120,12 +120,7 @@ dissociated_groups <- c(
 ## Prepare data
 ```{r prepare-data, message=FALSE, warning=FALSE}
 data<-data %>%
-  left_join(analytes_names) %>%
-  mutate(mm_group =case_when(
-             MW_ACD < 200 ~ "MM < 200",
-             MW_ACD < 300 & MW_ACD >= 200 ~ "200 \u2264 MM < 300",
-             MW_ACD < 400 & MW_ACD >= 300 ~ "300 \u2264 MM < 400",
-             .default = "400 \u2264 MM"))
+  left_join(analytes_names)
 
 functional_groups = fg_df%>%select(where(~ is.character(.) || !all(. == 0, na.rm = TRUE))) %>%
   select(-id1,-id2,-SMILES, -Anion, -Kation,-Ammonium )
@@ -164,10 +159,9 @@ dissociation$nB0 <- length(dissociation$idxB0)
 # Some plots
 ## Raw data
 ```{r raw-data, message=FALSE, warning=FALSE}
-ggplot(data, aes(x=fi, y=logk, group=ID)) + 
-  geom_line(aes(color=logP_ACD)) + 
-  facet_wrap(~mm_group, ncol=2) +
-  labs(x = "\u03C6", y = expression(log~k[obs])) + 
+figure_S1 <- ggplot(data, aes(x=fi, y=logk, group=ID)) + 
+  geom_line() + 
+  labs(x = "\u03C6", y = expression(logk[obs])) + 
   theme_gray(base_size = 14) + theme(legend.position="none") 
 ```
 ## pH changes
@@ -318,6 +312,14 @@ map(2*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4
 map(3*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
 map(4*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
 map(5*16+c(1:16), \(x) plotting_i(x, similarity_subset)) %>% wrap_plots(ncol = 4)
+```
+
+# Manuscript figures
+```{r manuscript-figures}
+ggsave(here::here("deliv","figures","manuscript","supplement ", "raw-data.png"),
+       plot=figure_S1, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "raw-data.pdf"),
+       plot=figure_S1, width = 20, height = 20, units = "cm", dpi = 300)
 ```
 
 # Session info

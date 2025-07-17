@@ -1,12 +1,9 @@
 ---
 title: |
   | Supporting Information for:
-  | Comparison of chromatographic stationary phases using a Bayesian-based multilevel model
+  | Bayesian Multilevel Modeling of Retention Data Informed by Structural Similarity of Analytes
 author:
   - name: "Paweł Wiczling*"
-    affiliations:
-      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
-  - name: "Agnieszka Kamedulska"
     affiliations:
       - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
 date: "`r format(Sys.Date())`"
@@ -48,39 +45,24 @@ Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error, StdDev denote
 
 ```{r}
 fit <- cmdstanr::as_cmdstan_fit(c(
-                                  '../stanfiles/output_1.csv',
-                                  '../stanfiles/output_2.csv',
-                                  '../stanfiles/output_3.csv',
-                                  '../stanfiles/output_4.csv',
-                                  '../stanfiles/output_5.csv',
-                                  '../stanfiles/output_6.csv',
-                                  '../stanfiles/output_7.csv',
-                                  '../stanfiles/output_8.csv'
+                                  '../model/stan/mod50/output/mod50-1.csv',
+                                  '../model/stan/mod50/output/mod50-2.csv',
+                                  '../model/stan/mod50/output/mod50-3.csv',
+                                  '../model/stan/mod50/output/mod50-4.csv',
+                                  '../model/stan/mod50/output/mod50-5.csv',
+                                  '../model/stan/mod50/output/mod50-6.csv',
+                                  '../model/stan/mod50/output/mod50-7.csv',
+                                  '../model/stan/mod50/output/mod50-8.csv'
                                 ))
-fit$print(c("logkwHat"), max_rows = 26)
+fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=16)
 ```
 
 {{< pagebreak >}}
 
-# Figure S1. Raw data for 6 selected analytes.
+# Figure S1. Raw data 
 
-![](../figures/rawdata/Acridine.pdf)
+![](../deliv/figures/manuscript/suplement/raw-data.pdf)
 {{< pagebreak >}}
-![](../figures/rawdata/Baclofen.pdf)
-
-{{< pagebreak >}}
-![](../figures/rawdata/Hydrocortisone.pdf)
-
-{{< pagebreak >}}
-![](../figures/rawdata/Pioglitazone.pdf)
-{{< pagebreak >}}
-![](../figures/rawdata/Quinine.pdf)
-
-{{< pagebreak >}}
-![](../figures/rawdata/Tolbutamide.pdf)
-
-{{< pagebreak >}}
-
 
 
 # Licenses {.unnumbered}
