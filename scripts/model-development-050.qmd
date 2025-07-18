@@ -558,36 +558,46 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 # Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1]","beta[2]","S2Hat")))+ scale_y_discrete(labels = c( "logkwHat"= expression(theta[logkw]),
+p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1]","beta[2]","S2Hat","alpha")))+ scale_y_discrete(labels = c( "logkwHat"= expression(theta[logkw]),
                               "S1Hat"= expression(theta[S1]),
                               "dlogkwHat"=expression(theta[dlogkw]),
                               "dS1Hat"=expression(theta[dS1]),
                               "beta[1]"= expression(beta[logkw]),
                               "beta[2]"= expression(beta[S1]),
-                              "S2Hat"=expression(theta[S2])),
+                              "S2Hat"=expression(theta[S2]),
+                              "alpha"=expression(alpha)),
                    limits = t(rev(c("logkwHat",
                                "S1Hat",
                                "dlogkwHat",                    
                                "dS1Hat",
                                "beta[1]",
                                "beta[2]",
-                               "S2Hat"))))
-p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]","sigma","sdpi[1]","sdpi[2]","sdpi[3]","sdpi[4]", "alpha")))+ scale_y_discrete(labels = c(  "omega[1]"=expression(omega[logkw]),
+                               "S2Hat",
+                               "alpha"))))+ theme(
+  axis.text.x = element_text(size = 14),
+  axis.text.y = element_text(size = 14)
+)
+p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]", "rho[1,2]", "sigma","sdpi[1]","sdpi[2]","sdpi[3]","sdpi[4]"))) +
+  scale_y_discrete(labels = c("omega[1]"=expression(omega[logkw]),
                               "omega[2]"=expression(omega[S1]),
+                              "rho[1,2]"= expression(rho["1,2"]),
                               "sigma"= expression(sigma),
-                              "sdpi[1]"= expression(kappa[1][logkw]), 
-                              "sdpi[2]"= expression(kappa[1][S1]),
-                              "sdpi[3]"= expression(kappa[2][logkw]),
-                              "sdpi[4]"= expression(kappa[2][S1]),
-                              "alpha"=expression(alpha)),
+                              "sdpi[1]"= expression(paste(kappa*"1"[logkw])), 
+                              "sdpi[2]"= expression(paste(kappa*"1"[S1])),
+                              "sdpi[3]"= expression(paste(kappa*"2"[logkw])),
+                              "sdpi[4]"= expression(paste(kappa*"2"[S1]))),
                    limits = t(rev(c("omega[1]",
                                "omega[2]",
+                               "rho[1,2]",
                                "sigma",                    
                                "sdpi[1]",
                                "sdpi[2]",
                                "sdpi[3]",
-                               "sdpi[4]",
-                               "alpha"))))
+                               "sdpi[4]"))))+ 
+  theme(
+  axis.text.x = element_text(size = 14),
+  axis.text.y = element_text(size = 14)
+)
 
 print(p1+p2)
 figure_1 = p1+p2
@@ -624,8 +634,12 @@ p_common <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
   tidybayes::geom_pointinterval() +
-  labs(x="Effect", y="Functional group id")+
-  facet_wrap(.~param)+
+  labs(x="Effect", y="Functional group")+
+  facet_wrap(. ~ param,
+           labeller = labeller(param = as_labeller(c(
+             pilogkw = "pi[logkw]",
+             piS1 = "pi[S1]"
+           ), label_parsed)))+
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
 
 param1<-draws_df_subset %>%
@@ -649,8 +663,12 @@ p_uncommon <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
   tidybayes::geom_pointinterval() +
-  labs(x="Effect", y="Functional group id")+
-  facet_wrap(.~param) +
+  labs(x="Effect", y="Functional group")+
+  facet_wrap(. ~ param,
+           labeller = labeller(param = as_labeller(c(
+             pilogkw = "pi[logkw]",
+             piS1 = "pi[S1]"
+           ), label_parsed)))+
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
 
 p_uncommon 
@@ -914,7 +932,8 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
 
 print(p1+p2)
 
-figure_3 = p1+p2;
+figure_3 = p1+p2+
+  plot_annotation(tag_levels = 'A');
 
 p1=similarity_to_ltr_fun(cor_matrix)%>%
   rename(corr = similarity) %>%
@@ -1217,8 +1236,8 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
   mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
   ggplot() +
-  ggdist::stat_lineribbon(aes(x = fi, y = logkind), .width = c(.90), alpha = 1/2) +
-  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
   facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 6)) +
@@ -1267,8 +1286,8 @@ ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg
 
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.png"),
        plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
-ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
-       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+#ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
+#       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
        plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
