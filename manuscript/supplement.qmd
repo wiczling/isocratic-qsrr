@@ -61,9 +61,23 @@ fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","
 
 # Figure S1. Raw data 
 
-![](../deliv/figures/manuscript/suplement/raw-data.pdf)
+![](../deliv/figures/manuscript/supplement/raw-data.pdf)
 {{< pagebreak >}}
 
+# Figure S2. Functional group effects
+
+![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf)
+{{< pagebreak >}}
+
+# Figure S3. Individual parameters
+
+![](../deliv/figures/manuscript/supplement/iparam.pdf)
+{{< pagebreak >}}
+
+# Figure S4. Individual parameters. Eta plots
+
+![](../deliv/figures/manuscript/supplement/eta.pdf)
+{{< pagebreak >}}
 
 # Licenses {.unnumbered}
 
