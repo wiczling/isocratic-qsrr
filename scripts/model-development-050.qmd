@@ -915,8 +915,8 @@ p1 =similarity_to_ltr_fun(cor_matrix)%>%
   ggplot(aes(y = corr, x = similarity)) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() + 
-  labs(y = "Correlations",
-       x = "Similarity") +
+  labs(y = expression(eta*" correlations"),
+       x = "Tanimoto Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
 
@@ -928,8 +928,8 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
   ggplot(aes(y = corr, x = similarity)) +
   geom_point(alpha = 0.3, size = 1) +
   theme_minimal() +  # cleaner theme
-  labs(y = "Correlations (decorelated)",
-       x = "Similarity") +
+  labs(y = expression(eta*" correlations (decorelated)"),
+       x = "Tanimoto Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
 
