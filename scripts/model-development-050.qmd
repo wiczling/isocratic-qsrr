@@ -718,7 +718,7 @@ p2 = data%>%
   theme_gray(base_size = 14) + 
   theme(legend.position="none")
 
-p1+p2
+figure_S3 <- p1+p2
 ```
 
 
@@ -818,6 +818,7 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
         labeller = "label_parsed",upper = list(continuous = "points"))
 
 print(p)
+figure_S4 <- p
 ```
 
 ## Etas
@@ -837,6 +838,8 @@ p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_pl
         labeller = "label_parsed",upper = list(continuous = "points"))
 
 print(p)
+
+figure_S5 <- p
 ```
 
 ## Effect of functional groups (screening)
@@ -1298,6 +1301,21 @@ ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estima
        plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.pdf"),
        plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","supplement", "gof.png"),
+       plot=figure_S3, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "gof.pdf"),
+       plot=figure_S3, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","supplement", "iparam.png"),
+       plot=figure_S4, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "iparam.pdf"),
+       plot=figure_S4, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","supplement", "eta.png"),
+       plot=figure_S5, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "eta.pdf"),
+       plot=figure_S5, width = 20, height = 20, units = "cm", dpi = 300)
 ```
 
 # References {.unnumbered}
