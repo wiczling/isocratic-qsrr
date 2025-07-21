@@ -913,7 +913,8 @@ p1 =similarity_to_ltr_fun(cor_matrix)%>%
   filter(row!=col) %>%
   filter(col %in% row) %>%
   ggplot(aes(y = corr, x = similarity)) +
-  geom_point(alpha = 0.3, size = 1) +
+  geom_hex() +
+  scale_fill_viridis_c(option = "G", direction  = -1)+
   theme_minimal() + 
   labs(y = expression(eta*" correlations"),
        x = "Tanimoto Similarity") +
@@ -926,81 +927,114 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
   filter(row!=col) %>%
   filter(col %in% row) %>%
   ggplot(aes(y = corr, x = similarity)) +
-  geom_point(alpha = 0.3, size = 1) +
+    geom_hex() +
+  scale_fill_viridis_c(option = "G", direction  = -1)+
   theme_minimal() +  # cleaner theme
   labs(y = expression(eta*" correlations (decorelated)"),
        x = "Tanimoto Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
 
-print(p1+p2)
+# p3=similarity_to_ltr_fun(cor_matrix)%>%
+#   rename(corr = similarity) %>%
+#   left_join(similarity_to_ltr_fun(similarity_matrix_corrected)) %>%
+#   filter(row!=col) %>%
+#   left_join(nodes%>%rename(row=id)) %>%
+#   mutate(group_combined = if_else(is.na(group_combined),0,group_combined))%>%
+#   group_by(group_combined) %>%
+#   filter(col %in% row) %>%
+#   mutate(groups_joined = case_when( group_combined == 0 ~ "Uncorrelated",
+#                                     group_combined == 1 ~ "Group 1",
+#                                     group_combined == 2 ~ "Group 2",
+#                                     group_combined == 3 ~ "Group 3",
+#                                     group_combined == 4 ~ "Group 4",
+#                                     group_combined == 5 ~ "Group 5",
+#                                     group_combined == 6 ~ "Group 6",
+#                                     group_combined == 7 ~ "Group 7",
+#                                     group_combined == 8 ~ "Group 8",
+#                                     group_combined == 9 ~ "Group 9",
+#                                     group_combined == 10 ~ "Group 10",
+#                                     .default = "other"
+#                                     )) %>%
+#   ggplot(aes(y = corr, x = similarity, color = factor(group))) +
+#   geom_point(alpha = 0.3, size = 1) +
+#   theme_minimal() +  # cleaner theme
+#   labs( y = "Correlations",
+#        x = "Similarity") +
+#   theme(legend.position = "none")+
+#   facet_wrap(~groups_joined)
+# 
+# print(p3)
+# 
+# 
+# p4=similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
+#   rename(corr = similarity) %>%
+#   left_join(similarity_to_ltr_fun(similarity_matrix_corrected)) %>%
+#   filter(row!=col) %>%
+#   left_join(nodes%>%rename(row=id)) %>%
+#   mutate(group_combined = if_else(is.na(group_combined),0,group_combined))%>%
+#   group_by(group_combined) %>%
+#   filter(col %in% row) %>%
+#   mutate(groups_joined = case_when( group_combined == 0 ~ "Uncorrelated",
+#                                     group_combined == 1 ~ "Group 1",
+#                                     group_combined == 2 ~ "Group 2",
+#                                     group_combined == 3 ~ "Group 3",
+#                                     group_combined == 4 ~ "Group 4",
+#                                     group_combined == 5 ~ "Group 5",
+#                                     group_combined == 6 ~ "Group 6",
+#                                     group_combined == 7 ~ "Group 7",
+#                                     group_combined == 8 ~ "Group 8",
+#                                     group_combined == 9 ~ "Group 9",
+#                                     group_combined == 10 ~ "Group 10",
+#                                     .default = "other"
+#                                     )) %>%
+#   ggplot(aes(y = corr, x = similarity, color = factor(group))) +
+#   geom_point(alpha = 0.3, size = 1) +
+#   theme_minimal() +  # cleaner theme
+#   labs(y = "Correlations (decorelated)",
+#        x = "Similarity") +
+#   theme(legend.position = "none")+
+#   facet_wrap(~groups_joined)
+# 
+# print(p4)
 
-figure_3 = p1+p2+
+a =similarity_to_ltr_fun(cor_matrix)%>%
+  rename(corr1 = similarity) %>% left_join(similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
+  rename(corr2 = similarity)) %>%
+  mutate(dcorr = corr2^2-corr1^2) %>%
+  left_join(similarity_ltri_rcdk_df) %>%
+  filter(row!=col) %>%
+  filter(col %in% row) 
+
+# Compute quantiles per bin of similarity
+quantile_df <- a %>%
+  mutate(sim_bin = cut(similarity, breaks = 25)) %>%
+  group_by(sim_bin) %>%
+  summarise(
+    similarity = median(similarity),
+    p05 = quantile(dcorr, 0.05, na.rm = TRUE),
+    p50 = mean(dcorr, na.rm = TRUE),
+    p95 = quantile(dcorr, 0.95, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plot with percentile overlays
+p3 <- ggplot(a, aes(y = dcorr, x = similarity)) +
+  geom_hex() +
+  geom_line(data = quantile_df, aes(x = similarity, y = p05), color = "red", linetype = "dashed") +
+  geom_line(data = quantile_df, aes(x = similarity, y = p50), color = "black", size = 1) +
+  geom_line(data = quantile_df, aes(x = similarity, y = p95), color = "red", linetype = "dashed") +
+  scale_fill_viridis_c(option = "G", direction = -1) +
+  theme_minimal() +
+  labs(y = expression("Difference in variance explained"),
+       x = "Tanimoto Similarity") +
+  scale_y_continuous(breaks = seq(-0.8, 0.4, by = 0.2))+
+  theme(legend.position = "none")
+
+print((p1+p2) / p3)
+
+figure_3 = (p1+p2) / p3 +
   plot_annotation(tag_levels = 'A');
-
-p1=similarity_to_ltr_fun(cor_matrix)%>%
-  rename(corr = similarity) %>%
-  left_join(similarity_to_ltr_fun(similarity_matrix_corrected)) %>%
-  filter(row!=col) %>%
-  left_join(nodes%>%rename(row=id)) %>%
-  mutate(group_combined = if_else(is.na(group_combined),0,group_combined))%>%
-  group_by(group_combined) %>%
-  filter(col %in% row) %>%
-  mutate(groups_joined = case_when( group_combined == 0 ~ "Uncorrelated",
-                                    group_combined == 1 ~ "Group 1",
-                                    group_combined == 2 ~ "Group 2",
-                                    group_combined == 3 ~ "Group 3",
-                                    group_combined == 4 ~ "Group 4",
-                                    group_combined == 5 ~ "Group 5",
-                                    group_combined == 6 ~ "Group 6",
-                                    group_combined == 7 ~ "Group 7",
-                                    group_combined == 8 ~ "Group 8",
-                                    group_combined == 9 ~ "Group 9",
-                                    group_combined == 10 ~ "Group 10",
-                                    .default = "other"
-                                    )) %>%
-  ggplot(aes(y = corr, x = similarity, color = factor(group))) +
-  geom_point(alpha = 0.3, size = 1) +
-  theme_minimal() +  # cleaner theme
-  labs( y = "Correlations",
-       x = "Similarity") +
-  theme(legend.position = "none")+
-  facet_wrap(~groups_joined)
-
-print(p1)
-
-
-p2=similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
-  rename(corr = similarity) %>%
-  left_join(similarity_to_ltr_fun(similarity_matrix_corrected)) %>%
-  filter(row!=col) %>%
-  left_join(nodes%>%rename(row=id)) %>%
-  mutate(group_combined = if_else(is.na(group_combined),0,group_combined))%>%
-  group_by(group_combined) %>%
-  filter(col %in% row) %>%
-  mutate(groups_joined = case_when( group_combined == 0 ~ "Uncorrelated",
-                                    group_combined == 1 ~ "Group 1",
-                                    group_combined == 2 ~ "Group 2",
-                                    group_combined == 3 ~ "Group 3",
-                                    group_combined == 4 ~ "Group 4",
-                                    group_combined == 5 ~ "Group 5",
-                                    group_combined == 6 ~ "Group 6",
-                                    group_combined == 7 ~ "Group 7",
-                                    group_combined == 8 ~ "Group 8",
-                                    group_combined == 9 ~ "Group 9",
-                                    group_combined == 10 ~ "Group 10",
-                                    .default = "other"
-                                    )) %>%
-  ggplot(aes(y = corr, x = similarity, color = factor(group))) +
-  geom_point(alpha = 0.3, size = 1) +
-  theme_minimal() +  # cleaner theme
-  labs(y = "Correlations (decorelated)",
-       x = "Similarity") +
-  theme(legend.position = "none")+
-  facet_wrap(~groups_joined)
-
-print(p2)
-
 ```
 
 
@@ -1289,8 +1323,8 @@ ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg
 
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.png"),
        plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
-#ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
-#       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
+       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
        plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
