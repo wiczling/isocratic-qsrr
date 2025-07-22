@@ -340,8 +340,14 @@ modelqg_name_ext <- paste0(modelqg_name,".stan")
 modgq_model_dir   <- here::here("model", "stan", modelqg_name)
 modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
 
+modelll_name <- paste0(model_name,"ll")
+modelll_name_ext <- paste0(modelll_name,".stan")
+modll_model_dir   <- here::here("model", "stan", modelll_name)
+modll_output_dir   <- here::here("model", "stan", modelll_name, "output")
+
 if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
 if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+if (!file.exists(modll_output_dir)) dir.create(modll_output_dir)
 ```
 
 #### Optimization
@@ -538,6 +544,33 @@ draws_gen_df <- as_draws_df(x$generated_quantities)
 #draws_gen_df <- as_draws_df(fitgq$draws())
 ```
 
+#### Loo
+```{r ll-generete-quntities, eval=FALSE}
+mod50ll <- cmdstan_model(here(modll_model_dir,modelll_name_ext))
+fitll  <- mod50ll$generate_quantities(fit,
+                                          data = datastruct,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modll_output_dir,
+                                          output_basename = modelll_name)
+
+# x <- cmdstanr::read_cmdstan_csv(c(
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-1.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-2.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-3.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-4.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-5.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-6.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-7.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-8.csv")
+#                                 ))
+# 
+# draws_gen_ll_df <- as_draws_df(x$generated_quantities)
+
+res50<-loo::loo(fitll$draws("log_lik"))
+res50
+```
+
 # Summary of model parameters (table):
 
 The [stansummary](https://mc-stan.org/docs/cmdstan-guide/stansummary.html) function was used to report summary and diagnostic statistics over model parameters. 
@@ -618,18 +651,18 @@ param1<-draws_df_subset %>%
   ggdist::median_qi(pilogkw) %>%
   mutate(param = "pilogkw") %>%
   rename(dv=pilogkw)%>%
-  mutate(functional_groups_name = functional_groups_names) %>%
-  filter(functional_groups_name %in% functional_groups_names[idx1])
+  mutate(functional_groups_name = functional_groups_names) 
 
 param2<-draws_df_subset %>%
   tidybayes::spread_draws(piS1[No])%>%
   ggdist::median_qi(piS1) %>%
   mutate(param = "piS1")%>%
   rename(dv=piS1)%>%
-  mutate(functional_groups_name = functional_groups_names)%>%
+  mutate(functional_groups_name = functional_groups_names)
+
+param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx1])
 
-param<-rbind(param1,param2) 
 p_common <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
@@ -647,18 +680,18 @@ param1<-draws_df_subset %>%
   ggdist::median_qi(pilogkw) %>%
   mutate(param = "pilogkw") %>%
   rename(dv=pilogkw)%>%
-  mutate(functional_groups_name = functional_groups_names) %>%
-  filter(functional_groups_name %in% functional_groups_names[idx2])
+  mutate(functional_groups_name = functional_groups_names) 
 
 param2<-draws_df_subset %>%
   tidybayes::spread_draws(piS1[No])%>%
   ggdist::median_qi(piS1) %>%
   mutate(param = "piS1")%>%
   rename(dv=piS1)%>%
-  mutate(functional_groups_name = functional_groups_names)%>%
+  mutate(functional_groups_name = functional_groups_names)
+
+param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx2])
 
-param<-rbind(param1,param2) 
 p_uncommon <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
@@ -1141,6 +1174,7 @@ ggcorrplot(cor_matrix_decorrelated[901:1026,901:1026])+
 ```
 
 :::
+
 # Effect of similairty
 
 Predict retention times for a set of analytes based on their similarity to other analytes and studied descriptors.
@@ -1304,6 +1338,132 @@ figure_4 <- (p2 + ggtitle("all individual data")) +
 (p1 + ggtitle("no individual data")) +
   plot_annotation(tag_levels = 'A')
 ```
+# Effect of similairty - crossvalidation
+
+```{r datastruct-cv2}
+create_groupwise_cv_folds <- function(df, K = 10, seed = 42) {
+  set.seed(seed)
+  df$fold <- NA
+  
+  group_list <- split(df, df$group)
+  
+  for (group_name in names(group_list)) {
+    group_data <- group_list[[group_name]]
+    n_ids <- nrow(group_data)
+    shuffled <- group_data[sample(n_ids), ]
+    if (n_ids >= K) {
+      folds <- rep(1:K, length.out = n_ids)
+    } else {
+      folds <- sample(1:K, n_ids)
+    }
+    shuffled$fold <- folds
+    df$fold[df$id %in% shuffled$id] <- shuffled$fold
+  }
+  return(df)
+}
+
+K = 48
+
+nodes <- create_groupwise_cv_folds(nodes, K, seed = 42)
+tab   <- table(nodes$group, nodes$fold)
+
+datastructcv = list()
+initcv=init;
+
+for (i in 1:K){
+  
+datastructcv[[i]] = datastruct;
+
+idx_analytes_out = sort(nodes$id[nodes$fold==i])
+idx_analytes_in = setdiff(unique(datastructcv[[i]]$analyte),idx_analytes_out)
+
+idxcv =  which(datastructcv[[i]]$analyte %in% idx_analytes_in)
+nObscv = length(idxcv);
+datastructcv[[i]]$idxcv = idxcv;
+datastructcv[[i]]$nObscv = nObscv;
+}
+```
+
+```{r stan-compile-cv2, eval = FALSE}
+mod50cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+```{r dump-files-cv2, eval = FALSE}
+for (i in 1:K){
+write_stan_json(datastructcv[[i]], paste0(mod_model_dir,"/cv-data-", i, ".json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/cv-init-", i, ".json"), always_decimal = FALSE)
+}
+```
+
+```{r stan-load-cv2, eval = FALSE}
+mod50cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+
+cv_tab = list()
+for (i in 1:K){
+fitcv <- cmdstanr::as_cmdstan_fit(paste0(mod_output_dir,"/",  model_name, "-cv-",  i, ".csv"))
+
+fitcvgq  <- mod50cvgq$generate_quantities(fitcv,
+                                          data = datastructcv[[i]],
+                                          seed = 123,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = paste0(modelqg_name, "-cv-", i))
+
+draws_gen_cv_df <- as_draws_df(fitcvgq$draws(c("sparam_ind", "sparam_pop", "sS2Hat")))
+
+cv_tab[[i]] <- draws_gen_cv_df %>%
+  tidybayes::spread_draws(sparam_ind[z,..], sparam_pop[z,..], sS2Hat) %>%
+  filter(z %in% nodes$id[nodes$fold==i]) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*0.5/(1+sS2Hat*0.5)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*0.5/(1+sS2Hat*0.5)) %>%
+  group_by(z)%>%
+  summarise(vlogkind = variance(logkind),
+            vlogkpop = variance(logkpop))
+}
+
+df <- do.call(rbind, lapply(cv_tab, as.data.frame)) %>%
+  mutate(dvar = vlogkind-vlogkpop) 
+
+write.csv(df, file = here(data_deliv_dir,"cross_validation_results.csv"), row.names = FALSE)
+```
+
+```{r plot-cv2-results}
+
+df = read.csv(file = here(data_deliv_dir,"cross_validation_results.csv"), header = TRUE)
+
+sim<-similarity_matrix_corrected 
+diag(sim)<-0
+for (i in 1:nrow(df)){
+sim[i,nodes$id[nodes$fold==nodes$fold[i]]]<-0
+}
+
+maxsim<-apply(sim, 1, max)
+
+df$maxsim = maxsim[df$z]
+
+p1 <- df%>%
+  ggplot(aes(x=dvar)) +
+  geom_histogram(fill = "steelblue") +
+   labs(x=" ") +
+  theme(legend.position = "none") +
+  xlim(-0.6,0.2)
+p2 <- df%>%
+  ggplot(aes(y = " ", x=dvar)) +
+  geom_boxplot(fill = "steelblue") +
+  labs(y = "", x="Variance explained") +
+  theme(legend.position = "none") +
+  xlim(-0.6,0.2)
+
+p1/p2+plot_layout(heights = c(3, 1))
+
+
+figure_5 <- df %>%
+  ggplot(aes(x=maxsim, y = dvar))+
+  geom_point(color = "steelblue")+
+  geom_smooth(se = FALSE)+
+  labs(y = "Variance explained (CV-based)", x="Maximum similarity within the hold-in set") 
+figure_5
+```
+
 
 # Conclusions
 
@@ -1330,6 +1490,11 @@ ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
        plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.pdf"),
        plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","main", "var_explained.png"),
+       plot=figure_5, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","main", "var_explained.pdf"),
+       plot=figure_5, width = 20, height = 20, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.png"),
        plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)

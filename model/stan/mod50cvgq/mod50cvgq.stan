@@ -176,23 +176,15 @@ model {
 
 generated quantities {
   
-  matrix[nAnalytes,2] seta_ind;
-  
-  matrix[nAnalytes,2] seta_decorr_ind;
   matrix[nAnalytes,2] sparam_pop;
   matrix[nAnalytes,2] sparam_ind;
-  vector[nObs] slogkHat_ind;
-  vector[nObs] slogkHat_pop;
-  vector[nObs] slogk_ind;
-  vector[nObs] slogk_pop;
   real<lower=0> sS2Hat;
   matrix[nAnalytes_uncorr,2] param_uncorr_pop;
   matrix[nAnalytes_corr,2] param_corr_pop;
   
   sS2Hat = S2Hat;
   sparam_ind = param;
-  seta_ind = sparam_ind - miu;
-  seta_decorr_ind=seta_ind;
+
   
  {
   for (g in 1:mGroup) {
@@ -211,8 +203,6 @@ generated quantities {
   
   param_corr_pop[idx_g[1:n_g], 1:2]= miu_corr[idx_g[1:n_g], 1:2] + L_K_g_gq * eta_pop * L_Omega';
 
-  matrix[n_g, 2] temp = mdivide_left_tri_low(L_K_g_gq, seta_ind[idx_corr[idx_g[1:n_g]],1:2]);
-  seta_decorr_ind[idx_corr[idx_g[1:n_g]],1:2] = mdivide_right_tri_low(temp, L_Omega');
 }
 }
 
@@ -222,14 +212,5 @@ generated quantities {
   
   sparam_pop[idx_corr,1:2]=param_corr_pop;
   sparam_pop[idx_uncorr,1:2]=param_uncorr_pop;
- 
-  for (i in 1 : nAnalytes) {
-    slogkHat_ind[start[i]:end[i]] = funlogki(sparam_ind[i,1],sparam_ind[i,2], S2Hat, fi[start[i]:end[i]]);
-    slogkHat_pop[start[i]:end[i]] = funlogki(sparam_pop[i,1],sparam_pop[i,2], S2Hat, fi[start[i]:end[i]]);
-  }
-  
-   for (z in 1 : nObs) {
-    slogk_ind[z] = student_t_rng(7, slogkHat_ind[z], sigma);
-    slogk_pop[z] = student_t_rng(7, slogkHat_pop[z], sigma);
-   }
+
 }

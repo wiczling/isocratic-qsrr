@@ -320,6 +320,13 @@ modgq_output_dir   <- here::here("model", "stan", modelqg_name, "output")
 
 if (!file.exists(modgq_model_dir)) dir.create(modgq_model_dir)
 if (!file.exists(modgq_output_dir)) dir.create(modgq_output_dir)
+
+modelll_name <- paste0(model_name,"ll")
+modelll_name_ext <- paste0(modelll_name,".stan")
+modll_model_dir   <- here::here("model", "stan", modelll_name)
+modll_output_dir   <- here::here("model", "stan", modelll_name, "output")
+
+if (!file.exists(modll_output_dir)) dir.create(modll_output_dir)
 ```
 
 ```{r stan-compile, eval = FALSE}
@@ -473,6 +480,35 @@ x <- cmdstanr::read_cmdstan_csv(c(
                                 ))
 draws_gen_df <- as_draws_df(x$generated_quantities)
 ```
+
+
+# Loo
+```{r ll-generete-quntities, eval=FALSE}
+mod5ll <- cmdstan_model(here(modll_model_dir,modelll_name_ext))
+fitll  <- mod5ll$generate_quantities(fit,
+                                          data = datastruct,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modll_output_dir,
+                                          output_basename = modelll_name)
+
+# x <- cmdstanr::read_cmdstan_csv(c(
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-1.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-2.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-3.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-4.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-5.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-6.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-7.csv"),
+#                                   paste0(modll_output_dir, "/",  modelll_name, "-8.csv")
+#                                 ))
+# 
+# draws_gen_ll_df <- as_draws_df(x$generated_quantities)
+#$gq_random_test$draws("log_lik", format = "matrix")
+res1<-loo::loo(fitll$draws("log_lik"))
+res1
+```
+
 
 ## Trace plots
 
