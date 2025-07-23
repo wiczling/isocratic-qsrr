@@ -1603,7 +1603,8 @@ df_toc = df_toc[c(1,5,10),]
 dataobs = data %>%
               filter(ID %in% df_toc$ID)%>%
   mutate(Analyte = str_replace_all(Analyte, "\n", " ")) %>%
-              left_join(df_toc)
+              left_join(df_toc)%>%
+  mutate(Analyte2 = paste0(Analyte, "/n", maxsim))
   
 tab1 <- draws_gen_cv_df %>%
   slice_sample(n=1000) %>%
@@ -1630,11 +1631,12 @@ tab2 <- draws_gen_limited_df %>%
    
 
  fig_toc <- rbind(tab1,tab2)%>%
+  mutate(Analyte2 = paste0(Analyte, "\n", maxsim))%>%
   ggplot() +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data=dataobs,aes(x=fi, y=logk)) +
-  facet_grid(type~Analyte+maxsim)+
+  facet_grid(type~Analyte2)+
   theme_minimal(base_family = "Helvetica") +
   theme(text = element_text(size = 5), 
         strip.text = element_text(size = 5)) +
