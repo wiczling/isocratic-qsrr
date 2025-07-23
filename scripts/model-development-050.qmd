@@ -1310,7 +1310,7 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
-  facet_wrap(~Analyte, ncol=2)+
+  facet_wrap(~Analyte, nrow=2)+
   theme(strip.text = element_text(size = 6)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
@@ -1338,7 +1338,8 @@ figure_4 <- (p2 + ggtitle("all individual data")) +
 (p1 + ggtitle("no individual data")) +
   plot_annotation(tag_levels = 'A')
 ```
-# Effect of similairty - crossvalidation
+
+# Effect of similarity - crossvalidation
 
 ```{r datastruct-cv2}
 create_groupwise_cv_folds <- function(df, K = 10, seed = 42) {
@@ -1462,8 +1463,179 @@ figure_5 <- df %>%
   geom_smooth(se = FALSE)+
   labs(y = "Variance explained (CV-based)", x="Maximum similarity within the hold-in set") 
 figure_5
+
 ```
 
+# Limited data predictions
+
+Predict retention times for a set of analytes based on their similarity to other analytes and studied descriptors.
+
+```{r datastruct-cv3}
+datax <-  jsonlite::fromJSON(here("model/stan/mod50cv/standata.json"))
+which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_out = which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_in = which(unique(datax$analyte) %in% unique(datax$analyte[datax$idxcv]))
+datastructcv = datastruct;
+initcv=init;
+
+idxcv1 =  which(datastructcv$analyte %in% idx_analytes_in)
+idxcv2 = datastructcv$end[idx_analytes_out]
+
+idxcv = sort(c(idxcv1,idxcv2))
+nObscv = length(idxcv);
+datastructcv$idxcv = idxcv;
+datastructcv$nObscv = nObscv;
+```
+
+## Fitting the model
+
+```{r stan-compile-cv3, eval = FALSE}
+mod50cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+```{r dump-files-cv3, eval = FALSE}
+write_stan_json(datastructcv, paste0(mod_model_dir,"/standata-limited.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-1.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-2.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-3.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-4.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-5.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-6.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-7.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-limited-8.json"), always_decimal = FALSE)
+```
+
+```{r stan-load-cv3}
+fitcvlimited <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-limited-8.csv")
+                                ))
+```
+
+## Genereted quantitites
+
+```{r generete-quntities-cv3, eval=FALSE}
+mod50cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+fitcvgq  <- mod50cvgq$generate_quantities(fitcvlimited,
+                                          data = datastructcv,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = modelqg_name)
+```
+
+```{r eta-load-cv}
+x <- cmdstanr::read_cmdstan_csv(c(
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
+                                ))
+draws_gen_cv_df <- as_draws_df(x$generated_quantities)
+```
+
+## Predictions
+```{r ind-pop-predictions-cv3}
+# 
+fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
+  p1 <- draws %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot() +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
+  facet_wrap(~Analyte, nrow=2)+
+  theme(strip.text = element_text(size = 6)) +
+  labs(x="\u03C6", y="logk (individual and population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+  print(p1)
+  return(p1)
+}
+
+p1<-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[41:50])
+
+p2<-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_df,idx_analytes_out[41:50])
+
+```
+
+# TOC
+```{r toc}
+datax <-  jsonlite::fromJSON(here("model/stan/mod50cv/standata.json"))
+which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_out = which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_in = which(unique(datax$analyte) %in% unique(datax$analyte[datax$idxcv]))
+
+sim<-similarity_matrix_corrected
+diag(sim)<-0
+maxsim<-apply(sim, 1, max)
+
+idx = idx_analytes_out[1:10]
+df_toc = data.frame(ID = idx, maxsim = round(maxsim[idx],3)) %>%
+  arrange(maxsim) %>%
+  mutate(maxsim = paste0("Similarity = ", maxsim))%>%
+  left_join(analytes_names) %>%
+  mutate(Analyte = str_replace_all(Analyte, "\n", " "))
+
+df_toc = df_toc[c(1,5,10),]
+
+dataobs = data %>%
+              filter(ID %in% df_toc$ID)%>%
+  mutate(Analyte = str_replace_all(Analyte, "\n", " ")) %>%
+              left_join(df_toc)
+  
+fig_toc <- draws_gen_cv_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  filter(ID %in% df_toc$ID) %>%
+  left_join(df_toc) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))  %>%
+  ggplot() +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
+  geom_point(data=dataobs,aes(x=fi, y=logk)) +
+  facet_wrap(~Analyte+maxsim, nrow=1)+
+  theme_minimal(base_family = "Helvetica") +
+  theme(text = element_text(size = 5), 
+        strip.text = element_text(size = 5)) +
+  labs(x="\u03C6", y="logk") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+   
+fig_toc
+
+ggsave(here::here("deliv","figures","manuscript","main", "toc.tiff"), plot = fig_toc,
+       width = 3.25, height = 1.75, units = "in",
+       dpi = 300, compression = "lzw")
+```
 
 # Conclusions
 
