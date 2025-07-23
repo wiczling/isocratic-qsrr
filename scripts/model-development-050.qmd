@@ -1310,7 +1310,7 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
-  facet_wrap(~Analyte, nrow=2)+
+  facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 6)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
@@ -1334,9 +1334,8 @@ fun_plot_ind_pop(draws_gen_df,idx_analytes_out[41:50])
 fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[1:10])
 fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[11:20])
 
-figure_4 <- (p2 + ggtitle("all individual data")) + 
-(p1 + ggtitle("no individual data")) +
-  plot_annotation(tag_levels = 'A')
+figure_4A <- p1 + ggtitle("no individual data")
+
 ```
 
 # Effect of similarity - crossvalidation
@@ -1468,7 +1467,7 @@ figure_5
 
 # Limited data predictions
 
-Predict retention times for a set of analytes based on their similarity to other analytes and studied descriptors.
+Based on similarity and sigle experiment.
 
 ```{r datastruct-cv3}
 datax <-  jsonlite::fromJSON(here("model/stan/mod50cv/standata.json"))
@@ -1527,21 +1526,21 @@ fitcvgq  <- mod50cvgq$generate_quantities(fitcvlimited,
                                           seed = 123,
                                           parallel_chains = 8,
                                           output_dir = modgq_output_dir,
-                                          output_basename = modelqg_name)
+                                          output_basename = paste0(modelqg_name, "-limited"))
 ```
 
-```{r eta-load-cv}
+```{r eta-load-cv3}
 x <- cmdstanr::read_cmdstan_csv(c(
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-1.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-2.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-3.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-4.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-5.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-6.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-7.csv"),
-                                  paste0(modgq_output_dir, "/",  modelqg_name, "-8.csv")
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-limited-8.csv")
                                 ))
-draws_gen_cv_df <- as_draws_df(x$generated_quantities)
+draws_gen_limited_df <- as_draws_df(x$generated_quantities)
 ```
 
 ## Predictions
@@ -1561,7 +1560,7 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
-  facet_wrap(~Analyte, nrow=2)+
+  facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 6)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
@@ -1570,18 +1569,15 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   return(p1)
 }
 
-p1<-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[1:10])
-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[11:20])
-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[21:30])
-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[31:40])
-fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_out[41:50])
+p1<-fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[41:50])
 
-p2<-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[1:10])
-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[11:20])
-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[21:30])
-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[31:40])
-fun_plot_ind_pop(draws_gen_df,idx_analytes_out[41:50])
 
+figure_4B <- (p1 + ggtitle("single observation"))
+figure_4 <- figure_4A + figure_4B + plot_annotation(tag_levels = 'A')
 ```
 
 # TOC
@@ -1609,7 +1605,19 @@ dataobs = data %>%
   mutate(Analyte = str_replace_all(Analyte, "\n", " ")) %>%
               left_join(df_toc)
   
-fig_toc <- draws_gen_cv_df %>%
+tab1 <- draws_gen_cv_df %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  filter(ID %in% df_toc$ID) %>%
+  left_join(df_toc) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(type = "no indiv. data")
+
+
+tab2 <- draws_gen_limited_df %>%
   slice_sample(n=1000) %>%
   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
   rename(ID=i) %>%
@@ -1618,20 +1626,24 @@ fig_toc <- draws_gen_cv_df %>%
   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
   mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
   mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))  %>%
+  mutate(type = "single observation")
+   
+
+ fig_toc <- rbind(tab1,tab2)%>%
   ggplot() +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data=dataobs,aes(x=fi, y=logk)) +
-  facet_wrap(~Analyte+maxsim, nrow=1)+
+  facet_grid(type~Analyte+maxsim)+
   theme_minimal(base_family = "Helvetica") +
   theme(text = element_text(size = 5), 
         strip.text = element_text(size = 5)) +
   labs(x="\u03C6", y="logk") +
   theme(legend.position = "none") +
   coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
-   
-fig_toc
 
+
+fig_toc
 ggsave(here::here("deliv","figures","manuscript","main", "toc.tiff"), plot = fig_toc,
        width = 3.25, height = 1.75, units = "in",
        dpi = 300, compression = "lzw")
