@@ -923,8 +923,6 @@ walk(plot_groups, function(group) {
 
 # Posterior correlations
 ```{r posterior-correlations}
-similarity_ltri_rcdk_subset<- similarity_to_ltr_fun(similarity_matrix_corrected) %>% filter(row!=col)
-
 etas <- draws_gen_df %>%
   select(starts_with("seta_ind"))
 etas_subset <- etas[, grepl("\\[\\d+,1\\]", names(etas))]
@@ -950,7 +948,7 @@ p1 =similarity_to_ltr_fun(cor_matrix)%>%
   scale_fill_viridis_c(option = "G", direction  = -1)+
   theme_minimal() + 
   labs(y = expression(eta*" correlations"),
-       x = "Tanimoto Similarity") +
+       x = element_blank()) +
   theme(legend.position = "none")+
   ylim(-1, 1)
 
@@ -1031,45 +1029,11 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
 # 
 # print(p4)
 
-a =similarity_to_ltr_fun(cor_matrix)%>%
-  rename(corr1 = similarity) %>% left_join(similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
-  rename(corr2 = similarity)) %>%
-  mutate(dcorr = corr2^2-corr1^2) %>%
-  left_join(similarity_ltri_rcdk_df) %>%
-  filter(row!=col) %>%
-  filter(col %in% row) 
-
-# Compute quantiles per bin of similarity
-quantile_df <- a %>%
-  mutate(sim_bin = cut(similarity, breaks = 25)) %>%
-  group_by(sim_bin) %>%
-  summarise(
-    similarity = median(similarity),
-    p05 = quantile(dcorr, 0.05, na.rm = TRUE),
-    p50 = mean(dcorr, na.rm = TRUE),
-    p95 = quantile(dcorr, 0.95, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-# Plot with percentile overlays
-p3 <- ggplot(a, aes(y = dcorr, x = similarity)) +
-  geom_hex() +
-  geom_line(data = quantile_df, aes(x = similarity, y = p05), color = "red", linetype = "dashed") +
-  geom_line(data = quantile_df, aes(x = similarity, y = p50), color = "black", size = 1) +
-  geom_line(data = quantile_df, aes(x = similarity, y = p95), color = "red", linetype = "dashed") +
-  scale_fill_viridis_c(option = "G", direction = -1) +
-  theme_minimal() +
-  labs(y = expression("Difference in variance explained"),
-       x = "Tanimoto Similarity") +
-  scale_y_continuous(breaks = seq(-0.8, 0.4, by = 0.2))+
-  theme(legend.position = "none")
-
-print((p1+p2) / p3)
-
-figure_3 = (p1+p2) / p3 +
+figure_3 = (p1/p2) +
   plot_annotation(tag_levels = 'A');
-```
 
+figure_3
+```
 
 ::: {.panel-tabset}
 
@@ -1174,6 +1138,37 @@ ggcorrplot(cor_matrix_decorrelated[901:1026,901:1026])+
 ```
 
 :::
+
+## Conditional covariance
+
+```{r}
+# Function to calculate conditional covariance matrix of X_{2,:} | X_{1,:}
+# U: 2x2 row covariance matrix
+# V: 2x2 column covariance matrix
+conditional_covariance <- function(U, V) {
+  u11 <- U[1, 1]
+  u12 <- U[1, 2]
+  u22 <- U[2, 2]
+  scalar <- u22 - (u12^2 / u11)
+  cond_cov <- scalar * V
+  return(cond_cov)
+}
+
+similarity = 1
+U <- matrix(c(1, 2*0.71*(similarity-0.5), 2*0.71*(similarity-0.5), 1), nrow = 2, ncol = 2)
+V <- matrix(c(1.41^2, 0.88*1.41*1.13, 0.88*1.41*1.13, 1.13^2), nrow = 2, ncol = 2)
+
+# Calculate conditional covariance
+result <- conditional_covariance(U, V)
+rho = cov2cor(result)[2,1]
+sd  = sqrt(diag(result))[2]
+
+var_base = 1.13^2*(1-0.88^2)
+var_full = sd^2*(1-rho^2)
+
+(var_base-var_full)/var_base
+
+```
 
 # Effect of similairty
 
@@ -1430,6 +1425,9 @@ write.csv(df, file = here(data_deliv_dir,"cross_validation_results.csv"), row.na
 
 df = read.csv(file = here(data_deliv_dir,"cross_validation_results.csv"), header = TRUE)
 
+df = df %>%
+  mutate(rel_var_explained = (vlogkpop-vlogkind)/vlogkpop)
+
 sim<-similarity_matrix_corrected 
 diag(sim)<-0
 for (i in 1:nrow(df)){
@@ -1441,26 +1439,26 @@ maxsim<-apply(sim, 1, max)
 df$maxsim = maxsim[df$z]
 
 p1 <- df%>%
-  ggplot(aes(x=dvar)) +
+  ggplot(aes(x=rel_var_explained)) +
   geom_histogram(fill = "steelblue") +
    labs(x=" ") +
   theme(legend.position = "none") +
-  xlim(-0.6,0.2)
+  xlim(-0.1,1)
 p2 <- df%>%
-  ggplot(aes(y = " ", x=dvar)) +
+  ggplot(aes(y = " ", x=rel_var_explained)) +
   geom_boxplot(fill = "steelblue") +
   labs(y = "", x="Variance explained") +
   theme(legend.position = "none") +
-  xlim(-0.6,0.2)
+  xlim(-0.1,1)
 
 p1/p2+plot_layout(heights = c(3, 1))
 
 
 figure_5 <- df %>%
-  ggplot(aes(x=maxsim, y = dvar))+
+  ggplot(aes(x=maxsim, y = rel_var_explained))+
   geom_point(color = "steelblue")+
   geom_smooth(se = FALSE)+
-  labs(y = "Variance explained (CV-based)", x="Maximum similarity within the hold-in set") 
+  labs(y = "Relative reduction in uncertainity", x="Maximum similarity within the hold-in set") 
 figure_5
 
 ```
