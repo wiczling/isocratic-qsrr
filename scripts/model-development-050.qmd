@@ -100,7 +100,7 @@ analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8",
 analytes_names$Analyte <- str_wrap(analytes_names$Analyte, width = 20)
 
 
-analytes_names$Analyte[analytes_names$Analyte == "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"] = "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"
+analytes_names$Analyte[analytes_names$Analyte == "2-(2,4,5-trichlorophenoxyl)-N-propionyl-L-alanine"] = "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"
 
 
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
@@ -1622,7 +1622,7 @@ figure_4B <- (p1 +theme(
 
 figure_4 <- figure_4A + figure_4B +
   plot_annotation(tag_levels = 'A', theme = theme(plot.margin = margin()))+ plot_layout(axes = "collect")& 
-  theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1))  # optional: trims plot margin
+  theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1))  
 
 
 ```
