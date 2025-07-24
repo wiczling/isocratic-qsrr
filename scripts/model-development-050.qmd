@@ -1166,7 +1166,7 @@ ggcorrplot(cor_matrix_decorrelated[901:1026,901:1026])+
 
 ## Conditional covariance
 
-```{r}
+```{r conditional-covariance}
 # Function to calculate conditional covariance matrix of X_{2,:} | X_{1,:}
 # U: 2x2 row covariance matrix
 # V: 2x2 column covariance matrix
@@ -1192,7 +1192,6 @@ var_base = 1.13^2*(1-0.88^2)
 var_full = sd^2*(1-rho^2)
 
 (var_base-var_full)/var_base
-
 ```
 
 # Effect of similairty
@@ -1330,6 +1329,7 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
+  geom_point(data = filter(data[datastructcv$end,],ID %in% .analytes_idx),aes(x=fi, y=logk), color="red", size = 0.5) +
   facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 3)) +
   labs(x="\u03C6", y="logk (individual and population)") +
@@ -1503,7 +1503,7 @@ figure_5 <- figure_5+theme(
 
 # Limited data predictions
 
-Based on similarity and sigle experiment.
+Based on similarity and single experiment.
 
 ```{r datastruct-cv3}
 datax <-  jsonlite::fromJSON(here("model/stan/mod50cv/standata.json"))
@@ -1596,6 +1596,7 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
+  geom_point(data = filter(data[datastructcv$end,],ID %in% .analytes_idx),aes(x=fi, y=logk), color="red", size = 0.5) +  
   facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 3)) +
   labs(x="\u03C6", y="logk (individual and population)") +
@@ -1624,6 +1625,157 @@ figure_4 <- figure_4A + figure_4B +
   plot_annotation(tag_levels = 'A', theme = theme(plot.margin = margin()))+ plot_layout(axes = "collect")& 
   theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1))  
 
+
+```
+# Limited data predictions: Without similarity.
+
+Based on similarity and single experiment.
+
+```{r datastruct-cv4}
+datax <-  jsonlite::fromJSON(here("model/stan/mod50cv/standata.json"))
+which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_out = which(unique(datax$analyte) %notin% unique(datax$analyte[datax$idxcv]))
+idx_analytes_in = which(unique(datax$analyte) %in% unique(datax$analyte[datax$idxcv]))
+datastructcv = datastruct;
+initcv=init;
+
+idxcv1 =  which(datastructcv$analyte %in% idx_analytes_in)
+idxcv2 = datastructcv$end[idx_analytes_out]
+
+idxcv = sort(c(idxcv1,idxcv2))
+nObscv = length(idxcv);
+datastructcv$idxcv = idxcv;
+datastructcv$nObscv = nObscv;
+datastructcv$similarity_x= 0.5+0*datastructcv$similarity_x + diag(0.5,datastructcv$nAnalytes,datastructcv$nAnalytes,)
+```
+
+## Fitting the model
+
+```{r stan-compile-cv4, eval = FALSE}
+mod50cv <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+```{r dump-files-cv4, eval = FALSE}
+write_stan_json(datastructcv, paste0(mod_model_dir,"/standata-nosim-limited.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-1.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-2.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-3.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-4.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-5.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-6.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-7.json"), always_decimal = FALSE)
+write_stan_json(initcv(), paste0(mod_model_dir,"/init-nosim-limited-8.json"), always_decimal = FALSE)
+```
+
+```{r stan-load-cv4}
+fitcvlimited <- cmdstanr::as_cmdstan_fit(c(
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-1.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-2.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-3.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-4.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-5.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-6.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-7.csv"),
+                                  paste0(mod_output_dir,"/",  model_name, "-nosim-limited-8.csv")
+                                ))
+```
+
+## Genereted quantitites
+
+```{r generete-quntities-cv4, eval=FALSE}
+mod50cvgq <- cmdstan_model(here(modgq_model_dir,modelqg_name_ext))
+fitcvgq  <- mod50cvgq$generate_quantities(fitcvlimited,
+                                          data = datastructcv,
+                                          seed = 123,
+                                          parallel_chains = 8,
+                                          output_dir = modgq_output_dir,
+                                          output_basename = paste0(modelqg_name, "-nosim-limited"))
+```
+
+```{r eta-load-cv4}
+x <- cmdstanr::read_cmdstan_csv(c(
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-1.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-2.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-3.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-4.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-5.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-6.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-7.csv"),
+                                  paste0(modgq_output_dir, "/",  modelqg_name, "-nosim-limited-8.csv")
+                                ))
+draws_gen_nosim_limited_df <- as_draws_df(x$generated_quantities)
+```
+
+## Predictions
+```{r ind-pop-predictions-cv4}
+# 
+fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
+  p1 <- draws %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  ggplot() +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
+  geom_point(data = filter(data[datastructcv$end,],ID %in% .analytes_idx),aes(x=fi, y=logk), color="red", size = 0.5) +
+  facet_wrap(~Analyte, ncol=2)+
+  theme(strip.text = element_text(size = 3)) +
+  labs(x="\u03C6", y="logk (individual and population)") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+  print(p1)
+  return(p1)
+}
+
+p1<-fun_plot_ind_pop(draws_gen_nosim_limited_df,idx_analytes_out[1:10])
+fun_plot_ind_pop(draws_gen_nosim_limited_df,idx_analytes_out[11:20])
+fun_plot_ind_pop(draws_gen_nosim_limited_df,idx_analytes_out[21:30])
+fun_plot_ind_pop(draws_gen_nosim_limited_df,idx_analytes_out[31:40])
+fun_plot_ind_pop(draws_gen_nosim_limited_df,idx_analytes_out[41:50])
+```
+
+```{r compare}
+# 
+fun_plot_compare <- function(draws1, draws2, .analytes_idx=analytes_idx){
+  tab1 <- draws1 %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))
+  tab2 <- draws2 %>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  filter(ID %in% .analytes_idx) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))
+    
+  p1 <- ggplot() +
+  ggdist::stat_lineribbon(data = tab1, aes(x = fi, y = logkind), fill = "darkgray", color = "darkgray", .width = c(.90), alpha = 1/2) +
+  ggdist::stat_lineribbon(data = tab2, aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
+  geom_point(data = filter(data[datastructcv$end,],ID %in% .analytes_idx),aes(x=fi, y=logk), color="red", size = 0.5) +
+  facet_wrap(~Analyte, ncol=2)+
+  theme(strip.text = element_text(size = 5)) +
+  labs(x="\u03C6", y="logk") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
+  print(p1)
+  return(p1)
+}
+
+figure_S6<-fun_plot_compare(draws_gen_nosim_limited_df,draws_gen_limited_df,idx_analytes_out[1:10])
 
 ```
 
@@ -1748,6 +1900,11 @@ ggsave(here::here("deliv","figures","manuscript","supplement", "eta.png"),
        plot=figure_S5, width = 20, height = 20, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","supplement", "eta.pdf"),
        plot=figure_S5, width = 20, height = 20, units = "cm", dpi = 300)
+
+ggsave(here::here("deliv","figures","manuscript","supplement", "compare.png"),
+       plot=figure_S6, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "compare.pdf"),
+       plot=figure_S6, width = 20, height = 20, units = "cm", dpi = 300)
 ```
 
 # References {.unnumbered}

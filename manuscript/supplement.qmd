@@ -69,14 +69,23 @@ fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","
 ![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf)
 {{< pagebreak >}}
 
-# Figure S3. Individual parameters
+# Figure S3. GOF
+
+![](../deliv/figures/manuscript/supplement/gof.pdf)
+{{< pagebreak >}}
+# Figure S4. Individual parameters
 
 ![](../deliv/figures/manuscript/supplement/iparam.pdf)
 {{< pagebreak >}}
 
-# Figure S4. Individual parameters. Eta plots
+# Figure S5. Individual parameters. Eta plots
 
 ![](../deliv/figures/manuscript/supplement/eta.pdf)
+{{< pagebreak >}}
+
+# Figure S6. Compare limited data predictions.
+
+![](../deliv/figures/manuscript/supplement/compare.pdf)
 {{< pagebreak >}}
 
 # Licenses {.unnumbered}
