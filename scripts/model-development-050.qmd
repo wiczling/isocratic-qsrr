@@ -99,6 +99,10 @@ analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_name
 analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
 analytes_names$Analyte <- str_wrap(analytes_names$Analyte, width = 20)
 
+
+analytes_names$Analyte[analytes_names$Analyte == "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"] = "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"
+
+
 smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
 smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
 smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
@@ -1711,9 +1715,9 @@ ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg
        plot=figure_2, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.png"),
-       plot=figure_3, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
+       plot=figure_3, width = 8.46, height = 8.46*1, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
-       plot=figure_3, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
+       plot=figure_3, width = 8.46, height = 8.46*1, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
        plot=figure_4, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
