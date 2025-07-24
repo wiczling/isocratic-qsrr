@@ -591,7 +591,7 @@ bayesplot::mcmc_trace(fit$draws(c("omega","rho[1,2]","sigma","sdpi")))
 # Summary of model parameters (figures)
 
 ```{r mcmc-intervals}
-p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1]","beta[2]","S2Hat","alpha")))+ scale_y_discrete(labels = c( "logkwHat"= expression(theta[logkw]),
+p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1]","beta[2]","S2Hat","alpha")), point_size = 1)+ scale_y_discrete(labels = c( "logkwHat"= expression(theta[logkw]),
                               "S1Hat"= expression(theta[S1]),
                               "dlogkwHat"=expression(theta[dlogkw]),
                               "dS1Hat"=expression(theta[dS1]),
@@ -606,11 +606,9 @@ p1 <- mcmc_intervals(fit$draws(c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta[1
                                "beta[1]",
                                "beta[2]",
                                "S2Hat",
-                               "alpha"))))+ theme(
-  axis.text.x = element_text(size = 14),
-  axis.text.y = element_text(size = 14)
-)
-p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]", "rho[1,2]", "sigma","sdpi[1]","sdpi[2]","sdpi[3]","sdpi[4]"))) +
+                               "alpha"))))
+
+p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]", "rho[1,2]", "sigma","sdpi[1]","sdpi[2]","sdpi[3]","sdpi[4]")), point_size = 1) +
   scale_y_discrete(labels = c("omega[1]"=expression(omega[logkw]),
                               "omega[2]"=expression(omega[S1]),
                               "rho[1,2]"= expression(rho["1,2"]),
@@ -626,14 +624,17 @@ p2 <- mcmc_intervals(fit$draws(c("omega[1]","omega[2]", "rho[1,2]", "sigma","sdp
                                "sdpi[1]",
                                "sdpi[2]",
                                "sdpi[3]",
-                               "sdpi[4]"))))+ 
-  theme(
-  axis.text.x = element_text(size = 14),
-  axis.text.y = element_text(size = 14)
-)
+                               "sdpi[4]"))))
 
 print(p1+p2)
-figure_1 = p1+p2
+figure_1 = (p1 + 
+  theme(
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)))+
+  (p2+ 
+  theme(
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7)))
 ```
 
 # Summary of functional groups effects (figures)
@@ -666,7 +667,7 @@ param<-rbind(param1,param2) %>%
 p_common <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
-  tidybayes::geom_pointinterval() +
+  tidybayes::geom_pointinterval(size = 0.5, fatten = 1, linewidth = 0.4) +
   labs(x="Effect", y="Functional group")+
   facet_wrap(. ~ param,
            labeller = labeller(param = as_labeller(c(
@@ -695,7 +696,7 @@ param<-rbind(param1,param2) %>%
 p_uncommon <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
-  tidybayes::geom_pointinterval() +
+  tidybayes::geom_pointinterval(size = 0.5, fatten = 1, linewidth = 0.4) +
   labs(x="Effect", y="Functional group")+
   facet_wrap(. ~ param,
            labeller = labeller(param = as_labeller(c(
@@ -707,8 +708,18 @@ p_uncommon <- param %>%
 p_uncommon 
 p_common
 
-figure_2<-p_common
-figure_S2<-p_uncommon
+figure_2<-(p_common+ 
+ theme(
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8),
+  axis.text.x = element_text(size = 4),
+  axis.text.y = element_text(size = 4)))
+figure_S2<-(p_uncommon+ 
+theme(
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8),
+  axis.text.x = element_text(size = 4),
+  axis.text.y = element_text(size = 4)))
 
 ```
 
@@ -1029,10 +1040,20 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
 # 
 # print(p4)
 
-figure_3 = (p1/p2) +
-  plot_annotation(tag_levels = 'A');
+p1/p2
 
-figure_3
+
+figure_3 = (p1+theme(
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8),
+  axis.text.x = element_text(size = 6),
+  axis.text.y = element_text(size = 6)))/
+  (p2+theme(
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8),
+  axis.text.x = element_text(size = 6),
+  axis.text.y = element_text(size = 6))) +
+  plot_annotation(tag_levels = 'A');
 ```
 
 ::: {.panel-tabset}
@@ -1304,9 +1325,9 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggplot() +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
-  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
   facet_wrap(~Analyte, ncol=2)+
-  theme(strip.text = element_text(size = 6)) +
+  theme(strip.text = element_text(size = 3)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
   coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
@@ -1329,7 +1350,13 @@ fun_plot_ind_pop(draws_gen_df,idx_analytes_out[41:50])
 fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[1:10])
 fun_plot_ind_pop(draws_gen_cv_df,idx_analytes_in[11:20])
 
-figure_4A <- p1 + ggtitle("no individual data")
+figure_4A <- p1 +theme(
+  axis.title.x = element_text(size = 6),
+  axis.title.y = element_text(size = 6),
+  axis.text.x = element_text(size = 4),
+  axis.text.y = element_text(size = 4),
+  title = element_text(size = 7)) +
+  ggtitle("no individual data")
 
 ```
 
@@ -1456,10 +1483,17 @@ p1/p2+plot_layout(heights = c(3, 1))
 
 figure_5 <- df %>%
   ggplot(aes(x=maxsim, y = rel_var_explained))+
-  geom_point(color = "steelblue")+
+  geom_point(color = "steelblue", size = 0.5)+
   geom_smooth(se = FALSE)+
   labs(y = "Relative reduction in uncertainity", x="Maximum similarity within the hold-in set") 
+
 figure_5
+
+figure_5 <- figure_5+theme(
+  axis.title.x = element_text(size = 8),
+  axis.title.y = element_text(size = 8),
+  axis.text.x = element_text(size = 7),
+  axis.text.y = element_text(size = 7))
 
 ```
 
@@ -1557,9 +1591,9 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggplot() +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
-  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk)) +
+  geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
   facet_wrap(~Analyte, ncol=2)+
-  theme(strip.text = element_text(size = 6)) +
+  theme(strip.text = element_text(size = 3)) +
   labs(x="\u03C6", y="logk (individual and population)") +
   theme(legend.position = "none") +
   coord_cartesian(xlim=c(0,1),ylim=c(-1,2))
@@ -1574,8 +1608,19 @@ fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[31:40])
 fun_plot_ind_pop(draws_gen_limited_df,idx_analytes_out[41:50])
 
 
-figure_4B <- (p1 + ggtitle("single observation"))
-figure_4 <- figure_4A + figure_4B + plot_annotation(tag_levels = 'A')
+figure_4B <- (p1 +theme(
+  axis.title.x = element_text(size = 6),
+  axis.title.y = element_text(size = 6),
+  axis.text.x = element_text(size = 4),
+  axis.text.y = element_text(size = 4),
+  title = element_text(size = 7)) +
+    ggtitle("single observation"))
+
+figure_4 <- figure_4A + figure_4B +
+  plot_annotation(tag_levels = 'A', theme = theme(plot.margin = margin()))+ plot_layout(axes = "collect")& 
+  theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1))  # optional: trims plot margin
+
+
 ```
 
 # TOC
@@ -1656,34 +1701,34 @@ The work demonstrates a general framework for integrating molecular similarity i
 # Manuscript figures
 ```{r manuscript-figures}
 ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates.png"),
-       plot=figure_1, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_1, width = 8.46, height = 8.46*0.75, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates.pdf"),
-       plot=figure_1, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_1, width = 8.46, height = 8.46*0.75, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg1.png"),
-       plot=figure_2, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_2, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "parameter-estimates-fg1.pdf"),
-       plot=figure_2, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_2, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.png"),
-       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_3, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "correlations.pdf"),
-       plot=figure_3, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_3, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.png"),
-       plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_4, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "predictions.pdf"),
-       plot=figure_4, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_4, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","main", "var_explained.png"),
-       plot=figure_5, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_5, width = 8.46, height = 8.46*0.75, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","main", "var_explained.pdf"),
-       plot=figure_5, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_5, width = 8.46, height = 8.46*0.75, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.png"),
-       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_S2, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 ggsave(here::here("deliv","figures","manuscript","supplement", "parameter-estimates-fg2.pdf"),
-       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+       plot=figure_S2, width = 8.46, height = 8.46*1.25, units = "cm", dpi = 300)
 
 ggsave(here::here("deliv","figures","manuscript","supplement", "gof.png"),
        plot=figure_S3, width = 20, height = 20, units = "cm", dpi = 300)
