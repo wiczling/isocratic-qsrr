@@ -3,3 +3,4 @@
 ~$*.doc*
 ~$*.tmp
 *.docx
+!manuscriptR0.docx
