@@ -1167,6 +1167,7 @@ ggcorrplot(cor_matrix_decorrelated[901:1026,901:1026])+
 ## Conditional covariance
 
 ```{r conditional-covariance}
+# Matrix normal distribution
 # Function to calculate conditional covariance matrix of X_{2,:} | X_{1,:}
 # U: 2x2 row covariance matrix
 # V: 2x2 column covariance matrix
@@ -1183,15 +1184,15 @@ similarity = 1
 U <- matrix(c(1, 2*0.71*(similarity-0.5), 2*0.71*(similarity-0.5), 1), nrow = 2, ncol = 2)
 V <- matrix(c(1.41^2, 0.88*1.41*1.13, 0.88*1.41*1.13, 1.13^2), nrow = 2, ncol = 2)
 
-# Calculate conditional covariance
-result <- conditional_covariance(U, V)
-rho = cov2cor(result)[2,1]
-sd  = sqrt(diag(result))[2]
+cond_cov <- conditional_covariance(U, V)
+rho = cov2cor(cond_cov)[2,1]
+sd  = sqrt(diag(cond_cov))[2]
 
 var_base = 1.13^2*(1-0.88^2)
 var_full = sd^2*(1-rho^2)
+rel_var = (var_base-var_full)/var_base
 
-(var_base-var_full)/var_base
+rel_var
 ```
 
 # Effect of similairty
@@ -1750,8 +1751,8 @@ fun_plot_compare <- function(draws1, draws2, .analytes_idx=analytes_idx){
   left_join(analytes_names) %>%
   filter(ID %in% .analytes_idx) %>%
   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
-  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
-  mutate(logkpop = sparam_pop.1-sparam_pop.2*(1+sS2Hat)*fi/(1+sS2Hat*fi))
+  mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) 
+  
   tab2 <- draws2 %>%
   slice_sample(n=1000) %>%
   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
@@ -1777,6 +1778,37 @@ fun_plot_compare <- function(draws1, draws2, .analytes_idx=analytes_idx){
 
 figure_S6<-fun_plot_compare(draws_gen_nosim_limited_df,draws_gen_limited_df,idx_analytes_out[1:10])
 
+# tab1 <- draws_gen_nosim_limited_df %>%
+#   slice_sample(n=1000) %>%
+#   tidybayes::spread_draws(sparam_ind[i,..]) %>%
+#   rename(ID=i) %>%
+#   left_join(analytes_names) %>%
+#   filter(ID %in% idx_analytes_out) %>%
+#   group_by(Analyte,ID)%>%
+#   summarise(mS1 = var(sparam_ind.2))
+# tab2 <- draws_gen_limited_df %>%
+#   slice_sample(n=1000) %>%
+#   tidybayes::spread_draws(sparam_ind[i,..]) %>%
+#   rename(ID=i) %>%
+#   left_join(analytes_names) %>%
+#   filter(ID %in% idx_analytes_out) %>%
+#   group_by(Analyte,ID)%>%
+#   summarise(mS2 = var(sparam_ind.2))
+# 
+# tab=tab1%>%
+#   left_join(tab2)%>%
+#   mutate(ratio=(mS1-mS2)/mS1)
+#   
+# sim<-similarity_matrix_corrected
+# diag(sim)<-0
+# maxsim<-apply(sim, 1, max)
+# 
+# tab$maxsim = round(maxsim[tab$ID],3)
+# tab %>%
+#   ggplot(aes(x=maxsim, y = ratio))+
+#   geom_point(color = "steelblue", size = 0.5)+
+#   geom_smooth(se = FALSE)+
+#   labs(y = "Relative reduction in uncertainity", x="Maximum similarity within the hold-in set") 
 ```
 
 # TOC
@@ -1829,13 +1861,13 @@ tab2 <- draws_gen_limited_df %>%
   mutate(type = "1 observation")
    
 
- fig_toc <- rbind(tab1,tab2)%>%
+ fig_toc <- rbind(tab1)%>%
   mutate(Analyte2 = paste0(Analyte, "\n", maxsim))%>%
   ggplot() +
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data=dataobs,aes(x=fi, y=logk), size=0.25) +
-  facet_grid(type~Analyte2)+
+  facet_grid(.~Analyte2)+
   theme_minimal(base_family = "Helvetica") +
   theme(text = element_text(size = 5), 
         strip.text = element_text(size = 5)) +
