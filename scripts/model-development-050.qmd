@@ -649,6 +649,9 @@ figure_1 = (p1 +
 idx1 <- which(totalnrgroups > 10)
 idx2 <- which(totalnrgroups <= 10)
 
+idx_diss = which(functional_groups_names %in% dissociated_groups)
+idx_nondiss = which(functional_groups_names %notin% dissociated_groups)
+
 draws_df_subset <- fit$draws(format = "df", variable = c("pilogkw","piS1"))
 
 param1<-draws_df_subset %>%
@@ -656,21 +659,23 @@ param1<-draws_df_subset %>%
   ggdist::median_qi(pilogkw) %>%
   mutate(param = "pilogkw") %>%
   rename(dv=pilogkw)%>%
-  mutate(functional_groups_name = functional_groups_names) 
+  mutate(functional_groups_name = functional_groups_names) %>%
+  mutate(type = if_else(functional_groups_names %in% dissociated_groups, "diss.", "non-diss."))
 
 param2<-draws_df_subset %>%
   tidybayes::spread_draws(piS1[No])%>%
   ggdist::median_qi(piS1) %>%
   mutate(param = "piS1")%>%
   rename(dv=piS1)%>%
-  mutate(functional_groups_name = functional_groups_names)
+  mutate(functional_groups_name = functional_groups_names) %>%
+  mutate(type = if_else(functional_groups_names %in% dissociated_groups, "diss.", "non-diss."))
 
 param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx1])
 
 p_common <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
-  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper, color= type)) +
   tidybayes::geom_pointinterval(size = 0.5, fatten = 1, linewidth = 0.4) +
   labs(x="Effect", y="Functional group")+
   facet_wrap(. ~ param,
@@ -678,28 +683,15 @@ p_common <- param %>%
              pilogkw = "pi[logkw]",
              piS1 = "pi[S1]"
            ), label_parsed)))+
-  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
-
-param1<-draws_df_subset %>%
-  tidybayes::spread_draws(pilogkw[No])%>%
-  ggdist::median_qi(pilogkw) %>%
-  mutate(param = "pilogkw") %>%
-  rename(dv=pilogkw)%>%
-  mutate(functional_groups_name = functional_groups_names) 
-
-param2<-draws_df_subset %>%
-  tidybayes::spread_draws(piS1[No])%>%
-  ggdist::median_qi(piS1) %>%
-  mutate(param = "piS1")%>%
-  rename(dv=piS1)%>%
-  mutate(functional_groups_name = functional_groups_names)
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")+
+    theme(legend.position="bottom")
 
 param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx2])
 
 p_uncommon <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
-  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper)) +
+  ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper, color= type)) +
   tidybayes::geom_pointinterval(size = 0.5, fatten = 1, linewidth = 0.4) +
   labs(x="Effect", y="Functional group")+
   facet_wrap(. ~ param,
@@ -707,7 +699,8 @@ p_uncommon <- param %>%
              pilogkw = "pi[logkw]",
              piS1 = "pi[S1]"
            ), label_parsed)))+
-  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")
+  geom_vline(xintercept = 0,color = "blue", linetype = "dotted")+
+    theme(legend.position="bottom")
 
 p_uncommon 
 p_common
@@ -1330,7 +1323,6 @@ fun_plot_ind_pop <- function(draws, .analytes_idx=analytes_idx){
   ggdist::stat_lineribbon(aes(x = fi, y = logkpop), fill = "darkgray", color = "darkgray",   .width = c(.90), alpha = 1/2) +
   ggdist::stat_lineribbon(aes(x = fi, y = logkind), fill = "steelblue", color = "blue", .width = c(.90), alpha = 1/2) +
   geom_point(data = filter(data,ID %in% .analytes_idx),aes(x=fi, y=logk), size = 0.5) +
-  geom_point(data = filter(data[datastructcv$end,],ID %in% .analytes_idx),aes(x=fi, y=logk), color="red", size = 0.5) +
   facet_wrap(~Analyte, ncol=2)+
   theme(strip.text = element_text(size = 3)) +
   labs(x="\u03C6", y="logk (individual and population)") +
