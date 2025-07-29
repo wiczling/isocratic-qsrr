@@ -677,14 +677,14 @@ p_common <- param %>%
   mutate(functional_groups_name = factor(functional_groups_name, levels = functional_groups_names)) %>%
   ggplot(aes(y = functional_groups_name, x = dv, xmin = .lower, xmax = .upper, color= type)) +
   tidybayes::geom_pointinterval(size = 0.5, fatten = 1, linewidth = 0.4) +
-  labs(x="Effect", y="Functional group")+
+  labs(x="Effect", y="Functional group", color = element_blank())+
   facet_wrap(. ~ param,
            labeller = labeller(param = as_labeller(c(
              pilogkw = "pi[logkw]",
              piS1 = "pi[S1]"
            ), label_parsed)))+
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")+
-    theme(legend.position="bottom")
+    theme(legend.position="bottom", legend.key.size = unit(0.5, 'cm'))
 
 param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx2])
@@ -710,13 +710,15 @@ figure_2<-(p_common+
   axis.title.x = element_text(size = 8),
   axis.title.y = element_text(size = 8),
   axis.text.x = element_text(size = 4),
-  axis.text.y = element_text(size = 4)))
+  axis.text.y = element_text(size = 4),
+  legend.text = element_text(size=4)))
 figure_S2<-(p_uncommon+ 
 theme(
   axis.title.x = element_text(size = 8),
   axis.title.y = element_text(size = 8),
   axis.text.x = element_text(size = 4),
-  axis.text.y = element_text(size = 4)))
+  axis.text.y = element_text(size = 4),
+  legend.text = element_text(size=4)))
 
 ```
 
