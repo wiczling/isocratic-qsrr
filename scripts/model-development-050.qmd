@@ -684,7 +684,7 @@ p_common <- param %>%
              piS1 = "pi[S1]"
            ), label_parsed)))+
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")+
-    theme(legend.position="bottom", legend.key.size = unit(0.5, 'cm'))
+    theme(legend.position="bottom", legend.key.size = unit(0.3, 'cm'), legend.margin=margin(t=-10))
 
 param<-rbind(param1,param2) %>%
   filter(functional_groups_name %in% functional_groups_names[idx2])
@@ -700,7 +700,7 @@ p_uncommon <- param %>%
              piS1 = "pi[S1]"
            ), label_parsed)))+
   geom_vline(xintercept = 0,color = "blue", linetype = "dotted")+
-    theme(legend.position="bottom")
+    theme(legend.position="bottom", legend.key.size = unit(0.3, 'cm'),legend.margin=margin(t=-10))
 
 p_uncommon 
 p_common
