@@ -1772,37 +1772,43 @@ fun_plot_compare <- function(draws1, draws2, .analytes_idx=analytes_idx){
 
 figure_S6<-fun_plot_compare(draws_gen_nosim_limited_df,draws_gen_limited_df,idx_analytes_out[1:10])
 
-# tab1 <- draws_gen_nosim_limited_df %>%
-#   slice_sample(n=1000) %>%
-#   tidybayes::spread_draws(sparam_ind[i,..]) %>%
-#   rename(ID=i) %>%
-#   left_join(analytes_names) %>%
-#   filter(ID %in% idx_analytes_out) %>%
-#   group_by(Analyte,ID)%>%
-#   summarise(mS1 = var(sparam_ind.2))
-# tab2 <- draws_gen_limited_df %>%
-#   slice_sample(n=1000) %>%
-#   tidybayes::spread_draws(sparam_ind[i,..]) %>%
-#   rename(ID=i) %>%
-#   left_join(analytes_names) %>%
-#   filter(ID %in% idx_analytes_out) %>%
-#   group_by(Analyte,ID)%>%
-#   summarise(mS2 = var(sparam_ind.2))
 # 
+#   tab1 <- draws_gen_nosim_limited_df %>%
+#   slice_sample(n=1000) %>%
+#   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+#   rename(ID=i) %>%
+#   left_join(analytes_names) %>%
+#   filter(ID %in% idx_analytes_out) %>%
+#   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+#   mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+#   group_by(Analyte,ID, fi)%>%
+#   summarise(mlogkind1 = var(logkind))
+#   
+#   tab2 <-  draws_gen_limited_df %>%
+#   slice_sample(n=1000) %>%
+#   tidybayes::spread_draws(sparam_ind[i,..], sparam_pop[i,..], sS2Hat) %>%
+#   rename(ID=i) %>%
+#   left_join(analytes_names) %>%
+#   filter(ID %in% idx_analytes_out) %>%
+#   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+#   mutate(logkind = sparam_ind.1-sparam_ind.2*(1+sS2Hat)*fi/(1+sS2Hat*fi)) %>%
+#   group_by(Analyte,ID, fi)%>%
+#   summarise(mlogkind2 = var(logkind))
+#   
 # tab=tab1%>%
 #   left_join(tab2)%>%
-#   mutate(ratio=(mS1-mS2)/mS1)
-#   
-# sim<-similarity_matrix_corrected
-# diag(sim)<-0
-# maxsim<-apply(sim, 1, max)
-# 
-# tab$maxsim = round(maxsim[tab$ID],3)
-# tab %>%
-#   ggplot(aes(x=maxsim, y = ratio))+
-#   geom_point(color = "steelblue", size = 0.5)+
-#   geom_smooth(se = FALSE)+
-#   labs(y = "Relative reduction in uncertainity", x="Maximum similarity within the hold-in set") 
+#   mutate(ratio=(mlogkind1-mlogkind2)/mlogkind1)
+#    
+#  sim<-similarity_matrix_corrected
+#  diag(sim)<-0
+#  maxsim<-apply(sim, 1, max)
+#  
+#  tab$maxsim = round(maxsim[tab$ID],3)
+#  tab %>%
+#    ggplot(aes(x=maxsim, y = ratio, color = as.factor(fi)))+
+#    geom_point(color = "steelblue", size = 0.5)+
+#    geom_smooth(se = FALSE)+
+#    labs(y = "Relative reduction in uncertainity", x="Maximum similarity within the hold-in set") 
 ```
 
 # TOC

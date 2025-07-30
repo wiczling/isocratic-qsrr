@@ -59,33 +59,35 @@ fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","
 
 {{< pagebreak >}}
 
-# Figure S1. Raw data 
+# Figure S1. Raw data.  
 
-![](../deliv/figures/manuscript/supplement/raw-data.pdf)
+The relationship betweem logk and organic modifier content.
+
+![](../deliv/figures/manuscript/supplement/raw-data.png)
 {{< pagebreak >}}
 
 # Figure S2. Functional group effects
 
+A summary of the marginal posterior distributions of the functional group effects. Red represents the effect of dissociated functional groups, and green represents the effect of non-dissociated functional groups. The lest common functional groups (<=10 across all analytes) are presented. The plot for the remaining functional groups is presented in Figure 2.
+
 ![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf)
 {{< pagebreak >}}
 
-# Figure S3. GOF
+# Figure S3. Goodness of fit plots (GOF)
 
 ![](../deliv/figures/manuscript/supplement/gof.pdf)
 {{< pagebreak >}}
-# Figure S4. Individual parameters
+
+# Figure S4. Individual parameters, R~i~
 
 ![](../deliv/figures/manuscript/supplement/iparam.pdf)
 {{< pagebreak >}}
 
-# Figure S5. Individual parameters. Eta plots
+# Figure S5. Individual parameters, eta~i~
+
+eta~i~ represents the deviation of an individual analyte's parameter from its expected (population-level) value.
 
 ![](../deliv/figures/manuscript/supplement/eta.pdf)
-{{< pagebreak >}}
-
-# Figure S6. Compare limited data predictions.
-
-![](../deliv/figures/manuscript/supplement/compare.pdf)
 {{< pagebreak >}}
 
 # Licenses {.unnumbered}
