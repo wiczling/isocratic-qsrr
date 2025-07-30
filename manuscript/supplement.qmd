@@ -61,7 +61,7 @@ fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","
 
 # Figure S1. Raw data.  
 
-The relationship betweem logk and organic modifier content.
+The relationship between logk and organic modifier content.
 
 ![](../deliv/figures/manuscript/supplement/raw-data.png)
 {{< pagebreak >}}
@@ -83,9 +83,9 @@ A summary of the marginal posterior distributions of the functional group effect
 ![](../deliv/figures/manuscript/supplement/iparam.pdf)
 {{< pagebreak >}}
 
-# Figure S5. Individual parameters, eta~i~
+# Figure S5. Individual parameters, eta~R,i~
 
-eta~i~ represents the deviation of an individual analyte's parameter from its expected (population-level) value.
+eta~R,i~ represents the deviation of an individual analyte's parameter from its expected (population-level) value.
 
 ![](../deliv/figures/manuscript/supplement/eta.pdf)
 {{< pagebreak >}}
