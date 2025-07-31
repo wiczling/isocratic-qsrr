@@ -20,37 +20,34 @@ knitr:
 
 # Introductions
 
-Log P and functional groups calculated using open programs.
+A multilevel modeling of isocratic HPLC retention data withot incorporating structural similarity between analytes.
 
 # Setup
 ```{r setup, message=FALSE}
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 
-library(bbr)
-library(bbr.bayes)
-library(dplyr)
-library(ggplot2)
-library(patchwork)
-library(gridExtra)
-library(naniar)
-library(knitr)
-library(data.table)
-library(tidyverse)
-library(glue)
-library(whisker)
-library(here)
-library(cmdstanr)
-library(gridExtra)
-library(posterior)
-library(bayesplot)
-library(tidybayes)
-library(reshape2)
-library(pracma)
-library(mrgmisc)
-library(GGally)
-library(igraph)
-library(ggraph)
-library(ggcorrplot)
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(patchwork))
+suppressWarnings(library(gridExtra))
+suppressWarnings(library(naniar))
+suppressWarnings(library(knitr))
+suppressWarnings(library(data.table))
+suppressWarnings(library(tidyverse))
+suppressWarnings(library(glue))
+suppressWarnings(library(whisker))
+suppressWarnings(library(here))
+suppressWarnings(library(cmdstanr))
+suppressWarnings(library(posterior))
+suppressWarnings(library(bayesplot))
+suppressWarnings(library(tidybayes))
+suppressWarnings(library(reshape2))
+suppressWarnings(library(pracma))
+suppressWarnings(library(mrgmisc))
+suppressWarnings(library(GGally))
+suppressWarnings(library(igraph))
+suppressWarnings(library(ggraph))
+suppressWarnings(library(ggcorrplot))
 #remotes::install_github("metrumresearchgroup/mrgmisc")
 set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 set.seed(10271998) ## not required but assures repeatable results
@@ -78,8 +75,7 @@ if(!file.exists(figures_eda_dir)) dir.create(figures_eda_dir, recursive = T)
 if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
 ```
 
-
-We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35\^{\circ}C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient.
+We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35°C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient 
 
 ## Load data
 ```{r load-data, message=FALSE, warning=FALSE}
@@ -144,35 +140,6 @@ functional_groups = fg_df %>%
 
 functional_groups_names<- colnames(functional_groups)
 totalnrgroups <- summarise_each(functional_groups, funs(sum))
-
-dissociation = list(
-pKaslit = data_ACD[,3:5],           # pKa values as predicted by ACD
-pKasliterror = data_ACD[,17:19],    # pKa error as predicted by ACD
-chargesA = abs(data_ACD[,9:12]),    # number of ionized groups (anions)
-chargesB = abs(data_ACD[,13:16]))   # number of ionized groups (cations)
-dissociation$charges = dissociation$chargesA+dissociation$chargesB                  # absolute charge
-dissociation$groupsA = (dissociation$chargesA[,2:4]-dissociation$chargesA[,1:3])         # acidic group
-dissociation$groupsB = -(dissociation$chargesB[,2:4]-dissociation$chargesB[,1:3])        # basic group
-dissociation$R = rowSums(data_ACD[,3:5]<14) # number of dissociation steps
-dissociation$groups = dissociation$groupsB-dissociation$groupsA
-dissociation$logPobs =data_ACD$logP
-dissociation$MW =data_ACD$MW
-# identify acidic groups
-dissociation$idxGroupsA <-which(dissociation$groupsA!=0,arr.ind = T)
-dissociation$nGroupsA <- nrow(dissociation$idxGroupsA)
-dissociation$pKaslitA<-dissociation$pKaslit[dissociation$idxGroupsA]
-# identify basic groups
-dissociation$idxGroupsB <-which(dissociation$groupsB!=0,arr.ind = T)
-dissociation$nGroupsB <- nrow(dissociation$idxGroupsB)
-dissociation$pKaslitB<-dissociation$pKaslit[dissociation$idxGroupsB]
-# groups dissociated in the whole pH range
-dissociation$chargesA0 <- dissociation$chargesA[,1]
-dissociation$chargesB0 <- dissociation$chargesB[,max(dissociation$R)]
-dissociation$idxA0 = c(which(dissociation$chargesA0==1), which(dissociation$chargesA0==2))
-dissociation$idxB0 = c(which(dissociation$chargesB0==1), which(dissociation$chargesB0==2))
-dissociation$nA0 <- length(dissociation$idxA0)
-dissociation$nB0 <- length(dissociation$idxB0)
-
 ```
 
 ## Initial estimates
@@ -190,6 +157,7 @@ init_aprox <- data %>%
 ```
 
 # Data analysis
+
 ## Model
 The data was analyzed using a the following model:
 
@@ -198,26 +166,27 @@ $$
 & logk_{i,j}  = logkw_{i} - S_{1,i} \cdot (1 + S_{2}) \cdot \varphi_{i,j} / (1 + S_{2} \cdot \varphi_{i,j})
 \end{aligned}
 $$
+where $\small j$ denotes observation, $\small i$ denote analyte, $\small logkw_{i}$ represents logarithm of retention factors extrapolated to 0% of organic modifier content $\small S_{1,i}$ and $\small S2$ are the slopes in the Neue equation. In this parametrization of the Neue equation, $\small S1$ reflects the difference between logarithm of retention factors corresponding to water (0% of organic modifier content) and 100% of organic modifier content as eluents.
 
-The statistical model has the following structure (hierarchical model):
+The statistical model has the following hierarchical structure:
 
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu_{obs},logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MST}(\nu, \theta_R  + \beta \cdot log P_i +\pi_R \cdot X_i, \Omega) \\
-& \pi_{R,k} \sim N(0,\kappa_R)
+& R_{i} \sim \text{N}(\theta_R  + \beta_R \cdot log P_i +\pi1_{R} \cdot X_{1i}  +\pi2_{R} \cdot X_{2i}, \Omega) \\
+& \pi 1_{R,k} \sim N(0,\kappa1_{R}) \\
+& \pi 2_{R,k} \sim N(0,\kappa2_{R})
 \end{aligned}
 $$
-where $R_i=(logkw_{i}, S_{1,i})$ is a vector of subject-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $MST$ is a multivariete student t distribution, $\theta_R$ is a vector of typical values of $R_i$, $\beta_R$ is a vector of slopes between $R_i$ and $logP_i$, and $\pi_R$ is a vector of slopes between $R_i$ and functional group vector $Xi$. In turn, $\sigma$ is the scale of the residuals, $\Omega$ is the scale matrix for unexplained between-analyte variabilities. $\Omega$ was decomposed to:
+where $R_i=(logkw_{i}, S_{1,i})$ is a vector of analyte-specific parameters, $logk_{i,j}$ corresponds to the above Neue equation, $N$ is a multivariete normal distribution, $\small \theta_R$ is a vector of typical values of $\small R_i$, $\small \beta_R$ is a vector of slopes between $\small R_i$ and $\small logP_i$,  $\small \pi_{R,1}$ and  $\small \pi_{R,2}$ is a vector of slopes between $\small R_i$ and functional groups: non-dissociated forms $\small X_{1i}$ and dissociated forms $\small X_{2i}$. In turn, $\small \nu_{obs}$ and $\small \sigma$ is the normality parameters and scale of the residuals, and $\small \Omega$ is the covariance matrix decomposed to:
 
 $$
 \begin{aligned}
 \Omega = diag(\omega) \cdot LL' \cdot diag(\omega) \\
-
 \end{aligned}
 $$
 
-where $LL'$ denotes correlation a correlation matrix, $\omega$ denotes standard deviation for between analyte variability.
+where $LL'$ denotes a correlation matrix, $\omega$ denotes standard deviation for between analyte variability.
 
 ## Priors
 
@@ -235,12 +204,11 @@ $$
 & \kappa_{logkw},\kappa_{S1} \sim  normal(0, 0.1), \\
 & \sigma \sim normal_+(0,0.05), \\
 & \nu_{obs} \sim gamma(2,0.1), \\
-& p(LL') \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
-& c_u = [0.75]
+& p(LL') \propto LKJ(2) \cdot N(0.75, 0.125), \\
 \end{aligned}
 $$
 
-LKJ(2) ensure that the density is uniform over correlation matrices of order 2 and u denotes the unique lower triangular elements of correlation matrix (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
+LKJ(2) ensure that the density is uniform over correlation matrices of order 2: (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
 
 # Stan
 
