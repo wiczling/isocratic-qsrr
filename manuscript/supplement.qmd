@@ -3,7 +3,7 @@ title: |
   | Supporting Information for:
   | Bayesian Multilevel Modeling of Retention Data Informed by Structural Similarity of Analytes
 author:
-  - name: "Paweł Wiczling*"
+  - name: "Paweł Wiczling"
     affiliations:
       - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
 date: "`r format(Sys.Date())`"
@@ -23,7 +23,19 @@ format:
         \renewcommand*{\Authsep}{, }
         \renewcommand*{\Authand}{, }
         \renewcommand*{\Authands}{, }
-        \renewcommand\Affilfont{\small}    
+        \renewcommand\Affilfont{\small}   
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhf{}
+        \renewcommand{\headrulewidth}{0pt}
+        \fancyfoot[C]{S\thepage}
+        \renewcommand{\thepage}{\arabic{page}}
+        \thispagestyle{fancy} 
+        \fancypagestyle{plain}{
+        \fancyhf{} 
+        \renewcommand{\headrulewidth}{0pt}
+        \fancyfoot[C]{S\thepage}
+        }
 ---
 
 ```{r setup, include=FALSE}
@@ -39,7 +51,7 @@ library(cmdstanr)
 
 {{< pagebreak >}}
 
-# Table S1. Summary of the MCMC simulations of the marginal posterior distributions of population-level model parameters. 
+# Table S1. Summary of the MCMC simulations of the marginal posterior distributions of population-level parameters
 
 Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error, StdDev denotes sample standard deviation, 5%, 50%, 95% denote corresponding quantiles, N_Eff denotes effective sample size, R_Hat denotes a measure of chain equilibrium must be within 0.05 of 1.0.
 
@@ -59,9 +71,9 @@ fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","
 
 {{< pagebreak >}}
 
-# Figure S1. Raw data.  
+# Figure S1. Raw data  
 
-The relationship between logk and organic modifier content.
+The relationship between observed logk and organic modifier content for all the analytes.
 
 ![](../deliv/figures/manuscript/supplement/raw-data.png)
 {{< pagebreak >}}
@@ -70,23 +82,36 @@ The relationship between logk and organic modifier content.
 
 A summary of the marginal posterior distributions of the functional group effects. Red represents the effect of dissociated functional groups, and green represents the effect of non-dissociated functional groups. The lest common functional groups (<=10 across all analytes) are presented. The plot for the remaining functional groups is presented in Figure 2.
 
-![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf)
+![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf){ width=80% }
 {{< pagebreak >}}
 
 # Figure S3. Goodness of fit plots (GOF)
+
+Observed vs. population and individual predictions:
 
 ![](../deliv/figures/manuscript/supplement/gof.pdf)
 {{< pagebreak >}}
 
 # Figure S4. Individual parameters, R~i~
 
+logka is the (extrapolated) log retention in 100% ACN:
+
+$$
+\begin{aligned}
+& logka_{i}=logkw_{i} - S_{1,i}
+\end{aligned}
+$$
 ![](../deliv/figures/manuscript/supplement/iparam.pdf)
 {{< pagebreak >}}
 
 # Figure S5. Individual parameters, eta~R,i~
 
 eta~R,i~ represents the deviation of an individual analyte's parameter from its expected (population-level) value.
-
+$$
+\begin{aligned}
+& \eta_{R,i} = R_{i} - (\theta_R  + \beta_R \cdot log P_i +\pi_{R1} \cdot X_{1i}  +\pi_{R2} \cdot X_{2i})\\
+\end{aligned}
+$$
 ![](../deliv/figures/manuscript/supplement/eta.pdf)
 {{< pagebreak >}}
 

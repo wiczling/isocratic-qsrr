@@ -23,7 +23,7 @@ csl: analytical-chemistry.csl
 
 # Introductions
 
-This work focuses on multilevel modeling of isocratic HPLC retention data [@kamedulska_toward_2022,] [@kamedulska_statistical_2022,] [@wiczling_application_2021,] [@kubik_analysis_2018], incorporating structural similarity between analytes. Structural similarity (such as Taniomoto similairty metric) can be easily calculated from SMILES representations and help predicting analyte retention if experimental data of structurally similar analytes is available.
+This work focuses on multilevel modeling of isocratic HPLC retention data [@kamedulska_toward_2022,] [@kamedulska_statistical_2022,] [@wiczling_application_2021,] [@kubik_analysis_2018], incorporating structural similarity between analytes. Structural similarity, such as the Tanimoto similarity metric, can be easily calculated from SMILES representations and can help predict analyte retention when experimental data on structurally similar analytes is available.
 
 # Setup
 ```{r setup, message=FALSE}
@@ -82,7 +82,7 @@ if(!file.exists(tables_eda_dir)) dir.create(tables_eda_dir, recursive = T)
 
 We used a publicly available [dataset](www.retentionprediction.org/hplc/database/) that comprises the measurements of RP-HPLC retention times collected for 1026 analytes. The retention times were measured under isocratic conditions on Eclipse Plus C18 (Agilent) stationary phase with 3.5 μm particles. The experiments were conducted using a mixture of two solvents: solvent A, which was made of 0.1% formic acid in water, and solvent B, which was made of 0.1% formic acid in acetonitrile. The column temperature was set at 35°C. The data were collected by Boswell et al. and were used to create a method to predict retention time by Back-Calculating the Gradient [@BOSWELL20116732, @BOSWELL20116742].
 
-The 2D structures of analytes, Tanimoto similarity matrix, log P and the number of functional groups were calculated using RDkit toolkit [@greg_landrum_2025_15773589]:
+RDKit was used to calculate the 2D structures of the analytes, the Tanimoto similarity matrix, log P, and the number of functional groups [@greg_landrum_2025_15773589]:
 
 [RDKit-based predcitors](functional-groups-rdkit.html "rdkit")
 
@@ -172,7 +172,7 @@ A series of plots to better understand our data can be found here:
 
 ## Model
 
-The logarythm of retention factor ($\small lok_{i,j}$) was modeled using the Neue model [@nikitas_20091737]:
+The logarithm of retention factor ($\small lok_{i,j}$) was modeled using the Neue model [@nikitas_20091737]:
 
 $$
 \begin{aligned}
@@ -186,9 +186,9 @@ The statistical model has the following hierarchical structure:
 $$ 
 \begin{aligned}
 & \log k_{obs_{i,j}} \sim student_t(\nu_{obs},logk_{i,j},\sigma) \\
-& R_{i} \sim \text{MN}(\theta_R  + \beta \cdot log P_i +\pi_{R1} \cdot X_{1i}  +\pi_{R2} \cdot X_{2i}, K, \Omega) \\
-& \pi_{R1,k} \sim N(0,\kappa_{R1}) \\
-& \pi_{R2,k} \sim N(0,\kappa_{R2})
+& R_{i} \sim \text{MN}(\theta_R  + \beta_R \cdot log P_i +\pi1_{R} \cdot X_{1i}  +\pi2_{R} \cdot X_{2i}, K, \Omega) \\
+& \pi 1_{R,k} \sim N(0,\kappa1_{R}) \\
+& \pi 2_{R,k} \sim N(0,\kappa2_{R})
 \end{aligned}
 $$
 where $\small R_i=(logkw_{i}, S_{1,i})$ is a vector of analyte-specific parameters, $\small logk_{i,j}$ corresponds to the above Neue equation, $\small MN$ is a matrix normal distribution, $\small \theta_R$ is a vector of typical values of $\small R_i$, $\small \beta_R$ is a vector of slopes between $\small R_i$ and $\small logP_i$,  $\small \pi_{R,1}$ and  $\small \pi_{R,2}$ is a vector of slopes between $\small R_i$ and functional groups: non-dissociated forms $\small X_{1i}$ and dissociated forms $\small X_{2i}$. In turn, $\small \nu_{obs}$ and $\small \sigma$ is the normality parameters and scale of the residuals, $\small K$ and $\small \Omega$ are the scale matrices for the row and column covariance structures. $\small \Omega$ and $\small K$ were decomposed to:
@@ -200,9 +200,9 @@ K = 2*\alpha* (S-0.5)+ (1-\alpha)*I \\
 \end{aligned}
 $$
 
-where $\small LL'$ denotes correlation a correlation matrix, $\small \omega$ denotes standard deviation for between analyte variability, S is a similarity matrix and I is an Identify matrix. In this work the similarity matrix was simplified assuming S=0 for $\small S<0.5$ (analytes are essentially uncorrelated) and the values of S for $\small S \geq 0.5$ were scaled by alpha using the above equation.
+where $\small LL'$ denotes  a correlation matrix, $\small \omega$ denotes standard deviation for between analyte variability, S is a similarity matrix and I is an Identify matrix. In this work the similarity matrix was simplified assuming S=0 for $\small S<0.5$ (analytes are essentially uncorrelated) and the values of S for $\small S \geq 0.5$ were scaled by alpha using the above equation.
 
-A matrix normal distribution models random matrices, with parameters including a mean matrix and two covariance matrices, one for rows (analytes) and one for columns ($\small logkw$ and $\small S$ parameters). These covariance matrices, denoted here as $\small K$ and $\Omega$, capture the dependencies between rows and columns of the random matrix, respectively. The row covariance can be naturally related to similarity matrix approximating its structure.
+A matrix normal distribution models random matrices, with parameters including a mean matrix and two covariance matrices, one for rows (analytes) and one for columns ($\small logkw$ and $\small S$ parameters). These covariance matrices, denoted here as $\small K$ and $\Omega$, capture the dependencies between rows and columns of the random matrix, respectively. The row covariance was related to similarity matrix approximating its structure.
 
 ## Priors
 
@@ -212,6 +212,8 @@ $$
 \begin{aligned}
 & \theta_{logkw} \sim normal(2, 4), \\
 & \theta_{S1} \sim normal(4, 2), \\
+& \theta_{dlogkw} \sim normal(-1, 0.5), \\
+& \theta_{dS1} \sim normal(0, 0.5), \\
 & \theta_{S2} \sim lognormal(0.693, 0.125), \\
 & \nu_{obs} = 7,\\
 & \omega_{logkw},\omega_{S1} \sim normal_+(0, 1), \\
@@ -220,12 +222,11 @@ $$
 & \kappa_{logkw},\kappa_{S1} \sim  normal(0, 0.1), \\
 & \sigma \sim normal_+(0,0.05), \\
 & \alpha \sim normal(0.5,0.25)T[0,1], \\
-& p(LL') \propto LKJ(2) \cdot \Pi_u N(c_u, 0.125), \\
-& c_u = [0.75]
+& p(LL') \propto LKJ(2) \cdot N(0.75, 0.125) \\
 \end{aligned}
 $$
 
-LKJ(2) ensure that the density is uniform over correlation matrices of order 2 and u denotes the unique lower triangular elements of correlation matrix (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
+LKJ(2) ensure that the density is uniform over correlation matrices of order 2: (<http://srmart.in/informative-priors-for-correlation-matrices-an-easy-approach/>)
 
 # Stan
 
@@ -855,7 +856,7 @@ param1 <- param$value[1:nAnalytes]
 param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
 
 data_to_plot_param <- cbind(param1,param2, param1-param2, datastruct$logPobs)
-colnames(data_to_plot_param) <- c(expression('logkwN'[i]),expression('S1mN'[i]),expression('logka'[i]), expression('logP'[i]))
+colnames(data_to_plot_param) <- c(expression('logkw'[i]),expression('S1'[i]),expression('logka'[i]), expression('logP'[i]))
 
 p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
         labeller = "label_parsed",upper = list(continuous = "points"))
@@ -875,7 +876,7 @@ param1 <- param$value[1:nAnalytes]
 param2 <- param$value[(nAnalytes+1):(2*nAnalytes)]
 
 data_to_plot_param <- cbind(param1,param2,param1-param2,datastruct$logPobs)
-colnames(data_to_plot_param) <- c(expression('etalogkwN'[i]),expression('etaS1mN'[i]),expression('etalogka'[i]),expression('logP'[i]))
+colnames(data_to_plot_param) <- c(expression('eta'[list(logkw,i)]),expression(eta[list(S1,i)]),expression(eta[list(logka,i)]),expression('logP'[i]))
 
 p<-ggpairs(as.data.frame(data_to_plot_param), columnLabels = colnames(data_to_plot_param) ,
         labeller = "label_parsed",upper = list(continuous = "points"))

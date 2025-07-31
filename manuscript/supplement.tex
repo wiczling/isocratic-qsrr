@@ -81,6 +81,18 @@
 \renewcommand*{\Authand}{, }
 \renewcommand*{\Authands}{, }
 \renewcommand\Affilfont{\small}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{S\thepage}
+\renewcommand{\thepage}{\arabic{page}}
+\thispagestyle{fancy}
+\fancypagestyle{plain}{
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{S\thepage}
+}
 \makeatletter
 \makeatother
 \makeatletter
@@ -141,7 +153,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
-  pdfauthor={Paweł Wiczling*},
+  pdfauthor={Paweł Wiczling},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -154,17 +166,17 @@ Bayesian Multilevel Modeling of Retention Data Informed by Structural
 Similarity of Analytes}
 
 
-  \author{Paweł Wiczling*}
+  \author{Paweł Wiczling}
             \affil{%
                   Department of Biopharmaceutics and Pharmacodynamics,
                   Medical University of Gdańsk, Gen.~J. Hallera 107,
                   80-416 Gdańsk, Poland
               }
       
-\date{2025-07-30}
+\date{2025-07-31}
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, boxrule=0pt, enhanced, interior hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, frame hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable, interior hidden, frame hidden, enhanced, sharp corners]}{\end{tcolorbox}}\fi
 
 \renewcommand*\contentsname{Table of contents}
 {
@@ -174,10 +186,10 @@ Similarity of Analytes}
 }
 \newpage{}
 
-\hypertarget{table-s1.-summary-of-the-mcmc-simulations-of-the-marginal-posterior-distributions-of-population-level-model-parameters.}{%
+\hypertarget{table-s1.-summary-of-the-mcmc-simulations-of-the-marginal-posterior-distributions-of-population-level-parameters}{%
 \section{Table S1. Summary of the MCMC simulations of the marginal
-posterior distributions of population-level model
-parameters.}\label{table-s1.-summary-of-the-mcmc-simulations-of-the-marginal-posterior-distributions-of-population-level-model-parameters.}}
+posterior distributions of population-level
+parameters}\label{table-s1.-summary-of-the-mcmc-simulations-of-the-marginal-posterior-distributions-of-population-level-parameters}}
 
 Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error,
 StdDev denotes sample standard deviation, 5\%, 50\%, 95\% denote
@@ -206,10 +218,11 @@ denotes a measure of chain equilibrium must be within 0.05 of 1.0.
 
 \newpage{}
 
-\hypertarget{figure-s1.-raw-data.}{%
-\section{Figure S1. Raw data.}\label{figure-s1.-raw-data.}}
+\hypertarget{figure-s1.-raw-data}{%
+\section{Figure S1. Raw data}\label{figure-s1.-raw-data}}
 
-The relationship between logk and organic modifier content.
+The relationship between observed logk and organic modifier content for
+all the analytes.
 
 \includegraphics{../deliv/figures/manuscript/supplement/raw-data.png}
 
@@ -226,13 +239,15 @@ groups. The lest common functional groups (\textless=10 across all
 analytes) are presented. The plot for the remaining functional groups is
 presented in Figure 2.
 
-\includegraphics{../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf}
+\includegraphics[width=0.8\textwidth,height=\textheight]{../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf}
 
 \newpage{}
 
 \hypertarget{figure-s3.-goodness-of-fit-plots-gof}{%
 \section{Figure S3. Goodness of fit plots
 (GOF)}\label{figure-s3.-goodness-of-fit-plots-gof}}
+
+Observed vs.~population and individual predictions:
 
 \includegraphics{../deliv/figures/manuscript/supplement/gof.pdf}
 
@@ -242,7 +257,13 @@ presented in Figure 2.
 \section{\texorpdfstring{Figure S4. Individual parameters,
 R\textsubscript{i}}{Figure S4. Individual parameters, Ri}}\label{figure-s4.-individual-parameters-ri}}
 
-\includegraphics{../deliv/figures/manuscript/supplement/iparam.pdf}
+logka is the (extrapolated) log retention in 100\% ACN:
+
+\[
+\begin{aligned}
+& logka_{i}=logkw_{i} - S_{1,i}
+\end{aligned}
+\] \includegraphics{../deliv/figures/manuscript/supplement/iparam.pdf}
 
 \newpage{}
 
@@ -251,9 +272,11 @@ R\textsubscript{i}}{Figure S4. Individual parameters, Ri}}\label{figure-s4.-indi
 eta\textsubscript{R,i}}{Figure S5. Individual parameters, etaR,i}}\label{figure-s5.-individual-parameters-etari}}
 
 eta\textsubscript{R,i} represents the deviation of an individual
-analyte's parameter from its expected (population-level) value.
-
-\includegraphics{../deliv/figures/manuscript/supplement/eta.pdf}
+analyte's parameter from its expected (population-level) value. \[
+\begin{aligned}
+& \eta_{R,i} = R_{i} - (\theta_R  + \beta_R \cdot log P_i +\pi_{R1} \cdot X_{1i}  +\pi_{R2} \cdot X_{2i})\\
+\end{aligned}
+\] \includegraphics{../deliv/figures/manuscript/supplement/eta.pdf}
 
 \newpage{}
 
