@@ -958,7 +958,7 @@ p1 =similarity_to_ltr_fun(cor_matrix)%>%
   geom_hex() +
   scale_fill_viridis_c(option = "G", direction  = -1)+
   theme_minimal() + 
-  labs(y = expression(eta*" correlations"),
+  labs(y=expression(atop(eta*" posterior", "correlations")),
        x = element_blank()) +
   theme(legend.position = "none")+
   ylim(-1, 1)
@@ -972,7 +972,7 @@ p2 =similarity_to_ltr_fun(cor_matrix_decorrelated)%>%
     geom_hex() +
   scale_fill_viridis_c(option = "G", direction  = -1)+
   theme_minimal() +  # cleaner theme
-  labs(y = expression(eta*" correlations (decorelated)"),
+  labs(y=expression(atop("decorrelated " * eta, "posterior correlations")),
        x = "Tanimoto Similarity") +
   theme(legend.position = "none")+
   ylim(-1, 1)
@@ -1044,13 +1044,13 @@ p1/p2
 
 
 figure_3 = (p1+theme(
-  axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8),
+  axis.title.x = element_text(size = 7),
+  axis.title.y = element_text(size = 7),
   axis.text.x = element_text(size = 6),
   axis.text.y = element_text(size = 6)))/
   (p2+theme(
-  axis.title.x = element_text(size = 8),
-  axis.title.y = element_text(size = 8),
+  axis.title.x = element_text(size = 7),
+  axis.title.y = element_text(size = 7),
   axis.text.x = element_text(size = 6),
   axis.text.y = element_text(size = 6))) +
   plot_annotation(tag_levels = 'A');
@@ -1356,7 +1356,7 @@ figure_4A <- p1 +theme(
   axis.text.x = element_text(size = 4),
   axis.text.y = element_text(size = 4),
   title = element_text(size = 7)) +
-  ggtitle("no individual data")
+  ggtitle("similar analytes")
 
 ```
 
@@ -1614,9 +1614,10 @@ figure_4B <- (p1 +theme(
   axis.title.y = element_text(size = 6),
   axis.text.x = element_text(size = 4),
   axis.text.y = element_text(size = 4),
-  title = element_text(size = 7)) +
-    ggtitle("single observation"))
-
+  title = element_text(size = 6)) +
+    ggtitle("similar analytes + single obs."))
+figure_4A <- figure_4A +theme(
+  title = element_text(size = 6)) 
 figure_4 <- figure_4A + figure_4B +
   plot_annotation(tag_levels = 'A', theme = theme(plot.margin = margin()))+ plot_layout(axes = "collect")& 
   theme(plot.margin = margin(0.1, 0.1, 0.1, 0.1))  
