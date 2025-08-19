@@ -27,7 +27,7 @@ editor:
 
 4.  [Matrix normal distribution](matrix-normal.html "Matrix normal distribution")
 
-# Results
+# Main Results
 
 1.    multivariate matrix normal distribution model, predictors: scaled similarity matrix, log P and functional groups (dissociated vs. non-dissociated), analytes were grouped into 10 correlated blocks (inter-block correlation \< 0.5): [Model 050](model-development-050.html "Model 050")
 
@@ -58,7 +58,7 @@ editor:
     identity matrix: [Model 015](model-development-015.html "Model 015")
 
     The identity row covariance matrix should yield identical results
-    with Model 002. It works!!!
+    with Model 002.
 
 -   logR \~ logP + fungr, multivariate matrix normal distribution, fixed
     correlation matrix: [Model
@@ -130,11 +130,6 @@ matrix[nAnalytes, nAnalytes] L_K cholesky_decompose(K);
 -   logR \~ logP + fungr, multivariate matrix student-t distribution,
     block covariance matrix with rhop estimated: [Model
     026](model-development-026.html "Model 026")
-
-## OPENCL
-
-OPENCL attempt (doesn't help)
-[Model009](model-development-009.qmd "Model 009")
 
 # Licenses {.unnumbered}
 
