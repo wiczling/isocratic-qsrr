@@ -76,6 +76,20 @@
 \def\fps@figure{htbp}
 \makeatother
 
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
 \usepackage[noblocks]{authblk}
 \renewcommand*{\Authsep}{, }
 \renewcommand*{\Authand}{, }
@@ -173,10 +187,10 @@ Similarity of Analytes}
                   80-416 Gdańsk, Poland
               }
       
-\date{2025-07-31}
+\date{2025-10-10}
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, breakable, interior hidden, frame hidden, enhanced, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, enhanced, breakable, frame hidden, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, interior hidden]}{\end{tcolorbox}}\fi
 
 \renewcommand*\contentsname{Table of contents}
 {
@@ -191,30 +205,50 @@ Similarity of Analytes}
 posterior distributions of population-level
 parameters}\label{table-s1.-summary-of-the-mcmc-simulations-of-the-marginal-posterior-distributions-of-population-level-parameters}}
 
-Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error,
-StdDev denotes sample standard deviation, 5\%, 50\%, 95\% denote
-corresponding quantiles, N\_Eff denotes effective sample size, R\_Hat
-denotes a measure of chain equilibrium must be within 0.05 of 1.0.
+\begin{tabular}[t]{l|r|r|r|r|r|r|r}
+\hline
+variable & mean & median & sd & mad & q5 & q95 & rhat\\
+\hline
+$\theta_{logkw}$ & 3.05 & 3.05 & 0.19 & 0.19 & 2.74 & 3.36 & 1.00\\
+\hline
+$\theta_{S1}$ & 3.67 & 3.67 & 0.16 & 0.16 & 3.40 & 3.94 & 1.00\\
+\hline
+$\theta_{dlogkw}$ & -0.35 & -0.35 & 0.12 & 0.12 & -0.55 & -0.15 & 1.00\\
+\hline
+$\theta_{dS1}$ & 0.30 & 0.30 & 0.09 & 0.09 & 0.16 & 0.45 & 1.00\\
+\hline
+$\beta_{logkw}$ & 0.86 & 0.86 & 0.05 & 0.06 & 0.77 & 0.95 & 1.00\\
+\hline
+$\beta_{S1}$ & 0.62 & 0.62 & 0.05 & 0.05 & 0.54 & 0.70 & 1.00\\
+\hline
+$\theta_{S2}$ & 2.90 & 2.90 & 0.03 & 0.03 & 2.85 & 2.95 & 1.02\\
+\hline
+$\omega_{logkw}$ & 1.41 & 1.41 & 0.04 & 0.04 & 1.35 & 1.47 & 1.00\\
+\hline
+$\omega_{S1}$ & 1.13 & 1.13 & 0.03 & 0.03 & 1.08 & 1.18 & 1.00\\
+\hline
+$\rho_{1,2}$ & 0.88 & 0.88 & 0.01 & 0.01 & 0.87 & 0.90 & 1.00\\
+\hline
+$\sigma$ & 0.05 & 0.05 & 0.00 & 0.00 & 0.05 & 0.05 & 1.00\\
+\hline
+$\alpha$ & 0.71 & 0.71 & 0.04 & 0.04 & 0.64 & 0.77 & 1.00\\
+\hline
+$\kappa1_{logkw}$ & 0.15 & 0.14 & 0.02 & 0.02 & 0.11 & 0.18 & 1.01\\
+\hline
+$\kappa1_{S1}$ & 0.13 & 0.13 & 0.02 & 0.02 & 0.10 & 0.17 & 1.01\\
+\hline
+$\kappa2_{logkw}$ & 0.34 & 0.33 & 0.06 & 0.06 & 0.23 & 0.44 & 1.00\\
+\hline
+$\kappa2_{S1}$ & 0.19 & 0.18 & 0.07 & 0.07 & 0.08 & 0.30 & 1.01\\
+\hline
+\end{tabular}
 
-\begin{verbatim}
-  variable  mean median   sd  mad    q5   q95 rhat ess_bulk ess_tail
- logkwHat   3.05   3.05 0.19 0.19  2.74  3.36 1.00     2926     3497
- S1Hat      3.67   3.67 0.16 0.16  3.40  3.94 1.00     2598     3029
- dlogkwHat -0.35  -0.35 0.12 0.12 -0.55 -0.15 1.00     4163     3537
- dS1Hat     0.30   0.30 0.09 0.09  0.16  0.45 1.00     3403     3506
- beta[1]    0.86   0.86 0.05 0.06  0.77  0.95 1.00     3235     3620
- beta[2]    0.62   0.62 0.05 0.05  0.54  0.70 1.00     3131     3035
- S2Hat      2.90   2.90 0.03 0.03  2.85  2.95 1.02      430      935
- omega[1]   1.41   1.41 0.04 0.04  1.35  1.47 1.00     2650     2471
- omega[2]   1.13   1.13 0.03 0.03  1.08  1.18 1.00     2317     3017
- rho[1,2]   0.88   0.88 0.01 0.01  0.87  0.90 1.00     1933     2928
- sigma      0.05   0.05 0.00 0.00  0.05  0.05 1.00     1880     2927
- alpha      0.71   0.71 0.04 0.04  0.64  0.77 1.00     5245     3475
- sdpi[1]    0.15   0.14 0.02 0.02  0.11  0.18 1.01      655     1162
- sdpi[2]    0.13   0.13 0.02 0.02  0.10  0.17 1.01      641     1372
- sdpi[3]    0.34   0.33 0.06 0.06  0.23  0.44 1.00     2816     3270
- sdpi[4]    0.19   0.18 0.07 0.07  0.08  0.30 1.01      939      779
-\end{verbatim}
+mean denotes the posterior mean; median denotes the posterior median, sd
+denotes the posterior standard deviation; mad denotes the median
+absolute deviation; q5 denotes the 5th percentile of the posterior
+draws; q95 denotes the 95th percentile of the posterior draws; rhat
+denotes the Gelman--Rubin convergence diagnostic. Values close to 1.0
+indicate that the MCMC chains have mixed and converged well.
 
 \newpage{}
 
@@ -235,7 +269,7 @@ effects}\label{figure-s2.-functional-group-effects}}
 A summary of the marginal posterior distributions of the functional
 group effects. Red represents the effect of dissociated functional
 groups, and green represents the effect of non-dissociated functional
-groups. The lest common functional groups (\textless=10 across all
+groups. The least common functional groups (\textless=10 across all
 analytes) are presented. The plot for the remaining functional groups is
 presented in Figure 2.
 

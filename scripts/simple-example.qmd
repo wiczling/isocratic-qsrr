@@ -1,0 +1,350 @@
+---
+title: "Example illustrating model application"
+author:
+  - name: "Paweł Wiczling*"
+    affiliations:
+      - name: "Department of Biopharmaceutics and Pharmacodynamics, Medical University of Gdańsk, Gen. J. Hallera 107, 80-416 Gdańsk, Poland"
+date: "`r format(Sys.Date())`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: true  
+    code-tools: true
+    fig-width: 7
+    fig-height: 7
+knitr:
+  opts_chunk: 
+    dev: "ragg_png"
+bibliography: references.bib
+csl: analytical-chemistry.csl
+---
+
+
+# Introductions
+
+A step-by-step demonstration of the application of the developed model. Two case studies are presented. In the first, imipramine and ribitol retention factors are predicted based on desipramine measurements, allowing assessment of the predictive contribution of structural similarity, which is relevant for imipramine (similar) but not for ribitol (dissimilar). In the second case study, imipramine and ribitol retention factors are predicted based on desipramine measurements together with a single ribitol and imipramine measurement. This analysis evaluates the additional predictive value provided by incorporating an individual experimental measurement. 
+
+# Setup
+```{r setup, message=FALSE}
+knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
+suppressWarnings(library(dplyr))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library(patchwork))
+suppressWarnings(library(naniar))
+suppressWarnings(library(knitr))
+suppressWarnings(library(data.table))
+suppressWarnings(library(tidyverse))
+suppressWarnings(library(whisker))
+suppressWarnings(library(here))
+suppressWarnings(library(cmdstanr))
+suppressWarnings(library(pracma))
+suppressWarnings(library(posterior))
+suppressWarnings(library(bayesplot))
+suppressWarnings(library(tidybayes))
+suppressWarnings(library(reshape2))
+set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
+set.seed(10271998)
+select<-dplyr::select
+source("helper-functions.R")
+```
+
+## Load data
+
+You can also run the functional-groups-rdkit-test.qmd document to generate all the required data starting from the SMILES inputs. Below, the inputs for desipramine, ribitol, and imipramine are shown as examples, selected from the original dataset of 1,026 analytes.
+
+```{r load-data, message=FALSE, warning=FALSE}
+data_deliv_dir = here::here("data","deliv")
+data <- read.csv(here(data_deliv_dir, "database_logk_1026.csv"), header = TRUE)
+
+analytes_names  <- read.csv(here(data_deliv_dir,"database_logk_1026_analyte_names.csv"), header = TRUE)
+analytes_names$Analyte <- iconv(analytes_names$Analyte, from = "", to = "UTF-8", sub = "byte")
+analytes_names$Analyte <- str_wrap(analytes_names$Analyte, width = 20)
+analytes_names$Analyte[analytes_names$Analyte == "2-(2,4,5-trichlorophenoxyl)-N-propionyl-L-alanine"] = "2-(2,4,5-trichlorophenoxyl)-\nN-propionyl-L-alanine"
+
+smiles <- read.csv(here(data_deliv_dir,"smiles1026.smi"), sep = "\t", header = FALSE)
+smiles<-smiles %>% rename(ID=V2,smiles=V1) %>% select(ID,smiles)
+smiles$smiles[905] = "CN(C1CCCCC1N1CCCC1)C(=O)Cc1ccc(c(c1)Cl)Cl" # remove tartrate moiety 
+smiles$smiles[425] = "CC(Cc1ccc(cc1)OCC(=O)O)NCC(c1cccc(c1)Cl)O" # remove Na+ and dissociation
+smiles$smiles[501] = "c1ccc(cc1)C1(c2ccccc2)C(=O)NC(=N1)O"
+smiles$smiles[401]= "CC(C)(C)c1c(CC(C(=O)[OH])[NH2])c(=O)[nH]o1"
+smiles$smiles[686] = "CCCCCCCCCCCCCCCC(=O)OC(CC(=O)[OH])C[N+](C)(C)C"
+smiles$smiles[901] = "CCOC(=Nc1c[n+](no1)N1CCOCC1)[OH]"
+
+functional_groups = read.csv(file = here(data_deliv_dir,"smarts_functional_groups.csv"), header = TRUE) %>%
+  select(where(~ is.character(.) || !all(. == 0, na.rm = TRUE))) %>%
+  select(-c(id1,id2, SMILES, Anion, Kation, Ammonium))
+
+descriptor_df <- read.csv(file = here(data_deliv_dir,"descriptor_df.csv"), header = TRUE)
+
+similarity_matrix <- read.csv(file = here(data_deliv_dir,"similarity_ltri_rcdk.csv"), header = TRUE) %>%make_similarity_matrix_fun()
+
+idx = c(14,521,887);
+functional_groups = functional_groups[idx,]
+descriptor_df=descriptor_df[idx,]
+
+analytes_names = analytes_names[idx,]
+similarity_matrix = similarity_matrix[idx,idx]
+smiles= smiles[idx,]%>%
+  mutate(ID = match(ID, unique(ID)))
+analytes_names = analytes_names %>%
+  mutate(ID = match(ID, unique(ID))) %>%
+  mutate(Analyte = str_remove_all(Analyte, "\nhydrochloride"))
+data=data %>% filter(ID%in%idx) %>%
+  mutate(ID = match(ID, unique(ID)))%>%
+  left_join(analytes_names)
+```
+
+
+```{r print}
+analytes_names
+smiles
+data
+similarity_matrix
+descriptor_df
+functional_groups%>%
+  select(where(~ is.character(.) || !all(. == 0, na.rm = TRUE)))
+```
+
+# Stan
+# Initialize variables and parameters
+```{r stan-setup}
+nObs <- length(data$ID)
+nAnalytes <- length(unique(data$ID))
+start <- (1:nObs)[!duplicated(data$ID)]
+end <- c(start[-1] - 1, nObs)
+nK = ncol(functional_groups)
+
+init_aprox <- data %>%
+  group_by(ID) %>%
+  summarise(
+    S1 = if_else(n() == 1,-16,polyfit(fi / (1 + 2 * fi), logk, 1)[1]),
+    logkw = if_else(n() == 1,polyfit(-16 * fi / (1 + 2 * fi), logk, 0), 
+                             polyfit(fi / (1 + 2 * fi), logk, 1)[2]),
+    S2 = 2) %>%
+  ungroup() %>%
+  select(logkw, S2, S1) %>%
+  mutate(S1 = -S1 / (1 + 2))
+
+idxcv = which(data$ID==3) # imipramine
+
+datastruct <- with(data,
+                  list(nAnalytes=length(unique(data$ID)),
+                       nObs=length(data$ID),
+                       analyte=match(data$ID, unique(data$ID)),
+                       fi=data$fi,
+                       logPobs=descriptor_df$LogP,
+                       nK = nK,
+                       fgrp = functional_groups,
+                       similarity_x = similarity_matrix,
+                       start = start,
+                       end= end,
+                       nObscv = length(idxcv),
+                       idxcv = idxcv,
+                       logkobs=logk,
+                       run_estimation=1))
+
+# initialize the values for each variable in each chain:
+init <- function(){
+  list(param = cbind(init_aprox$logkw,init_aprox$S1),
+       pilogkw = rep(0,nK),
+       piS1 = rep(0,nK)
+  )
+}
+```
+
+# Compile
+```{r compile}
+model_name <- "mod50_test"
+model_name_ext <- paste0(model_name,".stan")
+
+#' folder shortcuts:
+mod_model_dir   <- here::here("model", "stan", model_name)
+mod_output_dir   <- here::here("model", "stan", model_name, "output")
+if (!file.exists(mod_model_dir)) dir.create(mod_model_dir)
+if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
+
+mod50_test <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
+```
+
+# Optimization
+```{r stan-optimize, eval = FALSE}
+fit_opt <- mod50_test$optimize(
+  data = datastruct,
+  output_dir = mod_output_dir,
+  output_basename = "mod50_test-opt",
+  init = init,
+  iter=3000
+)
+fit_opt$print(variables = c("param"), max_rows=13)
+```
+
+```{r plots-optimize}
+fit_opt <- cmdstanr::as_cmdstan_fit(c(paste0(mod_output_dir,"/",  model_name, "-opt-1.csv")))
+
+p1<-data %>%
+  mutate(logkopt=fit_opt$mle("logkx"))%>%
+  ggplot(aes(x=fi, y=logk)) + 
+  geom_point() +
+  geom_line(aes(x=fi, y=logkopt)) + 
+  geom_point(data = data[idxcv,], aes(x=fi, y=logk), color="red") + 
+  xlim(0,1)+
+  facet_wrap(~Analyte) +
+  labs(x = "\u03C6", y = expression(logk)) + 
+  theme_gray(base_size = 14) + 
+  theme(legend.position="none", 
+        axis.text =element_text(size = 8),
+        strip.text =element_text(size = 8))
+
+p1
+```
+# MCMC Sampling
+```{r stan-sample}
+ fit <- mod50_test$sample(
+   data = datastruct,
+   output_dir = mod_output_dir,
+   output_basename = "mod50_test-loc",
+   init = init,
+   iter_warmup = 1000,
+   iter_sampling = 1000,
+   chains = 4,
+   parallel_chains = 4,
+   refresh = 500,
+   adapt_delta=0.9
+ )
+```
+
+# Quick check
+
+"param" contain individual logkw and S values for ribitol, desipramine and imipramine.
+```{r check, include=TRUE}
+fit$cmdstan_diagnose()
+bayesplot::mcmc_trace(fit$draws(c("param"))) 
+fit$print(variables = c("param"))
+```
+
+# Case study 1:
+
+QSRR and similarity matrix for imipramine and ribitol. The data for desipramine used for predictions.
+
+The green area represents population predictions for future observations based solely on population-level parameters and predictors, without any individual-level data. The purple area represents individual predictions, conditional additionally on the retention measurements presented in red. All observation are presented as closed white symbols.
+
+```{r predictions1}
+p <- fit$draws()%>% 
+  as_draws_df()%>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(param[i,..],param_pop[i,..]) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(ind = param.1-param.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  mutate(pop = param_pop.1-param_pop.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  select("ID","Analyte",".chain",".iteration",".draw","fi","pop","ind") %>%
+    pivot_longer(cols = c(pop,ind),
+                 names_to = "type",
+                 values_to = "logk") %>%
+  ggplot(aes(x = fi, y=logk, color = type, fill = type)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = data%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "white",size = 2, stroke = 0.8) + 
+ geom_point(data = data[idxcv,]%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "red",size = 2, stroke = 0.8) + 
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))+
+  scale_color_manual(
+    values = c(
+      pop = "#1b9e77",   # green
+      ind = "#7570b3",   # purple
+      obs = "black"      # black
+    ))+
+  scale_fill_manual(
+    values = c(
+      pop = "#1b9e77",   # green fill
+      ind = "#7570b3",   # purple fill
+      obs = "white"      # not used
+    ))
+
+print(p)
+```
+# Case study 2:
+
+QSRR, similarity and single observation for imipramine and ribitol. The data for desipramine used for predictions.
+
+```{r predictions2}
+idxcv = c(4,11,13:16)
+datastruct$idxcv = idxcv
+datastruct$nObscv = length(idxcv)
+
+ fit <- mod50_test$sample(
+   data = datastruct,
+   init = init,
+   iter_warmup = 1000,
+   iter_sampling = 1000,
+   chains = 4,
+   parallel_chains = 4,
+   refresh = 500,
+   adapt_delta=0.9
+ )
+
+p <- fit$draws()%>% 
+  as_draws_df()%>%
+  slice_sample(n=1000) %>%
+  tidybayes::spread_draws(param[i,..],param_pop[i,..]) %>%
+  rename(ID=i) %>%
+  left_join(analytes_names) %>%
+  tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
+  mutate(ind = param.1-param.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  mutate(pop = param_pop.1-param_pop.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  select("ID","Analyte",".chain",".iteration",".draw","fi","pop","ind") %>%
+    pivot_longer(cols = c(pop,ind),
+                 names_to = "type",
+                 values_to = "logk") %>%
+  ggplot(aes(x = fi, y=logk, color = type, fill = type)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = data%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "white",size = 2, stroke = 0.8) + 
+ geom_point(data = data[idxcv,]%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "red",size = 2, stroke = 0.8) + 
+  facet_wrap(~Analyte)+
+  labs(x="\u03C6", y="logk") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))+
+  scale_color_manual(
+    values = c(
+      pop = "#1b9e77",   # green
+      ind = "#7570b3",   # purple
+      obs = "black"      # black
+    ))+
+  scale_fill_manual(
+    values = c(
+      pop = "#1b9e77",   # green fill
+      ind = "#7570b3",   # purple fill
+      obs = "white"      # not used
+    ))
+
+print(p)
+```
+
+# Conclusions
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+# Licenses {.unnumbered}
+
+-   Code & copy; 2025, Paweł Wiczling, licensed under BSD-3.
+-   Text & copy; 2025, Paweł Wiczling, licensed under CC-BY-NC 4.0.
+
+# Original Computing Environment {.unnumbered}
+
+```{r}
+sessionInfo()
+```

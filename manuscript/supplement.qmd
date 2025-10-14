@@ -46,14 +46,13 @@ knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, ech
 library(dplyr)
 library(kableExtra)
 library(cmdstanr)
+options(knitr.table.format = "latex")
 ```
 
 
 {{< pagebreak >}}
 
 # Table S1. Summary of the MCMC simulations of the marginal posterior distributions of population-level parameters
-
-Mean denotes sample mean, MCSE denotes Monte Carlo Standard Error, StdDev denotes sample standard deviation, 5%, 50%, 95% denote corresponding quantiles, N_Eff denotes effective sample size, R_Hat denotes a measure of chain equilibrium must be within 0.05 of 1.0.
 
 ```{r}
 fit <- cmdstanr::as_cmdstan_fit(c(
@@ -66,8 +65,40 @@ fit <- cmdstanr::as_cmdstan_fit(c(
                                   '../model/stan/mod50/output/mod50-7.csv',
                                   '../model/stan/mod50/output/mod50-8.csv'
                                 ))
-fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=16)
+#fit$print(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi"), max_rows=16)
+
+
+label_map <- c(
+  "logkwHat"  = "$\\theta_{logkw}$",
+  "S1Hat"     = "$\\theta_{S1}$",
+  "dlogkwHat" = "$\\theta_{dlogkw}$",
+  "dS1Hat"    = "$\\theta_{dS1}$",
+  "beta[1]"   = "$\\beta_{logkw}$",
+  "beta[2]"   = "$\\beta_{S1}$",
+  "S2Hat"     = "$\\theta_{S2}$",
+  "alpha"     = "$\\alpha$",
+  "omega[1]"  = "$\\omega_{logkw}$",
+  "omega[2]"  = "$\\omega_{S1}$",
+  "rho[1,2]"  = "$\\rho_{1,2}$",
+  "sigma"     = "$\\sigma$",
+  "sdpi[1]"   = "$\\kappa1_{logkw}$",
+  "sdpi[2]"   = "$\\kappa1_{S1}$",
+  "sdpi[3]"   = "$\\kappa2_{logkw}$",
+  "sdpi[4]"   = "$\\kappa2_{S1}$"
+)
+
+tab = fit$summary(variables = c("logkwHat","S1Hat","dlogkwHat","dS1Hat","beta","S2Hat","omega","rho[1,2]","sigma","alpha","sdpi")) %>%
+  mutate(variable = label_map[variable])%>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))%>%
+  mutate(across(contains("ess"), ~ round(.x, 0))) %>%
+  select(-ess_bulk, -ess_tail )
+
+#colnames(tab) <- gsub("_", "\\\\_", colnames(tab))
+
+tab%>%
+kableExtra::kbl(escape = FALSE, format="latex")  
 ```
+mean denotes the posterior mean; median denotes the posterior median, sd denotes the posterior standard deviation; mad denotes the median absolute deviation; q5 denotes the 5th percentile of the posterior draws; q95 denotes the 95th percentile of the posterior draws; rhat denotes the Gelman–Rubin convergence diagnostic. Values close to 1.0 indicate that the MCMC chains have mixed and converged well.
 
 {{< pagebreak >}}
 
@@ -80,7 +111,7 @@ The relationship between observed logk and organic modifier content for all the 
 
 # Figure S2. Functional group effects
 
-A summary of the marginal posterior distributions of the functional group effects. Red represents the effect of dissociated functional groups, and green represents the effect of non-dissociated functional groups. The lest common functional groups (<=10 across all analytes) are presented. The plot for the remaining functional groups is presented in Figure 2.
+A summary of the marginal posterior distributions of the functional group effects. Red represents the effect of dissociated functional groups, and green represents the effect of non-dissociated functional groups. The least common functional groups (<=10 across all analytes) are presented. The plot for the remaining functional groups is presented in Figure 2.
 
 ![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf){ width=80% }
 {{< pagebreak >}}
