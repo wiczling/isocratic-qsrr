@@ -21,28 +21,13 @@ knitr:
 # Setup
 
 ```{r setup, message=FALSE}
-library(cmdstanr)
 library(ggplot2)
-library(gridExtra)
 library(patchwork)
-library(rstan)
-library(tidyr)
 library(dplyr)
-library(posterior)
-library(bayesplot)
-library(GGally)
-library(reshape2)
 library(pracma)
 library(here)
 library(MASS)
 library(Matrix)
-library(cmdstanr)
-library(posterior)
-library(bayesplot)
-library(tidybayes)
-library(reshape2)
-library(mniw)
-set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
 source("helper-functions.R")
 set.seed(123) 
 knitr::opts_chunk$set(cache=FALSE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
@@ -73,6 +58,39 @@ similarity_matrix <- make_similarity_matrix_fun(similarity_ltri_rcdk_df)
 ```
 
 # Matri normal distribution
+
+Simulations from the Matrix Normal Distribution
+$$
+\begin{bmatrix}
+\text{log}k_{w1} & S_1 \\
+\text{log}k_{w2} & S_2
+\end{bmatrix}
+\sim
+\mathcal{MN}
+\left(
+\begin{bmatrix}
+0 & 0 \\
+0 & 0
+\end{bmatrix},
+\begin{bmatrix}
+1 & 0.9 \\
+0.9 & 1
+\end{bmatrix},
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0.75 \\
+0.75 & 1
+\end{bmatrix}
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\right)
+$$
+
 ```{r simulate-from-normal-matrix-noncentered}
 #' non centered
 # Set parameters
@@ -92,14 +110,14 @@ L_rho2 <- t(chol(rho2))
 pred_two_analytes <- function(n) {
   eta <- matrix(rnorm(2 * n, 0, 1), nrow = n)
   f <- L_rho1 %*% eta %*% t(diag(c(2, 2)) %*% L_rho2)
-  return(c(f[1, 1], f[1, 2], f[2, 1]))
+  return(c(f[1, 1], f[1, 2], f[2, 1], f[2, 2]))
 }
 
 # Simulate data
 sim_data <- replicate(num_sim, pred_two_analytes(n)) %>%
   t() %>%
   as.data.frame() %>%
-  setNames(c("logkw1", "S1", "logkw2"))
+  setNames(c("logkw1", "S1", "logkw2", "S2"))
 
 # Calculate statistics
 stats <- sim_data %>%
@@ -119,22 +137,57 @@ cat(sprintf("Simulated sd_logkw1 = %.2f: true = 2.0\n", stats$sd_logkw1),
     sprintf("Simulated rho_logkw1_logkw2 = %.2f: true = 0.90\n", stats$rho_logkw1_logkw2))
 
 # Create scatter plots
-plot1 <- ggplot(sim_data, aes(x = logkw1, y = S1)) +
-  geom_point(alpha = 0.5) +
-  theme_minimal() +
-  labs(title = "logkw1 vs S1", x = "logkw1", y = "S1")
 
-plot2 <- ggplot(sim_data, aes(x = logkw1, y = logkw2)) +
+plot1 <- ggplot(sim_data, aes(y = logkw1, x = logkw2)) +
   geom_point(alpha = 0.5) +
   theme_minimal() +
-  labs(title = "logkw1 vs logkw2", x = "logkw1", y = "logkw2")
+  labs( y = "logkw1", x = "logkw2")
+
+plot2 <- ggplot(sim_data, aes(y = logkw1, x = S1)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs( y = "logkw1", x = "S1")
+
+plot3 <- ggplot(sim_data, aes(y = logkw2, x = S2)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs( y = "logkw2", x = "S2")
+
+plot4 <- ggplot(sim_data, aes(y = S1, x = S2)) +
+  geom_point(alpha = 0.5) +
+  theme_minimal() +
+  labs( y = "S1", x = "S2")
 
 # Display plots
-print(plot1+plot2)
+print((plot1+plot2)/(plot3+plot4))
 ```
 
-# Matrix-t distriution 
-```{r matrix-t-distribution}
+<!-- # Matrix-t distriution  -->
+```{r matrix-t-distribution, eval=FALSE}
+library(cmdstanr)
+library(ggplot2)
+library(gridExtra)
+library(patchwork)
+library(rstan)
+library(tidyr)
+library(dplyr)
+library(posterior)
+library(bayesplot)
+library(GGally)
+library(reshape2)
+library(pracma)
+library(here)
+library(MASS)
+library(Matrix)
+library(cmdstanr)
+library(posterior)
+library(bayesplot)
+library(tidybayes)
+library(reshape2)
+library(mniw)
+set_cmdstan_path("C:/Users/GUMed/.cmdstan/cmdstan-2.36.0")
+
+
 # Define parameters
 N <- 5
 K <- 2

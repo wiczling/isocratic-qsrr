@@ -156,6 +156,16 @@ dissociation$nA0 <- length(dissociation$idxA0)
 dissociation$nB0 <- length(dissociation$idxB0)
 ```
 
+
+# Summary of the data
+
+1.  Number of analytes: `r length(unique(data$ID))`
+2.  Number of observations: `r length(data$ID)`
+3.  Molecular mass: `r round(mean(descriptor_df$MolWt),2)` $\pm$ `r round(sd(descriptor_df$MolWt),2)`
+3.  logP: `r round(mean(descriptor_df$LogP),2)` $\pm$ `r round(sd(descriptor_df$LogP),2)`
+4.  Number of analytes with 0, 1 and 2 dissociation steps: `r tabulate(as.factor(dissociation$R))`
+5.  Number of acidic and basic groups: `r round(length(dissociation$pKaslitA),2)` and `r round(length(dissociation$pKaslitB),2)`
+
 # Some plots
 ## Raw data
 ```{r raw-data, message=FALSE, warning=FALSE}
@@ -164,6 +174,7 @@ figure_S1 <- ggplot(data, aes(x=fi, y=logk, group=ID)) +
   labs(x = "\u03C6", y = expression(logk[obs])) + 
   theme_gray(base_size = 14) + theme(legend.position="none") 
 ```
+
 ## pH changes
 
 The pH value of the mobile phase was verified experimentally for the purpose of this work. It equaled 2.66 with a standard deviation of 0.19 for the range of acetonitrile contents from 5 to 95%.
