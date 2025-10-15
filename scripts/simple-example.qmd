@@ -23,7 +23,12 @@ csl: analytical-chemistry.csl
 
 # Introductions
 
-A step-by-step demonstration of the application of the developed model. Two case studies are presented. In the first, imipramine and ribitol retention factors are predicted based on desipramine measurements, allowing assessment of the predictive contribution of structural similarity, which is relevant for imipramine (similar) but not for ribitol (dissimilar). In the second case study, imipramine and ribitol retention factors are predicted based on desipramine measurements together with a single ribitol and imipramine measurement. This analysis evaluates the additional predictive value provided by incorporating an individual experimental measurement. 
+A step-by-step demonstration of the developed model’s application is provided through three case studies.
+-In the first case study, the retention factors of imipramine and ribitol are predicted based on desipramine measurements, allowing assessment of the predictive contribution of structural similarity—relevant for imipramine (structurally similar) but not for ribitol (structurally dissimilar).
+-In the second case study, the same prediction is performed using desipramine measurements supplemented with a single experimental measurement for ribitol and imipramine.
+-In the third case study, the similarity matrix is excluded from the predictions.
+
+This series of analyses evaluates the additional predictive value gained from incorporating individual experimental measurements and the similarity matrix.
 
 # Setup
 ```{r setup, message=FALSE}
@@ -51,7 +56,7 @@ source("helper-functions.R")
 
 ## Load data
 
-You can also run the functional-groups-rdkit-test.qmd document to generate all the required data starting from the SMILES inputs. Below, the inputs for desipramine, ribitol, and imipramine are shown as examples, selected from the original dataset of 1,026 analytes.
+You can also run the functional-groups-rdkit-test.qmd document to generate all the required data starting from the SMILES inputs. Below, the inputs for desipramine, ribitol, and imipramine were selected from the input derive for 1,026 analytes.
 
 ```{r load-data, message=FALSE, warning=FALSE}
 data_deliv_dir = here::here("data","deliv")
@@ -168,7 +173,7 @@ mod50_test <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_opt
 ```
 
 # Optimization
-```{r stan-optimize, eval = FALSE}
+```{r stan-optimize}
 fit_opt <- mod50_test$optimize(
   data = datastruct,
   output_dir = mod_output_dir,
@@ -276,7 +281,7 @@ print(p)
 QSRR, similarity and single observation for imipramine and ribitol. The data for desipramine used for predictions.
 
 ```{r predictions2}
-idxcv = c(4,11,13:16)
+idxcv = c(3,11,13:16)
 datastruct$idxcv = idxcv
 datastruct$nObscv = length(idxcv)
 
@@ -337,7 +342,7 @@ print(p)
 
 # Case study 3:
 
-Case 2 but similarity is now ignored.
+Case study 2 but similarity is now ignored.
 
 ```{r predictions3}
 
