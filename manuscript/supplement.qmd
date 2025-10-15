@@ -102,6 +102,8 @@ mean denotes the posterior mean; median denotes the posterior median, sd denotes
 
 {{< pagebreak >}}
 
+
+
 # Figure S1. Raw data  
 
 The relationship between observed logk and organic modifier content for all the analytes.
@@ -109,18 +111,48 @@ The relationship between observed logk and organic modifier content for all the 
 ![](../deliv/figures/manuscript/supplement/raw-data.png)
 {{< pagebreak >}}
 
-# Figure S2. Functional group effects
+# Figure S2. Matrix Normal Distribution
+
+Simulations from the Matrix Normal Distribution with row correlations of 0.9 and column correlation of 0.75.
+$$
+\begin{bmatrix}
+\text{log}k_{w1} & S_1 \\
+\text{log}k_{w2} & S_2
+\end{bmatrix}
+\sim
+\mathcal{MN}
+\left(
+\begin{bmatrix}
+0 & 0 \\
+0 & 0
+\end{bmatrix},
+\begin{bmatrix}
+1 & 0.9 \\
+0.9 & 1
+\end{bmatrix},
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0.75 \\
+0.75 & 1
+\end{bmatrix}
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\right)
+$$
+
+![](../deliv/figures/manuscript/supplement/matrix-normal.png)
+{{< pagebreak >}}
+
+# Figure S3. Functional group effects
 
 A summary of the marginal posterior distributions of the functional group effects. Red represents the effect of dissociated functional groups, and green represents the effect of non-dissociated functional groups. The least common functional groups (<=10 across all analytes) are presented. The plot for the remaining functional groups is presented in Figure 2.
 
 ![](../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf){ width=80% }
-{{< pagebreak >}}
-
-# Figure S3. Goodness of fit plots (GOF)
-
-Observed vs. population and individual predictions:
-
-![](../deliv/figures/manuscript/supplement/gof.pdf)
 {{< pagebreak >}}
 
 # Figure S4. Individual parameters, R~i~
@@ -144,6 +176,13 @@ $$
 \end{aligned}
 $$
 ![](../deliv/figures/manuscript/supplement/eta.pdf)
+{{< pagebreak >}}
+
+# Figure S6. Goodness of fit plots (GOF)
+
+Observed vs. population and individual predictions:
+
+![](../deliv/figures/manuscript/supplement/gof.pdf)
 {{< pagebreak >}}
 
 # Licenses {.unnumbered}

@@ -76,20 +76,6 @@
 \def\fps@figure{htbp}
 \makeatother
 
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 \usepackage[noblocks]{authblk}
 \renewcommand*{\Authsep}{, }
 \renewcommand*{\Authand}{, }
@@ -187,10 +173,10 @@ Similarity of Analytes}
                   80-416 Gdańsk, Poland
               }
       
-\date{2025-10-10}
+\date{2025-10-15}
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, enhanced, breakable, frame hidden, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, interior hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, sharp corners, interior hidden, breakable, enhanced, frame hidden, borderline west={3pt}{0pt}{shadecolor}]}{\end{tcolorbox}}\fi
 
 \renewcommand*\contentsname{Table of contents}
 {
@@ -262,9 +248,49 @@ all the analytes.
 
 \newpage{}
 
-\hypertarget{figure-s2.-functional-group-effects}{%
-\section{Figure S2. Functional group
-effects}\label{figure-s2.-functional-group-effects}}
+\hypertarget{figure-s2.-matrix-normal-distribution}{%
+\section{Figure S2. Matrix Normal
+Distribution}\label{figure-s2.-matrix-normal-distribution}}
+
+Simulations from the Matrix Normal Distribution with row correlations of
+0.9 and column correlation of 0.75. \[
+\begin{bmatrix}
+\text{log}k_{w1} & S_1 \\
+\text{log}k_{w2} & S_2
+\end{bmatrix}
+\sim
+\mathcal{MN}
+\left(
+\begin{bmatrix}
+0 & 0 \\
+0 & 0
+\end{bmatrix},
+\begin{bmatrix}
+1 & 0.9 \\
+0.9 & 1
+\end{bmatrix},
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0.75 \\
+0.75 & 1
+\end{bmatrix}
+\begin{bmatrix}
+2 & 0 \\
+0 & 2
+\end{bmatrix}
+\right)
+\]
+
+\includegraphics{../deliv/figures/manuscript/supplement/matrix-normal.png}
+
+\newpage{}
+
+\hypertarget{figure-s3.-functional-group-effects}{%
+\section{Figure S3. Functional group
+effects}\label{figure-s3.-functional-group-effects}}
 
 A summary of the marginal posterior distributions of the functional
 group effects. Red represents the effect of dissociated functional
@@ -274,16 +300,6 @@ analytes) are presented. The plot for the remaining functional groups is
 presented in Figure 2.
 
 \includegraphics[width=0.8\textwidth,height=\textheight]{../deliv/figures/manuscript/supplement/parameter-estimates-fg2.pdf}
-
-\newpage{}
-
-\hypertarget{figure-s3.-goodness-of-fit-plots-gof}{%
-\section{Figure S3. Goodness of fit plots
-(GOF)}\label{figure-s3.-goodness-of-fit-plots-gof}}
-
-Observed vs.~population and individual predictions:
-
-\includegraphics{../deliv/figures/manuscript/supplement/gof.pdf}
 
 \newpage{}
 
@@ -311,6 +327,16 @@ analyte's parameter from its expected (population-level) value. \[
 & \eta_{R,i} = R_{i} - (\theta_R  + \beta_R \cdot log P_i +\pi_{R1} \cdot X_{1i}  +\pi_{R2} \cdot X_{2i})\\
 \end{aligned}
 \] \includegraphics{../deliv/figures/manuscript/supplement/eta.pdf}
+
+\newpage{}
+
+\hypertarget{figure-s6.-goodness-of-fit-plots-gof}{%
+\section{Figure S6. Goodness of fit plots
+(GOF)}\label{figure-s6.-goodness-of-fit-plots-gof}}
+
+Observed vs.~population and individual predictions:
+
+\includegraphics{../deliv/figures/manuscript/supplement/gof.pdf}
 
 \newpage{}
 

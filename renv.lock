@@ -1333,6 +1333,23 @@
       ],
       "Hash": "24b224366f9c2e7534d2344d10d59211"
     },
+    "hexbin": {
+      "Package": "hexbin",
+      "Version": "1.28.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "grid",
+        "lattice",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "10a44851f04ff2d0e26b1c84c38d914a"
+    },
     "highr": {
       "Package": "highr",
       "Version": "0.11",
@@ -1599,7 +1616,7 @@
     },
     "magick": {
       "Package": "magick",
-      "Version": "2.8.6",
+      "Version": "2.8.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1608,7 +1625,7 @@
         "curl",
         "magrittr"
       ],
-      "Hash": "c2da2a0418823363acf511164341f830"
+      "Hash": "e95f99b8d7c2ae43603d62fb9b669f07"
     },
     "magrittr": {
       "Package": "magrittr",
@@ -1667,18 +1684,6 @@
         "tools"
       ],
       "Hash": "18e9c28c1d3ca1560ce30658b22ce104"
-    },
-    "mniw": {
-      "Package": "mniw",
-      "Version": "1.0.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "Rcpp",
-        "RcppEigen"
-      ],
-      "Hash": "bbedea236c6376be491af36a789b4a88"
     },
     "modelr": {
       "Package": "modelr",
@@ -2827,10 +2832,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.8",
+      "Version": "2.3.10",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "29240487a071f535f5e5d5a323b7afbd"
+      "Hash": "51dab85c6c98e50a18d7551e9d49f76c"
     }
   }
 }

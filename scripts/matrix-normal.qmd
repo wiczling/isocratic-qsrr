@@ -159,7 +159,8 @@ plot4 <- ggplot(sim_data, aes(y = S1, x = S2)) +
   labs( y = "S1", x = "S2")
 
 # Display plots
-print((plot1+plot2)/(plot3+plot4))
+figure_S2<-((plot1+plot2)/(plot3+plot4))
+figure_S2
 ```
 
 <!-- # Matrix-t distriution  -->
@@ -304,6 +305,13 @@ sd(df2$S)
 sd(df3$S)
 ```
 
+# Manuscript figures
+```{r manuscript-figures}
+ggsave(here::here("deliv","figures","manuscript","supplement ", "matrix-normal.png"),
+       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "matrix-normal.pdf"),
+       plot=figure_S2, width = 20, height = 20, units = "cm", dpi = 300)
+```
  
 ```{r info}
 sessionInfo()
