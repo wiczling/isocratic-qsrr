@@ -291,12 +291,15 @@ datastruct$nObscv = length(idxcv)
    adapt_delta=0.9
  )
 
-p <- fit$draws()%>% 
+temp_dat_2 <- fit$draws()%>% 
   as_draws_df()%>%
   slice_sample(n=1000) %>%
   tidybayes::spread_draws(param[i,..],param_pop[i,..]) %>%
   rename(ID=i) %>%
-  left_join(analytes_names) %>%
+  left_join(analytes_names)
+
+
+p <- temp_dat_2 %>%
   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
   mutate(ind = param.1-param.2*(1+2.90)*fi/(1+2.90*fi)) %>%
   mutate(pop = param_pop.1-param_pop.2*(1+2.90)*fi/(1+2.90*fi)) %>%
@@ -334,7 +337,7 @@ print(p)
 
 # Case study 3:
 
-QSRR, similarity and single observation for imipramine and ribitol. The data for desipramine used for predictions. Similarity is now ignored.
+Case 2 but similarity is now ignored.
 
 ```{r predictions3}
 
@@ -351,12 +354,14 @@ datastruct$similarity_x = diag(3)
    adapt_delta=0.9
  )
 
-p <- fit$draws()%>% 
+ temp_dat_3 <- fit$draws()%>% 
   as_draws_df()%>%
   slice_sample(n=1000) %>%
   tidybayes::spread_draws(param[i,..],param_pop[i,..]) %>%
   rename(ID=i) %>%
-  left_join(analytes_names) %>%
+  left_join(analytes_names)
+ 
+p <- temp_dat_3 %>%
   tidyr::expand_grid(fi = seq(0,1,0.1)) %>%
   mutate(ind = param.1-param.2*(1+2.90)*fi/(1+2.90*fi)) %>%
   mutate(pop = param_pop.1-param_pop.2*(1+2.90)*fi/(1+2.90*fi)) %>%
@@ -390,6 +395,94 @@ p <- fit$draws()%>%
     ))
 
 print(p)
+```
+# Comparison
+
+The green area represents individual prediction given the model and experimental data shown in red and assuming no structural similarity. The purple area includes similarity matrix in predictions. The available observations are presented as closed white symbols.
+
+```{r compare}
+temp_dat_4 <- temp_dat_2
+temp_dat_4$`param_ns.1` = temp_dat_3$`param.1`
+temp_dat_4$`param_ns.2` = temp_dat_3$`param.2`
+
+p1 <- temp_dat_4 %>%
+  tidyr::expand_grid(fi = seq(0,1,0.01)) %>%
+  mutate(ind_s = param.1-param.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  mutate(ind_ns = param_ns.1-param_ns.2*(1+2.90)*fi/(1+2.90*fi)) %>%
+  select("ID","Analyte",".chain",".iteration",".draw","fi","ind_s","ind_ns") %>%
+    pivot_longer(cols = c(ind_s,ind_ns),
+                 names_to = "type",
+                 values_to = "logk") %>%
+  ggplot(aes(x = fi, y=logk, color = type, fill = type)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = data%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "white",size = 2, stroke = 0.8) + 
+ geom_point(data = data[idxcv,]%>%mutate(type="obs"),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "red",size = 2, stroke = 0.8) + 
+  facet_wrap(~Analyte, ncol = 1)+
+  labs(x="\u03C6", y="logk") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(-1,2))+
+  scale_color_manual(
+    values = c(
+      ind_ns = "#1b9e77",   # green
+      ind_s = "#7570b3",   # purple
+      obs = "black"      # black
+    ))+
+  scale_fill_manual(
+    values = c(
+      ind_ns = "#1b9e77",   # green fill
+      ind_s = "#7570b3",   # purple fill
+      obs = "white"      # not used
+    ))
+
+print(p1)
+
+
+p2 <- temp_dat_4 %>%
+  tidyr::expand_grid(fi = seq(0,1,0.01)) %>%
+  mutate(ind_s = 10^(param.1-param.2*(1+2.90)*fi/(1+2.90*fi))) %>%
+  mutate(ind_ns = 10^(param_ns.1-param_ns.2*(1+2.90)*fi/(1+2.90*fi))) %>%
+  select("ID","Analyte",".chain",".iteration",".draw","fi","ind_s","ind_ns") %>%
+    pivot_longer(cols = c(ind_s,ind_ns),
+                 names_to = "type",
+                 values_to = "logk") %>%
+  ggplot(aes(x = fi, y=logk, color = type, fill = type)) +
+  ggdist::stat_lineribbon(.width = c(.90), alpha = 1/2) +
+  geom_point(data = data%>%mutate(type="obs", logk = 10^logk),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "white",size = 2, stroke = 0.8) + 
+ geom_point(data = data[idxcv,]%>%mutate(type="obs", logk = 10^logk),aes(x=fi, y=logk, color=type), 
+                                                   shape = 21,  
+                                                   fill = "red",size = 2, stroke = 0.8) + 
+  facet_wrap(~Analyte, ncol = 1)+
+  labs(x="\u03C6", y="k") +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim=c(0,1),ylim=c(0,50))+
+  scale_color_manual(
+    values = c(
+      ind_ns = "#1b9e77",   # green
+      ind_s = "#7570b3",   # purple
+      obs = "black"      # black
+    ))+
+  scale_fill_manual(
+    values = c(
+      ind_ns = "#1b9e77",   # green fill
+      ind_s = "#7570b3",   # purple fill
+      obs = "white"      # not used
+    ))
+
+figure_S8<-(p1+p2)
+figure_S8
+```
+# Manuscript figures
+```{r manuscript-figures}
+ggsave(here::here("deliv","figures","manuscript","supplement", "compare2.png"),
+       plot=figure_S8, width = 20, height = 20, units = "cm", dpi = 300)
+ggsave(here::here("deliv","figures","manuscript","supplement", "compare2.pdf"),
+       plot=figure_S8, width = 20, height = 20, units = "cm", dpi = 300)
 ```
 
 # Conclusions

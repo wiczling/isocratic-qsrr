@@ -185,10 +185,18 @@ Observed vs. population and individual predictions:
 ![](../deliv/figures/manuscript/supplement/gof.pdf)
 {{< pagebreak >}}
 
+
+# Figure S7. Example illustrating model application
+
+The green area represents individual prediction given the model and experimental data shown in red and assuming no structural similarity. The purple area includes similarity matrix in predictions. The available observations are presented as closed white symbols. Both the logk and k are shown for comparison.
+
+![](../deliv/figures/manuscript/supplement/compare2.pdf)
+{{< pagebreak >}}
+
 # Licenses {.unnumbered}
 
--   Code & copy; 2023, Paweł Wiczling, licensed under BSD-3.
--   Text & copy; 2023, Paweł Wiczling, licensed under CC-BY-NC 4.0.
+-   Code & copy; 2025, Paweł Wiczling, licensed under BSD-3.
+-   Text & copy; 2025, Paweł Wiczling, licensed under CC-BY-NC 4.0.
 
 # Original Computing Environment {.unnumbered}
 
