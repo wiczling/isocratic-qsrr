@@ -20,17 +20,18 @@ bibliography: references.bib
 csl: analytical-chemistry.csl
 ---
 
+# Introduction
 
-# Introductions
+A step-by-step demonstration of the developed model is provided through three case studies, designed to progressively evaluate the predictive value of key model components.
 
-A step-by-step demonstration of the developed model’s application is provided through three case studies.
--In the first case study, the retention factors of imipramine and ribitol are predicted based on desipramine measurements, allowing assessment of the predictive contribution of structural similarity—relevant for imipramine (structurally similar) but not for ribitol (structurally dissimilar).
--In the second case study, the same prediction is performed using desipramine measurements supplemented with a single experimental measurement for ribitol and imipramine.
--In the third case study, the similarity matrix is excluded from the predictions.
+1.  Prediction based on structural similarity: The retention factors for imipramine (structurally similar) and ribitol (structurally dissimilar) are predicted using measurements from desipramine using the developed model. This assesses how effectively the model leverages structural similarity for prediction, as imipramine's retention factor is expected to be more accurately predicted than ribitol's.
 
-This series of analyses evaluates the additional predictive value gained from incorporating individual experimental measurements and the similarity matrix.
+2.  Assessment of individual measurements: The previous prediction is repeated, but with an additional single experimental measurement provided for both imipramine and ribitol. This evaluates the added predictive value of incorporating individual experimental data.
+
+3.  Removal of the similarity matrix: Predictions are performed again, but this time with the similarity matrix excluded from the model. This quantifies the specific contribution of the structural similarity data to the predictive accuracy.
 
 # Setup
+
 ```{r setup, message=FALSE}
 knitr::opts_chunk$set(cache=TRUE, message=FALSE, error=FALSE, warning=FALSE, comment=NA, out.width='95%')
 suppressWarnings(library(dplyr))
@@ -56,7 +57,7 @@ source("helper-functions.R")
 
 ## Load data
 
-You can also run the functional-groups-rdkit-test.qmd document to generate all the required data starting from the SMILES inputs. Below, the inputs for desipramine, ribitol, and imipramine were selected from the input derive for 1,026 analytes.
+The `functional-groups-rdkit-test.qmd` document can be used to generate all necessary data from SMILES inputs. For this analysis, the inputs for desipramine, ribitol, and imipramine were selected from the larger dataset of 1,026 analytes used in the original analysis.
 
 ```{r load-data, message=FALSE, warning=FALSE}
 data_deliv_dir = here::here("data","deliv")
@@ -100,7 +101,6 @@ data=data %>% filter(ID%in%idx) %>%
   left_join(analytes_names)
 ```
 
-
 ```{r print}
 analytes_names
 smiles
@@ -112,7 +112,9 @@ functional_groups%>%
 ```
 
 # Stan
+
 # Initialize variables and parameters
+
 ```{r stan-setup}
 nObs <- length(data$ID)
 nAnalytes <- length(unique(data$ID))
@@ -159,6 +161,7 @@ init <- function(){
 ```
 
 # Compile
+
 ```{r compile}
 model_name <- "mod50_test"
 model_name_ext <- paste0(model_name,".stan")
@@ -172,7 +175,16 @@ if (!file.exists(mod_output_dir)) dir.create(mod_output_dir)
 mod50_test <- cmdstan_model(here::here(mod_model_dir, model_name_ext), stanc_options = list("O1"))
 ```
 
+The Stan model was configured to estimate only individual-level parameters. This is justified by the high precision of the population-level parameter estimates, which allows them to be treated as fixed. The reduced number of parameters significantly decreases the model's run time.
+
+```{r stancode}
+writeLines(readLines("../model/stan/mod50_test/mod50_test.stan"))
+```
+
 # Optimization
+
+The optimization to quickly check the model:
+
 ```{r stan-optimize}
 fit_opt <- mod50_test$optimize(
   data = datastruct,
@@ -203,7 +215,9 @@ p1<-data %>%
 
 p1
 ```
+
 # MCMC Sampling
+
 ```{r stan-sample}
  fit <- mod50_test$sample(
    data = datastruct,
@@ -219,9 +233,10 @@ p1
  )
 ```
 
-# Quick check
+# Quick check for chain convergence
 
-"param" contain individual logkw and S values for ribitol, desipramine and imipramine.
+"param" contain individual logkw and S values (columns) for ribitol, desipramine and imipramine (rows).
+
 ```{r check, include=TRUE}
 fit$cmdstan_diagnose()
 bayesplot::mcmc_trace(fit$draws(c("param"))) 
@@ -401,9 +416,10 @@ p <- temp_dat_3 %>%
 
 print(p)
 ```
+
 # Comparison
 
-The green area represents individual prediction given the model and experimental data shown in red and assuming no structural similarity. The purple area includes similarity matrix in predictions. The available observations are presented as closed white symbols.
+The green area represents individual prediction given the model and experimental data shown in red and assuming no structural similarity. The purple area represent prediction with similarity matrix included in the predictions. The available observations are presented as closed white symbols.
 
 ```{r compare}
 temp_dat_4 <- temp_dat_2
@@ -482,7 +498,9 @@ p2 <- temp_dat_4 %>%
 figure_S8<-(p1+p2)
 figure_S8
 ```
+
 # Manuscript figures
+
 ```{r manuscript-figures}
 ggsave(here::here("deliv","figures","manuscript","supplement", "compare2.png"),
        plot=figure_S8, width = 20, height = 20, units = "cm", dpi = 300)
@@ -491,6 +509,8 @@ ggsave(here::here("deliv","figures","manuscript","supplement", "compare2.pdf"),
 ```
 
 # Conclusions
+
+This demo demonstrate the possible application of the proposed model.
 
 # References {.unnumbered}
 
